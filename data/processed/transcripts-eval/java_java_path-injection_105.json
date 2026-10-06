@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01330.java (lines 58-58)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Dave Wichers\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/pathtraver-01/BenchmarkTest01330\")\npublic class BenchmarkTest01330 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EsYCCqQBCBIYAipAcPfBMdBvkoaD5z0B6fEqnNXr52xQJGh43+oYgXZ0GTu6H7KivNbSFzIfX24uOMkPhDpbpM4YkOGgIg/Ex8BJUjIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBuuST1gYSDOC1xCeSz6xmYZgy3BoMV457fvTVzW4Kh+hxIjBQLi1vPg4BM1c6rG7k9VFnoz3mb/mxvk9nDMOHTq6Sd75A/BSz2q2pR4d3BLVGlPEqT3KMEkrI34CphJn2dbj17tZ9WNxG32rEUikFgVHTkTLBH5xcP+Gpdi/ZRF8NTo5odf9cHx7mD3S2N5H1No3hRmsNTXt0PxvV1Veyb5px6XkYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01BurE7qRBYS6JiuPBHbvn22",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01330.java",
+          "start_line": 39,
+          "end_line": 120
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01BurE7qRBYS6JiuPBHbvn22",
+        "content": "    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        java.util.Map<String, String[]> map = request.getParameterMap();\n        String param = \"\";\n        if (!map.isEmpty()) {\n            String[] values = map.get(\"BenchmarkTest01330\");\n            if (values != null) param = values[0];\n        }\n\n        String bar = new Test().doSomething(request, param);\n\n        String fileName = null;\n        java.io.FileOutputStream fos = null;\n\n        try {\n            fileName = org.owasp.benchmark.helpers.Utils.TESTFILES_DIR + bar;\n\n            fos = new java.io.FileOutputStream(new java.io.File(fileName));\n            response.getWriter()\n                    .println(\n                            \"Now ready to write to file: \"\n                                    + org.owasp.esapi.ESAPI.encoder().encodeForHTML(fileName));\n\n        } catch (Exception e) {\n            System.out.println(\"Couldn't open FileOutputStream on file: '\" + fileName + \"'\");\n            //\t\t\tSystem.out.println(\"File exception caught and swallowed: \" + e.getMessage());\n        } finally {\n            if (fos != null) {\n                try {\n                    fos.close();\n                    fos = null;\n                } catch (Exception e) {\n                    // we tried...\n                }\n            }\n        }\n    } // end doPost\n\n    private class Test {\n\n        public String doSomething(HttpServletRequest request, String param)\n                throws ServletException, IOException {\n\n            String bar;\n\n            // Simple if statement that assigns param to bar on true condition\n            int num = 196;\n            if ((500 / 42) + num > 200) bar = param;\n            else bar = \"This should never happen\";\n\n            return bar;\n        }\n    } // end innerclass Test\n} // end DataflowThruInnerClass"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "This is a classic OWASP Benchmark path traversal test case: tainted parameter flows directly to FileOutputStream without any sanitization.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01UTsoaUQWPcMU8y3gCXYnwp",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The request parameter \"BenchmarkTest01330\" is read from request.getParameterMap(), passed through a trivial inner-class method (Test.doSomething) that always returns the tainted value unmodified (the condition (500/42)+196>200 is always true), concatenated with a constant directory path, and used directly to construct a java.io.File / FileOutputStream. There is no validation, canonicalization, or allow-listing of the value before it reaches the file system sink, so an attacker-controlled value can include path traversal sequences (e.g., ../../) to write files outside the intended directory. This matches the known OWASP Benchmark path-injection test pattern and is a true positive.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

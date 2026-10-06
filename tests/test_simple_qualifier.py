@@ -97,3 +97,16 @@ def test_simple_qualifier_reports_technical_error_on_api_failure():
     assert result.verdict == "uncertain"
     # L'appel a bien ete tente (et consomme le budget), meme s'il a echoue.
     assert budget.calls_made == 1
+
+
+def test_simple_qualifier_handles_truncated_response_without_crashing():
+    # parsed_output est None quand la reponse a ete coupee avant la fin du
+    # JSON (cas reel rencontre avec max_tokens trop petit).
+    client = _FakeClient(_FakeResponse(parsed_output=None))
+    budget = CallBudget(max_calls=5)
+    qualifier = SimpleQualifier(client=client, model="claude-sonnet-5", budget=budget)
+
+    result = qualifier.qualify(_alert(), "...")
+
+    assert result.technical_status == "error"
+    assert result.verdict == "uncertain"

@@ -1,0 +1,59 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/command-line-injection\nCodeQL message: This command line depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00015.java (lines 68-68)\n\nCode:\n```\n/**\n * OWASP Benchmark v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Dave Wichers\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/cmdi-00/BenchmarkTest00015\")\npublic class BenchmarkTest00015 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "id": "toolu_01K24VedZhepqz7tBdbnGXY4",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00015.java",
+          "start_line": 39,
+          "end_line": 120
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01K24VedZhepqz7tBdbnGXY4",
+        "content": "    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        // some code\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        String param = \"\";\n        java.util.Enumeration<String> headers = request.getHeaders(\"BenchmarkTest00015\");\n\n        if (headers != null && headers.hasMoreElements()) {\n            param = headers.nextElement(); // just grab first element\n        }\n\n        // URL Decode the header value since req.getHeaders() doesn't. Unlike req.getParameters().\n        param = java.net.URLDecoder.decode(param, \"UTF-8\");\n\n        java.util.List<String> argList = new java.util.ArrayList<String>();\n\n        String osName = System.getProperty(\"os.name\");\n        if (osName.indexOf(\"Windows\") != -1) {\n            argList.add(\"cmd.exe\");\n            argList.add(\"/c\");\n        } else {\n            argList.add(\"sh\");\n            argList.add(\"-c\");\n        }\n        argList.add(\"echo \" + param);\n\n        ProcessBuilder pb = new ProcessBuilder();\n\n        pb.command(argList);\n\n        try {\n            Process p = pb.start();\n            org.owasp.benchmark.helpers.Utils.printOSCommandResults(p, response);\n        } catch (IOException e) {\n            System.out.println(\n                    \"Problem executing cmdi - java.lang.ProcessBuilder(java.util.List) Test Case\");\n            throw new ServletException(e);\n        }\n    }\n}"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "This is a clear command injection: header value flows into ProcessBuilder command without sanitization.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01NksSXnc87E8UpG3rsLEsoy",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The value of the \"BenchmarkTest00015\" HTTP header is read directly from the request, URL-decoded, and concatenated into a shell command string (\"echo \" + param) which is then passed to ProcessBuilder and executed via pb.start(). There is no validation, allow-listing, or escaping of the header value before it is used to build the OS command, so an attacker can inject arbitrary shell commands (e.g. via `; rm -rf /` or similar) through the header. This matches the classic OWASP Benchmark command injection pattern and is a genuine true positive.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

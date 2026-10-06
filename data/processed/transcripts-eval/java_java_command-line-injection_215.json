@@ -1,0 +1,66 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/command-line-injection\nCodeQL message: This command line depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00310.java (lines 85-85)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Nick Sanidas\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/cmdi-00/BenchmarkTest00310\")\npublic class BenchmarkTest00310 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EtECCqQBCBIYAipAOfpz46pEUIy7+W+AfKgh5xr7Rk8Ef6aXKuzAonzUcemKr84iGgdSyEcwJbYYvW6nE4H0VtOwGfQRD+1T31j1LDIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBseWT1gYSDP0NcsgbqM7DgH8GXBoMl1sjO06cfSSRf4dSIjC2GPMDgGyTcsILFG7jgCyRDMbIw718v9+5H6t2p3zXjfQxmYRjkY+S/RYV+nR8AWQqWux6tW53uKoXBZAMYU6y4cUMJP1O3ocODT5m9BXYjaR1I5nrkMblxqol+YbLCl+cLS1K6rh7LQfpqAHwwoWy4x4l+BROB6/b1hnHMFQ5dYiwSLlO69CurPf09hgB",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_012CXQ29YS7pdKXF1p5rRoi9",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00310.java",
+          "start_line": 35,
+          "end_line": 120
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_012CXQ29YS7pdKXF1p5rRoi9",
+        "content": "        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        String param = \"\";\n        java.util.Enumeration<String> headers = request.getHeaders(\"BenchmarkTest00310\");\n\n        if (headers != null && headers.hasMoreElements()) {\n            param = headers.nextElement(); // just grab first element\n        }\n\n        // URL Decode the header value since req.getHeaders() doesn't. Unlike req.getParameters().\n        param = java.net.URLDecoder.decode(param, \"UTF-8\");\n\n        String bar;\n        String guess = \"ABC\";\n        char switchTarget = guess.charAt(1); // condition 'B', which is safe\n\n        // Simple case statement that assigns param to bar on conditions 'A', 'C', or 'D'\n        switch (switchTarget) {\n            case 'A':\n                bar = param;\n                break;\n            case 'B':\n                bar = \"bob\";\n                break;\n            case 'C':\n            case 'D':\n                bar = param;\n                break;\n            default:\n                bar = \"bob's your uncle\";\n                break;\n        }\n\n        String cmd = \"\";\n        String osName = System.getProperty(\"os.name\");\n        if (osName.indexOf(\"Windows\") != -1) {\n            cmd = org.owasp.benchmark.helpers.Utils.getOSCommandString(\"echo\");\n        }\n\n        String[] argsEnv = {\"Foo=bar\"};\n        Runtime r = Runtime.getRuntime();\n\n        try {\n            Process p =\n                    r.exec(cmd + bar, argsEnv, new java.io.File(System.getProperty(\"user.dir\")));\n            org.owasp.benchmark.helpers.Utils.printOSCommandResults(p, response);\n        } catch (IOException e) {\n            System.out.println(\"Problem executing cmdi - TestCase\");\n            response.getWriter()\n                    .println(org.owasp.esapi.ESAPI.encoder().encodeForHTML(e.getMessage()));\n            return;\n        }\n    }\n}"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "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",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01E3u8sV37aXjy2KTrfUQciv",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "false_positive",
+          "justification": "The tainted value `param` (from the HTTP header, URL-decoded) is only assigned to `bar` in the 'A', 'C', or 'D' branches of the switch statement. However, `switchTarget` is derived from a hardcoded literal string `guess = \"ABC\"` via `guess.charAt(1)`, which always evaluates to the constant 'B'. The 'B' case always executes and sets `bar = \"bob\"`, a hardcoded safe string. The branches that would propagate the tainted `param` value into `bar` (and subsequently into `cmd + bar` passed to `Runtime.exec`) are unreachable dead code given this constant switch target. Therefore, despite the apparent data-flow path CodeQL identified, the tainted value can never actually reach the `Runtime.exec` sink at runtime, making this a false positive.",
+          "missing_information": [
+            "Confirmation that CodeQL's taint-tracking analysis for this rule does not perform constant-folding/dead-code elimination on the switch statement, which is consistent with the general over-approximation behavior of static analysis tools on this classic OWASP Benchmark test pattern."
+          ]
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

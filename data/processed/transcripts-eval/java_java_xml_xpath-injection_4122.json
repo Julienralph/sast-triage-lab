@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/xml/xpath-injection\nCodeQL message: XPath expression depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00207.java (lines 75-75)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Nick Sanidas\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/xpathi-00/BenchmarkTest00207\")\npublic class BenchmarkTest00207 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErsCCqQBCBIYAipAnYa5LFrO4YNS5gEra+bZN77V6ksLSTf889gnqeQQTqn9OfQ4b41fq/d3HJ7f/UDqoKOCFmk3tq37duqRGq7BWzIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBvuWT1gYSDDAu60pOjYuKvFbQNBoM63Nvs7+oNQSTaNPVIjBpriUryYH8xuIGHBknf5aNfky3zlZJLPQU3Cvty9CdPwFalDsUuC9HLmQodicYh2oqRKrTXpgoH1WyX8L3RUukb6NOGKMfHNM64VYpny95n7zZFLHTA/yP0XjmEC5bsCLahNDuBWM8fKdB73aX+SCVXLlU1SbHGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_016J7BKuC61ooMeF8XCGZqKc",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00207.java",
+          "start_line": 40,
+          "end_line": 120
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_016J7BKuC61ooMeF8XCGZqKc",
+        "content": "            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        String param = \"\";\n        if (request.getHeader(\"BenchmarkTest00207\") != null) {\n            param = request.getHeader(\"BenchmarkTest00207\");\n        }\n\n        // URL Decode the header value since req.getHeader() doesn't. Unlike req.getParameter().\n        param = java.net.URLDecoder.decode(param, \"UTF-8\");\n\n        String bar = \"\";\n        if (param != null) {\n            bar =\n                    new String(\n                            org.apache.commons.codec.binary.Base64.decodeBase64(\n                                    org.apache.commons.codec.binary.Base64.encodeBase64(\n                                            param.getBytes())));\n        }\n\n        try {\n            java.io.FileInputStream file =\n                    new java.io.FileInputStream(\n                            org.owasp.benchmark.helpers.Utils.getFileFromClasspath(\n                                    \"employees.xml\", this.getClass().getClassLoader()));\n            javax.xml.parsers.DocumentBuilderFactory builderFactory =\n                    javax.xml.parsers.DocumentBuilderFactory.newInstance();\n            // Prevent XXE\n            builderFactory.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true);\n            javax.xml.parsers.DocumentBuilder builder = builderFactory.newDocumentBuilder();\n            org.w3c.dom.Document xmlDocument = builder.parse(file);\n            javax.xml.xpath.XPathFactory xpf = javax.xml.xpath.XPathFactory.newInstance();\n            javax.xml.xpath.XPath xp = xpf.newXPath();\n\n            String expression = \"/Employees/Employee[@emplid='\" + bar + \"']\";\n            String result = xp.evaluate(expression, xmlDocument);\n\n            response.getWriter().println(\"Your query results are: \" + result + \"<br/>\");\n\n        } catch (javax.xml.xpath.XPathExpressionException\n                | javax.xml.parsers.ParserConfigurationException\n                | org.xml.sax.SAXException e) {\n            response.getWriter()\n                    .println(\n                            \"Error parsing XPath input: '\"\n                                    + org.owasp.esapi.ESAPI.encoder().encodeForHTML(bar)\n                                    + \"'\");\n            throw new ServletException(e);\n        }\n    }\n}"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "This is a standard Benchmark test case with XPath injection via tainted header value `bar`, concatenated directly into an XPath expression with no sanitization (Base64 encode/decode is a no-op, not a sanitizer).",
+        "type": "text"
+      },
+      {
+        "id": "toolu_0135i4ECndt9We4MMLF5SsP9",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The value from request header \"BenchmarkTest00207\" is URL-decoded, then passed through Base64 encode+decode (a round-trip that is a no-op and not a sanitizer), and the resulting string 'bar' is directly concatenated into an XPath expression string \"/Employees/Employee[@emplid='\" + bar + \"']\" which is then evaluated via XPath.evaluate(). There is no escaping or validation of special XPath characters (like quotes), so a user-controlled header value can break out of the quoted literal and inject arbitrary XPath syntax, leading to XPath injection.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

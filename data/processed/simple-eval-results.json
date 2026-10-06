@@ -1,0 +1,837 @@
+[
+  {
+    "alert_id": "java:java/path-injection:101",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User-supplied parameter 'BenchmarkTest01238' flows through the inner class (list manipulation doesn't sanitize it, just reorders values) and is concatenated directly into a file path used to create a FileOutputStream, with no path traversal validation applied.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 3613.8792000128888,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1988,
+      "output": 181
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:104",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User-controlled parameter 'bar' flows unsanitized through the inner class into the file path construction used to create a java.io.File, allowing path traversal since no validation or canonicalization is performed on the tainted value.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2100.1664999639615,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2236,
+      "output": 95
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:105",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User-controlled parameter 'BenchmarkTest01330' flows unsanitized through the inner Test class into fileName, which is then used directly in FileOutputStream construction, allowing path traversal to write to arbitrary files.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2164.320400042925,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1981,
+      "output": 101
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:107",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User-controlled parameter name (matched against request parameter names/values) flows through thing.doSomething(param) into a File constructor used as a path, with no sanitization or canonicalization against path traversal before being used to construct fileTarget. This is the classic OWASP Benchmark path traversal pattern.",
+    "references": [],
+    "missing_information": [
+      "Implementation of ThingFactory.createThing() and ThingInterface.doSomething(), which could theoretically sanitize the input, though in OWASP Benchmark these are typically pass-through."
+    ],
+    "technical_status": "success",
+    "duration_ms": 3194.4765000371262,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1999,
+      "output": 186
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:106",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User-controlled request parameter flows unsanitized through the inner class's list manipulation (which doesn't filter or validate the value) into 'bar', which is concatenated into a file path and used to open a FileOutputStream, allowing path traversal/injection.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 3142.98849995248,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2041,
+      "output": 217
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:109",
+    "language": "java",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "The switch statement's target is hardcoded via `guess.charAt(1)` which always evaluates to 'B', so execution always takes the 'B' case assigning bar = \"bob\" rather than the tainted `param`. Therefore the user-controlled parameter never reaches the FileInputStream constructor, making the path construction not actually dependent on user input despite the data flow graph suggesting otherwise.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 4472.821100032888,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2283,
+      "output": 334
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:11",
+    "language": "java",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "The switchTarget variable is hard-coded to 'B' (guess.charAt(1)), so the switch statement will always execute the 'B' case, assigning the constant \"bob\" to bar rather than the tainted param value. The branches that would use the user-controlled param (cases 'A', 'C', 'D') are unreachable given this fixed condition, so the tainted data never actually reaches the File constructor.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 8966.843600035645,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1901,
+      "output": 739
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:111",
+    "language": "java",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "Although param (tainted) is stored in the map under key 'keyB-58007', the method actually returns the value retrieved via 'keyA-58007', which is the hardcoded safe string 'a_Value'. Thus the tainted value is never actually used to construct the file path, breaking the dataflow to the Path/Files.newInputStream sink.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 3807.7721999725327,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2381,
+      "output": 259
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:200",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User-controlled header value 'param' is URL-decoded and directly concatenated into a shell command string passed to 'sh -c' / 'cmd.exe /c', with no sanitization or escaping, allowing command injection.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2079.350300016813,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1830,
+      "output": 98
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:201",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The HTTP header value 'param' is taken directly from user-controlled request headers, URL-decoded, and concatenated into a shell command string passed to 'sh -c' or 'cmd.exe /c' without any sanitization, allowing command injection.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2032.334300049115,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1860,
+      "output": 107
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:202",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User-controlled header value 'param' is URL-decoded and directly concatenated into a command string passed to Runtime.exec() without any sanitization or validation, allowing command injection.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2025.3407999989577,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1827,
+      "output": 84
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:203",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The cookie value 'BenchmarkTest00077' is user-controlled, decoded, and assigned to 'bar' via the switch statement (switchTarget is always 'C' since guess=\"ABC\"), then concatenated into a shell command executed via ProcessBuilder with sh -c, allowing command injection.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2170.2909999876283,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2313,
+      "output": 130
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:204",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The 'param' variable is derived directly from a user-controlled cookie value, decoded via URLDecoder, then passed through a list manipulation that doesn't sanitize it (just reorders/extracts the same tainted value as 'bar'), and finally concatenated into a command executed via Runtime.exec. There is no actual validation or sanitization breaking the taint flow from the cookie to the command execution.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2617.9421999840997,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2269,
+      "output": 156
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:206",
+    "language": "java",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "Although 'bar' is briefly assigned the tainted header value from the map, it is immediately overwritten by map40534.get(\"keyA-40534\") which returns the hardcoded safe string \"a_Value\" before being used in the command execution, so the tainted data never reaches the exec call.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 3560.6523000169545,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2158,
+      "output": 221
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:214",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The header value 'param' is user-controlled, URL-decoded, placed into a list, and retrieved as 'bar' without any sanitization (list manipulation does not alter or filter the value). It is then concatenated into a command string passed to Runtime.exec, allowing command injection.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2085.9691000077873,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1990,
+      "output": 116
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:215",
+    "language": "java",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "The switch always evaluates switchTarget = \"ABC\".charAt(1) = 'B', which is a hardcoded constant, so execution always takes the 'B' case which sets bar = \"bob\" — the tainted 'param' value is never actually assigned to bar at runtime, so it never reaches the Runtime.exec sink.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 3687.372900021728,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2056,
+      "output": 257
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4122",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User-controlled header value flows through URL decoding and a no-op Base64 encode/decode (which does not sanitize) into an XPath expression built via string concatenation, allowing XPath injection (e.g., using quotes to break out of the attribute filter).",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2453.030199976638,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2215,
+      "output": 108
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4123",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User-controlled parameter 'bar' (derived directly from request parameter without sanitization) is concatenated directly into an XPath expression string, which is then evaluated, allowing XPath injection.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2087.0433999807574,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2096,
+      "output": 89
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4124",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The 'param' value comes directly from a user-supplied request parameter name, is passed through thing.doSomething() (a benign pass-through in OWASP Benchmark helpers), and then concatenated directly into an XPath expression without escaping, allowing XPath injection.",
+    "references": [],
+    "missing_information": [
+      "Implementation of ThingFactory.createThing() and doSomething() to confirm no sanitization occurs there, though in OWASP Benchmark these are typically no-ops or simple passthroughs."
+    ],
+    "technical_status": "success",
+    "duration_ms": 3070.097199990414,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2252,
+      "output": 177
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4127",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The tainted header value 'param' flows through Test.doSomething (switch case 'C' since guess.charAt(2)=='C') unmodified into 'bar', which is then concatenated directly into an XPath expression without sanitization or escaping, allowing XPath injection.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2333.054999995511,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2582,
+      "output": 114
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4121",
+    "language": "java",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "Although the tainted cookie value is stored in map51005 under 'keyB-51005', the variable 'bar' used in the XPath expression is reassigned to map51005.get(\"keyA-51005\"), which is the constant \"a_Value\", not the tainted value. Thus the dangerous sink uses a hardcoded safe string, breaking the taint flow.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 3929.875500034541,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2766,
+      "output": 248
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4125",
+    "language": "java",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "Although the tainted parameter is stored in the map, the code reassigns 'bar' to map47458.get(\"keyA-47458\") right before use, which is a hardcoded safe value, not the tainted \"keyB-47458\" entry; thus the value actually used in the XPath expression is not user-controlled.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 4053.3762999693863,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2557,
+      "output": 286
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4126",
+    "language": "java",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "The switch statement always evaluates switchTarget='B' (guess.charAt(1) of \"ABC\"), which deterministically assigns bar=\"bob\" and never executes the case that would assign the tainted param value. Thus the XPath expression built from bar is never actually derived from user input in this code path.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 4052.468499983661,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2710,
+      "output": 284
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4132",
+    "language": "java",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "The switch statement's target is always the constant 'B' (guess.charAt(1) where guess=\"ABC\"), so execution always takes the case 'B' branch, setting bar=\"bob\" and never assigning the tainted param value. Thus the tainted data never actually reaches the XPath expression construction despite the apparent dataflow.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 4177.939299959689,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2531,
+      "output": 334
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:105",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User input from request.args ('BenchmarkTest00662') flows unsanitized into 'bar', which is directly concatenated into the file path used in open(), allowing path traversal (e.g., '../../etc/passwd') to read arbitrary files.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2455.1350999972783,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1594,
+      "output": 107
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:107",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User-controlled parameter 'bar' (from request.args) is directly concatenated into a file path and passed to open() without any sanitization or validation against path traversal sequences like '../', allowing an attacker to read arbitrary files outside TESTFILES_DIR.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 1963.9907999662682,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1552,
+      "output": 112
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:109",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The 'guess' variable is hardcoded to 'A' (possible[0]), so bar is always set to the tainted 'param' from request.args, which flows unsanitized into codecs.open() to build a file path, allowing path traversal.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2085.6695999973454,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1521,
+      "output": 102
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:111",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The 'bar' variable is derived directly from user-controlled request parameter 'BenchmarkTest00739' (via param) without sanitization, and is then concatenated into a file path used in codecs.open(), allowing path traversal to read arbitrary files on the filesystem.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2425.5156999570318,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1617,
+      "output": 115
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:106",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The code builds a file path directly from user-controlled input (bar) and opens it with no robust sanitization — only a naive substring check for the literal string '../' is performed, which is a blacklist approach that can be bypassed (e.g., using alternative encodings, redundant slashes, or absolute paths depending on filesystem semantics) and does not canonicalize or validate against the intended base directory. This allows path traversal to read arbitrary files.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 16374.656400003005,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1563,
+      "output": 1290
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:108",
+    "language": "python",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "The variable 'guess' is deterministically set to possible[1] = 'B' since possible = 'ABC', so the match statement will always take the 'B' case, assigning bar = 'bob' (a constant), never reaching the 'A' or 'C'/'D' cases where tainted param would be used. Thus the path to open() never actually receives user-controlled input in this code's execution, despite CodeQL's static taint tracking flagging the dataflow due to not evaluating the match condition.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 5036.287299997639,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1568,
+      "output": 377
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:110",
+    "language": "python",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "guess is hardcoded as possible[1] which is always 'B', so the match statement always takes the 'B' case setting bar='bob'; the tainted param is never assigned to bar despite CodeQL's conservative taint tracking through the match statement.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 3807.305999973323,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1521,
+      "output": 252
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:112",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User-controlled 'bar' is concatenated directly into a file path and opened; the only guard is a naive substring check for '../', which can be bypassed with alternate traversal sequences (e.g., Windows-style '..\\\\', or absolute paths combined with directory tricks) and does not canonicalize the path or verify it stays within TESTFILES_DIR. This is not a robust sanitizer, so the path injection flow from request.args to open() remains exploitable.",
+    "references": [],
+    "missing_information": [
+      "Whether the underlying OS/filesystem treats '..\\\\' or other separators as traversal, which would bypass the current check",
+      "Whether TESTFILES_DIR enforcement or additional path normalization occurs elsewhere in helpers.utils"
+    ],
+    "technical_status": "success",
+    "duration_ms": 13897.943699965253,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1621,
+      "output": 1123
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/command-line-injection:152",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User input from request.form is passed through a list manipulation that doesn't sanitize it, then directly interpolated into a shell command string executed via 'sh -c', allowing command injection (e.g., using ; or $() in the parameter).",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 1949.954500014428,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1493,
+      "output": 100
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/command-line-injection:153",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User-controlled form parameter 'bar' is directly interpolated into a shell command string passed to subprocess.run with shell=True, allowing command injection via shell metacharacters (e.g., ;, |, `` ` ``) without any sanitization.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2332.2367999935523,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1533,
+      "output": 107
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/command-line-injection:154",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User-supplied 'param' from request.form flows into 'bar' (since the constant check always takes the else branch) and is concatenated directly into a shell command string executed via subprocess.run with shell=True, allowing command injection.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2209.7816999885254,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1504,
+      "output": 98
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/command-line-injection:155",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The 'guess' is hardcoded to 'A' (possible[0]), so bar is always set to the user-controlled 'param' value, which is then concatenated into a shell command string and executed via subprocess.run with shell=True, allowing command injection.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2207.7600000193343,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1549,
+      "output": 106
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/command-line-injection:163",
+    "language": "python",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "The condition `7 * 42 - num > 200` evaluates to `208 > 200`, which is always true, so `bar` is always set to the constant 'This_should_always_happen' and never to the user-derived `param` value. The command injection sink therefore never receives tainted input in practice.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2898.527199984528,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1502,
+      "output": 242
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/command-line-injection:164",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The value 'bar' is derived from request.path (user-controlled) and is concatenated directly into a shell command string executed via subprocess.run with shell=True, allowing command injection since no sanitization or escaping is performed on the extracted substring.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2014.8252000217326,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1502,
+      "output": 104
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:247",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The 'bar' variable comes directly from a user-controlled cookie value, decoded via urllib, and is inserted unsanitized into an XPath query string that is then compiled and executed with lxml.etree.XPath. There is no validation or escaping of special XPath characters before insertion, making this a classic XPath injection vulnerability.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2578.254599997308,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1643,
+      "output": 134
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:248",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The cookie value 'bar' is taken directly from user-controlled input (request.cookies) without sanitization and is concatenated into an XPath query string, which is then compiled and executed via lxml.etree.XPath. This allows XPath injection, e.g., via a value like ' or '1'='1 to alter query logic.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2334.2337000067346,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1719,
+      "output": 129
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:253",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User input from request.form is assigned to 'bar' (guess is always 'A') and directly concatenated into an XPath query string without sanitization, then executed via root.xpath(query), allowing XPath injection.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 1962.3671000008471,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1595,
+      "output": 93
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:256",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User input from request.form flows unsanitized into 'bar', which is directly concatenated into an XPath query string and executed via root.xpath(query), allowing XPath injection (e.g., via quote characters to alter the query logic).",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2825.441499997396,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1603,
+      "output": 99
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:249",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The 'bar' variable is taken directly from a user-controlled cookie value, URL-decoded, and inserted into an XPath query string via f-string without proper escaping. The only check is a blacklist for apostrophes, which does not prevent other XPath injection techniques (e.g., using 'or', numeric predicates, or functions like contains()), so the sanitization is incomplete and bypassable.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2701.859600027092,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1700,
+      "output": 154
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:250",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The cookie value flows through 'bar' directly into an XPath expression built via f-string and passed to root.xpath(). The only sanitization is a check for apostrophes, which does not prevent XPath injection using other syntax (e.g., boolean predicates, functions, or bracket manipulation), so arbitrary XPath logic can still be injected.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 4912.89409995079,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1721,
+      "output": 348
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:251",
+    "language": "python",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "The condition `7*42-num > 200` evaluates to `208 > 200`, which is always true, so the code always takes the `bar = 'This_should_always_happen'` branch and never assigns the tainted `param` to `bar`; the user-controlled value never reaches the XPath query construction.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 4175.570499966852,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1563,
+      "output": 314
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:252",
+    "language": "python",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "The value used in the XPath query, `bar`, is computed as `\"This_should_always_happen\" if 7*18+num>200 else param` where num=106; since 7*18+106=232>200 is always true, `bar` is always the constant string and never the user-controlled `param`. Thus tainted data never reaches the XPath sink.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 3807.0038000005297,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1552,
+      "output": 220
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  }
+]

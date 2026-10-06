@@ -1,0 +1,66 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/command-line-injection\nCodeQL message: This command line depends on a [user-provided value](1).\nThis command line depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00165.py (lines 57-57)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/cmdi-00/BenchmarkTest00165', methods=['GET'])\n\tdef BenchmarkTest00165_get():\n\t\treturn BenchmarkTest00165_post()\n\n\t@app.route('/benchmark/cmdi-00/BenchmarkTest00165', methods=['POST'])\n\tdef BenchmarkTest00165_post():\n\t\tRESPONSE = \"\"\n\n\t\tparam = request.form.get(\"BenchmarkTest00165\")\n\t\tif not param:\n\t\t\tparam = \"\"\n\n\t\tbar = \"\"\n\t\tif param:\n\t\t\tlst = []\n\t\t\tlst.append('safe')\n\t\t\tlst.append(param)\n\t\t\tlst.append('moresafe')\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "Eq8CCqQBCBIYAipAwuvM6CKcBnq1JPhWxP/9UMiRgLCW1j9gy8Fx6pRCLVJiDBt1GCRbnOr5GjM+PqFycsS0kQHBokW7L+Cy6VLfDTIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBrfCT1gYSDNAXF9dx/mjo52XrqRoMfWV65NwBScO5PkGaIjAIq5ABRmIzlzNZZpKypN9C5QaVdA3j6rS3E9dsAB18KZU2AlWQWMwxdydDV32YepAqOOkRzWB7HsA+wY10KBE0meCCDSojxoaK3k5AuYd+XdTueV/gtU3AwxH2TyCgp4L5DyhK8aDnZZRwGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01CYQEDcKEiBCRY1bXU59tVR",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00165.py",
+          "start_line": 40,
+          "end_line": 90
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01CYQEDcKEiBCRY1bXU59tVR",
+        "content": "\t\t\tlst.append('moresafe')\n\t\t\tlst.pop(0)\n\t\t\tbar = lst[0]\n\n\t\timport os\n\t\timport subprocess\n\t\timport helpers.utils\n\n\t\targList = []\n\t\tif \"Windows\" in os.name:\n\t\t\targList.append(\"cmd.exe\")\n\t\t\targList.append(\"-c\")\n\t\telse:\n\t\t\targList.append(\"sh\")\n\t\t\targList.append(\"-c\")\n\t\targList.append(f\"echo {bar}\")\n\n\t\tproc = subprocess.run(argList, capture_output=True, encoding=\"utf-8\")\n\t\tRESPONSE += (\n\t\t\thelpers.utils.commandOutput(proc)\n\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EvQDCqQBCBIYAipAOXQDoSZKkz36INKIyVyq1ZlnlOI4lpk2cvptYhKv7Hr5k0AUMw09bsLFigQIfahNrslJZ5YzRvu3kuSgOHPhTzIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBr/CT1gYSDM1cZkiW02HpPw7I5hoMVp6vgq4zFccEQVKeIjB90Ey0NvOKi4RVMdAd160uBFjFfXq3XpBRIrT/dpzQUaA7ZkPoY4RTVUeXta9/nTYq/AEdSTHzSxmzVdUofXuVzAt0UZ/dZxNnz89UgfwF59iiKL5fAAc+N46Dhjm9OKJdzBCe8ROE0psFfIQ3JU9LAKsV2CtsKS+YNgH2lHAR9iI16fBUpupj0n50/en8+vbRjYPVjq8DSli54yj6jDhUAYRrHyJi/ujPv2BleutDkAxH5h+4WtVT7o8HDMmkTSO+/VmL8OSrcAuiACCmJ1IuNnIuCvDO1G1/X0uQVuEk7Lw70MznyU1qpDwaeo3LeX1J8Cw23APjdDSxrIeR00YYf9EUH0tTcv4sBb9IBr2h4gJcqufPkVXOhibuoXB6hocHZ46JNAdMzCrtnEovjDoYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01HUVBzjBnHZ5TTD2Lko5Y7m",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The `param` value comes directly from `request.form.get(\"BenchmarkTest00165\")` (user input) with no sanitization applied. The list manipulation (append 'safe', param, 'moresafe', then pop(0)) is a no-op disguise - it removes the first element 'safe', leaving lst = [param, 'moresafe'], so bar = lst[0] = param (the raw user input). This bar is then interpolated directly into a shell command string `f\"echo {bar}\"` which is executed via `subprocess.run([...,\"-c\", cmd], ...)` with shell interpretation (sh -c / cmd.exe -c). Since bar is attacker-controlled and gets passed as part of a shell command string, special characters (e.g., `; rm -rf`, backticks, $()) will be interpreted by the shell, resulting in command injection. No validation, allow-listing, or escaping is performed on param before it reaches the sink.</justification>\n<parameter name=\"missing_information\">[]",
+          "missing_information": [
+            "None - flow from source to sink is fully visible in the provided code"
+          ]
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

@@ -1,0 +1,98 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/command-line-injection\nCodeQL message: This command line depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00166.py (lines 53-53)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/cmdi-00/BenchmarkTest00166', methods=['GET'])\n\tdef BenchmarkTest00166_get():\n\t\treturn BenchmarkTest00166_post()\n\n\t@app.route('/benchmark/cmdi-00/BenchmarkTest00166', methods=['POST'])\n\tdef BenchmarkTest00166_post():\n\t\tRESPONSE = \"\"\n\n\t\tparam = request.form.get(\"BenchmarkTest00166\")\n\t\tif not param:\n\t\t\tparam = \"\"\n\n\t\tmap29039 = {}\n\t\tmap29039['keyA-29039'] = 'a-Value'\n\t\tmap29039['keyB-29039'] = param\n\t\tmap29039['keyC'] = 'another-Value'\n\t\tbar = map29039['keyB-29039']\n\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "Er8CCqQBCBIYAipAL0jAAj8zefxAvP409FhIMKvBIq8Aky3rBeKlxkwyP0lLkr+L1y+dH1Wyv2d2BdRNaHxklxTdjprX5sCmW9cYmzIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBtvCT1gYSDP0EPCwPizVxRRc1EhoMLX8m0Ki8lVZSBEcZIjCe14WHH4uUVoOtDDMW2qYqUtMsji6Air80bhXOeTZRldQSqCs5oQdHy+K7G7rT0GEqSDKuKInAwP420aXffrQSD9yMwGA9yhj3wv5USYOh8rd6RSOeyL/hVSzcwz6YeYc47FKS/KlXBLXK1SBFndBm4e/P63qHfh3koxgB",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01NH28DPPm2YBkKkArGWySfZ",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00166.py",
+          "start_line": 53,
+          "end_line": 90
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01NH28DPPm2YBkKkArGWySfZ",
+        "content": "\t\t\tproc = subprocess.run(argStr, shell=True, capture_output=True, encoding=\"utf-8\")\n\n\t\t\tRESPONSE += (\n\t\t\t\thelpers.utils.commandOutput(proc)\n\t\t\t)\n\t\texcept IOError:\n\t\t\tRESPONSE += (\n\t\t\t\t\"Problem executing cmdi - subprocess.run(list) Test Case\"\n\t\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EuICCqQBCBIYAipAfQfaqOO3j1JPP1jbAkx6E/3magzqlQyOcDysa5TPoYPAn4Bb3WCxKLrhxxmpgr9iCEhSOjnZz+Wps/lmKVFjMjIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBuPCT1gYSDJZLm4dL4NaYYOQDgBoMF3QpzUzK4oGzrxoUIjBYMa69+VkUnw/Jy+MbRDXHK497gTJuo2RlVuoMptTZxKkbvRVPDiNIOlj1JqhsCOYqa49jf/qsURe4mPx6pV49GobAqs/6slcUTfM4viw6j/6Ci9JsKaBevOtfo90mbKaYwy1R/tVv7o2ehPk68G4iBKZcsUCNTlPPVs8XQzSl0sxqFasFGsY6DrX8yOzfXOWuvUMxz0YWCVZ7OmWxGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01K2f1gjNzyHsjAQYTyoWcku",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00166.py",
+          "start_line": 1,
+          "end_line": 53
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01K2f1gjNzyHsjAQYTyoWcku",
+        "content": "'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/cmdi-00/BenchmarkTest00166', methods=['GET'])\n\tdef BenchmarkTest00166_get():\n\t\treturn BenchmarkTest00166_post()\n\n\t@app.route('/benchmark/cmdi-00/BenchmarkTest00166', methods=['POST'])\n\tdef BenchmarkTest00166_post():\n\t\tRESPONSE = \"\"\n\n\t\tparam = request.form.get(\"BenchmarkTest00166\")\n\t\tif not param:\n\t\t\tparam = \"\"\n\n\t\tmap29039 = {}\n\t\tmap29039['keyA-29039'] = 'a-Value'\n\t\tmap29039['keyB-29039'] = param\n\t\tmap29039['keyC'] = 'another-Value'\n\t\tbar = map29039['keyB-29039']\n\n\t\timport platform\n\t\timport subprocess\n\t\timport helpers.utils\n\n\t\targStr = \"\"\n\t\tif platform.system() == \"Windows\":\n\t\t\targStr = \"cmd.exe /c \"\n\t\telse:\n\t\t\targStr = \"sh -c \"\n\t\targStr += f\"echo {bar}\"\n\n\t\ttry:\n\t\t\tproc = subprocess.run(argStr, shell=True, capture_output=True, encoding=\"utf-8\")"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "This confirms a direct, unsanitized flow: user input from `request.form.get(\"BenchmarkTest00166\")` is stored in `bar`, concatenated into a shell command string (`argStr += f\"echo {bar}\"`), and passed to `subprocess.run(argStr, shell=True, ...)`. There is no sanitization, escaping, or validation of `param`/`bar` before it reaches the shell command.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01L5zRyWdEfk7Jz2cAZfQpPF",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "User-controlled input from request.form.get(\"BenchmarkTest00166\") flows unsanitized into `bar`, which is directly interpolated into a shell command string (`argStr += f\"echo {bar}\"`) and executed via `subprocess.run(argStr, shell=True, ...)`. No escaping, allow-listing, or use of a list-based argv (which would avoid shell interpretation) is performed. This is a classic command injection pattern - an attacker can supply a value like `; rm -rf / #` or similar shell metacharacters to execute arbitrary commands.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

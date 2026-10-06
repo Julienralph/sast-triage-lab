@@ -1,0 +1,98 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/xpath-injection\nCodeQL message: XPath expression depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00106.py (lines 46-46)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/xpathi-00/BenchmarkTest00106', methods=['GET'])\n\tdef BenchmarkTest00106_get():\n\t\treturn BenchmarkTest00106_post()\n\n\t@app.route('/benchmark/xpathi-00/BenchmarkTest00106', methods=['POST'])\n\tdef BenchmarkTest00106_post():\n\t\tRESPONSE = \"\"\n\n\t\tparam = request.form.get(\"BenchmarkTest00106\")\n\t\tif not param:\n\t\t\tparam = \"\"\n\n\t\tnum = 106\n\t\t\n\t\tbar = \"This_should_always_happen\" if 7 * 18 + num > 200 else param\n\n\t\timport lxml.etree\n\t\timport helpers.utils\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "Eq8CCqQBCBIYAipAHRFNrp5K+fVPbInBYLyNMfBRVXfnzpysRly5DCttI7k/BXbe1w8NZlYR89gXX6f9Or8LdyMiOalmkU7JtRbnRTIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB5fGT1gYSDJwJJGFahtt3r9sULRoMKkR2CqNYmOXCN6fPIjBWbhICZcxRWfNEfZsatQ7JgE4nZf1ip5x9XKkqKszfA68aoitUjbXg2GAJenrSMjMqOHQwQwnMwGZ7QFa89f8q+yM5b1GGvungDAfn/WttBSlgulgw/vRGRCLkar0OPjqylP2Iq5pAu32HGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_0172j5nS1dZVvhKQdj7r2wyV",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00106.py",
+          "start_line": 46,
+          "end_line": 80
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_0172j5nS1dZVvhKQdj7r2wyV",
+        "content": "\t\t\trun_query = lxml.etree.XPath(query)\n\t\t\tnodes = run_query(root)\n\t\t\tnode_strings = []\n\t\t\tfor node in nodes:\n\t\t\t\tnode_strings.append(' '.join([e.text for e in node]))\n\n\t\t\tRESPONSE += (\n\t\t\t\tf'Your XPATH query results are: <br>[ {', '.join(node_strings)} ]'\n\t\t\t)\n\t\texcept:\n\t\t\tRESPONSE += (\n\t\t\t\tf'Error parsing XPath Query: \\'{escape_for_html(query)}\\''\n\t\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "Er0CCqQBCBIYAipA0eJh7zhmA6Y1o9nCXVw94Qa5uh9mQehhAIlfo4REr0RkiVWZDiXpijZxUS3SxIP+HrFHra9LE0QNOUehgkRZPDIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB5/GT1gYSDMXAPhsKuzMio6KU3BoM7mOmiSLxHTr5YnIxIjD6H3efzXcOqRmByXBqsCowzMwBSHgRcOecbeZv01fG2eposTCxyuxJzzN38jH6ZMwqRqj8vTtdxB55OZ8q+GWNeindrdcNR5oWFiKEm+jcjOkhMWsiXNbtq2H07P35Xq/T5Ocd+k0nk5QCPFqFPFFuBVRi+D6HG18YAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01WMziA6LW7CpqQrckyS7MTR",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00106.py",
+          "start_line": 33,
+          "end_line": 46
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01WMziA6LW7CpqQrckyS7MTR",
+        "content": "\t\t\tparam = \"\"\n\n\t\tnum = 106\n\t\t\n\t\tbar = \"This_should_always_happen\" if 7 * 18 + num > 200 else param\n\n\t\timport lxml.etree\n\t\timport helpers.utils\n\n\t\ttry:\n\t\t\tfd = open(f'{helpers.utils.RES_DIR}/employees.xml', 'rb')\n\t\t\troot = lxml.etree.parse(fd)\n\t\t\tquery = f'/Employees/Employee[@emplid=\\'{bar}\\']'\n\t\t\trun_query = lxml.etree.XPath(query)"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EowLCqQBCBIYAipAfDJxacNeIH2MdBzkBxsiJ7gpA8fkKwaTFRBek0avxkSNYDarzR/W+ZXwJKO2aZMfW34RRXEWs6AlBunVdIcBDDIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB7vGT1gYSDGsEZRG4/WqseYQRJBoMOtdrL/q/afz4U0xYIjAXiKwVMis3ogOKnGon6yXgtK6g0/psVd3MjxLJ9pKW+7hjJqA7GTiMkWf6LZLrBJ4qlAmUIxpI6vEIQE+WkjGBZbyTHYP19HeDV7mLxTEFjWlpNQqBmSmjn/naHNYpH/f0KI9Ys9WPdQl/DQ2arUgnMx4MtKSvXMHRscRQ/asRfiRAhwLofG2mkFuWv/zlqR9NKSLP6K8pz9r6DrZwckW/eOdzXdl7BIB90a2dbs2i5At4mpdelxcrqKbazRLKckg6bALfybVd2yY/Hm8SQs8negsAXc0HajZgUd0yp+fpx0Elz98yAjQ8uSIf8kuI4N6XQOEmdOvr3VkVF2ipSBCw1Fjx1Em+BOFvHNPnx9kqH9rotnr4LhoJYCgY6UQTQ4BaklZ98L72WaOV27zKwBSpikg3veRANf8eUJYx5jsScpilqDfMSgtgUfsMvMbNua51gpUSNXu590K4Jb6KOG0uicnOLhtTVKamjmI7pbJ07sBY6+1vgDA2ZQlsbs1XlhdoZwNNmtm9S1gkyafu/f3hug+6QoKcb4g/rMn2ykYya2cidAJ+8NqBZOXPx+bcQqhrofQg8GIS/QWdXBVYdjj95WAt74/4WA13kfgUWrmnjoU4T+oMoyXIz4H9Qsv4GnezzatgImVU1vy/a4y6DN/HY3dNzMP0wHyqpqLv/ea5FisCik0pRoAPIU4AuwLY9EQ0RvT4Y+mznWyiTSQ/dRf1WbeC75hn6zjsd5XtBvE0IWL1x9W6XCpDqVFFkgZcat1e31V0YCvnrA0d8/VhUp99dpkDvIYga+Mg8DfpymdSllizKIeP4cqgmx82CdKUUK6zrCsHM8w8muQIFIpFfnEQFZs9pd962gjkYyZcoLruiJL3LAVeOtJaRqEbwoJ7xpEbqCmJz3h4AmD3q+4bN/i8jNrPCvNiQc4oAiFdgIDBZtb5JZ6hcTT567LY2h88I8OlU/JEaZc23Wkfltf/+OnlUfhHfqQDp3JfoQhSiPipQ3QRYXIlN/cxLjA9/lXtB5zWegs86VSJB/40EgK3GvPOPbXB7NVZhx+YEbvu32Ht7E6neo67W0ZcOwFVo2joKtdVdWE6+RoExagLfzfqS150d8M4UJa0n8fYcUC7Zfhbd/So7bkekSwqJP8JAS4jDlV+xFHD9NkPZLdJPnzEE2PZIDpC+G3vtnRcAtwBSmyja1JOgWCy/UiSFL/vbJ9OGL4QmrGpqFeaYb/b49VVBVEHImmPk+kkzDKGQerJNAcNB/TVooYnybxOl79qYy4O7RrXg5d3vUoIcuFe2NBvz879xcjY4puvKWHKqwix+OtRxxvOPmPtzu+2zgJlWXa5VbHSp0ip6kqXoRnK1BRwWm0SwJSr4JK9n/eaygKLH96vhcLF1gW8UEH05HMlX9nXgW1MYzVqACtdAxSGaPGT6TFLQv01UihGB/tCfk42PtLrLwJcHE9ZVq1Rc5yzX3BwRLp9ssorOuhx5NKcL+dqzZjONqHq/ktRoEreBsq6vdtoWAPf/AYwFciPJBOS+EFt3yk+Ga6ssKStsL73rPjT3cs47ucL2yXrLD2+mP22TlgrYIrD9rC1PGfEgj01/h+RBkjuvyDgqyWe8sk0tz3jTzBfUzm6DI/RqBgB",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01Y3tTfD78uqQ3jEaT12NXTP",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "false_positive",
+          "justification": "The XPath query is built from the variable `bar`, which is assigned via a conditional expression: `bar = \"This_should_always_happen\" if 7 * 18 + num > 200 else param`. With `num = 106` fixed in the source code, the condition `7*18+num > 200` evaluates to `126+106=232 > 200`, which is always True. Therefore `bar` is always set to the constant string `\"This_should_always_happen\"` and never to `param` (the user-controlled value from `request.form.get(...)`). Consequently the XPath expression built in `query = f'/Employees/Employee[@emplid=\\'{bar}\\']'` never actually incorporates user input at runtime, despite CodeQL's taint tracking flagging the data-flow path from `request.form` to the `lxml.etree.XPath` sink. This is a classic OWASP Benchmark \"always-true/false guard\" pattern intended to test whether a static analyzer can reason about constant-folded conditions; since the condition is statically always true, the injection is not actually exploitable.</justification>\n<parameter name=\"missing_information\">[]",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

@@ -20,6 +20,11 @@ class _FakeToolUseBlock:
         self.input = input_
         self.id = block_id
 
+    def model_dump(self):
+        # Imite le comportement reel des blocs du SDK Anthropic (objets
+        # Pydantic), pour que le test de transcription soit realiste.
+        return {"type": self.type, "name": self.name, "input": self.input, "id": self.id}
+
 
 class _FakeResponse:
     def __init__(self, content):
@@ -97,6 +102,33 @@ def test_agent_handles_truncated_submit_verdict_without_crashing(tmp_path):
     assert result.technical_status == "error"
     assert result.verdict == "uncertain"
     assert result.model_calls == 1
+
+
+def test_agent_saves_full_transcript_even_when_turn_cap_is_reached(tmp_path):
+    repository = ReadOnlyRepository(tmp_path)
+    transcripts_dir = tmp_path / "transcripts"
+    responses = [
+        _FakeResponse([_FakeToolUseBlock("search_references", {"pattern": "x"}, f"t{i}")])
+        for i in range(3)
+    ]
+    client = _FakeClient(responses)
+    budget = CallBudget(max_calls=10)
+    agent = ExploringAgentQualifier(
+        client=client, model="claude-sonnet-5", budget=budget, repository=repository,
+        max_turns=3, transcripts_dir=transcripts_dir,
+    )
+
+    agent.qualify(_alert(), "contexte initial")
+
+    transcript_path = transcripts_dir / "java_java_path-injection_0.json"
+    assert transcript_path.exists()
+
+    import json
+    transcript = json.loads(transcript_path.read_text(encoding="utf-8"))
+    # Le premier message (le contexte envoye) et les 3 tours doivent y etre.
+    assert transcript[0]["role"] == "user"
+    assert "contexte initial" in transcript[0]["content"]
+    assert len(transcript) == 1 + 3 * 2  # 1 message initial + (assistant, tool_result) par tour
 
 
 def test_agent_stops_when_budget_is_exhausted(tmp_path):

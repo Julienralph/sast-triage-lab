@@ -1,0 +1,98 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01329.java (lines 82-82)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Dave Wichers\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/pathtraver-01/BenchmarkTest01329\")\npublic class BenchmarkTest01329 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EoQDCqQBCBIYAipAHPSL2fvViDg70+2ALtkHk5oZZc/K0NwQZH9qr8AUOAxA6xizraLg92slT04Tiie8Lum7JtYVrHOAXkpteBbIuTIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBreST1gYSDH5F5eRAjTCLrPY6MxoMmPOrmgj4NH7JLyRnIjCMjyKzWqghxok2XV9RaXSFeW9dTpnN9WWs86jC5JgoJzLRdiLvrGJj7gBZ50Bd/+4qjAE0NXGnvZW8ACRIkaBo5XpTrXNlQ/FgE0m0jeA0HkhgY27s49qT5FSL/Z/ieBDFWXMIR1n/cWGLWkSXDGF/mPVSmHPJ6WGfPHrrESTO1G6YvILMAUQwI/2WX3migsbqDseq3+LINHhgHNKjUHkh9B1dHrmLVBjBIyvRNWIcMVbFQbsaIMKlYtSnW3IdiBgB",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01JvEuUQmeBgYSNmPVKDbG2F",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01329.java",
+          "start_line": 82,
+          "end_line": 140
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01JvEuUQmeBgYSNmPVKDbG2F",
+        "content": "            if (fileTarget.exists()) {\n                response.getWriter().println(\" And file already exists.\");\n            } else {\n                response.getWriter().println(\" But file doesn't exist yet.\");\n            }\n        } catch (java.net.URISyntaxException e) {\n            throw new ServletException(e);\n        }\n    } // end doPost\n\n    private class Test {\n\n        public String doSomething(HttpServletRequest request, String param)\n                throws ServletException, IOException {\n\n            String bar = \"\";\n            if (param != null) {\n                java.util.List<String> valuesList = new java.util.ArrayList<String>();\n                valuesList.add(\"safe\");\n                valuesList.add(param);\n                valuesList.add(\"moresafe\");\n\n                valuesList.remove(0); // remove the 1st safe value\n\n                bar = valuesList.get(0); // get the param value\n            }\n\n            return bar;\n        }\n    } // end innerclass Test\n} // end DataflowThruInnerClass"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EtMCCqQBCBIYAipAzxdxNS5Wo+qX6IOkAzP3LEgR5VdAlr3F6+/39eBTTUPkpmTxe/TOlN8BuQ/uXQcWNU2ecRJ7ajE/mhBu45CTUTIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBr+ST1gYSDI78zn9FNKdQD2Q56BoMgDaK2Mb3BKnRoE/0IjBxuG42LJ4qDoJMJDtuf/0slpl3tCMBEYlqywK/FIEWqqO/jgU1g8KO46kh7Z64OOIqXCXPWfke68psuJco90ZX4Kb3ej5yzab11QAaqMZp+zEgC8RlPj4GFsOYOwVQ40xvf6AfssOvvyM+6GTaw8BDRXgbj7kpA1P+2gFilCj2Zupo0tMLCJZXwMIF2kZRGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01Ua4BeFTvFD5gUg57JeVwMM",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01329.java",
+          "start_line": 36,
+          "end_line": 82
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01Ua4BeFTvFD5gUg57JeVwMM",
+        "content": "    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        java.util.Map<String, String[]> map = request.getParameterMap();\n        String param = \"\";\n        if (!map.isEmpty()) {\n            String[] values = map.get(\"BenchmarkTest01329\");\n            if (values != null) param = values[0];\n        }\n\n        String bar = new Test().doSomething(request, param);\n\n        // FILE URIs are tricky because they are different between Mac and Windows because of lack\n        // of standardization.\n        // Mac requires an extra slash for some reason.\n        String startURIslashes = \"\";\n        if (System.getProperty(\"os.name\").indexOf(\"Windows\") != -1)\n            if (System.getProperty(\"os.name\").indexOf(\"Windows\") != -1) startURIslashes = \"/\";\n            else startURIslashes = \"//\";\n\n        try {\n            java.net.URI fileURI =\n                    new java.net.URI(\n                            \"file\",\n                            null,\n                            startURIslashes\n                                    + org.owasp.benchmark.helpers.Utils.TESTFILES_DIR\n                                            .replace('\\\\', java.io.File.separatorChar)\n                                            .replace(' ', '_')\n                                    + bar,\n                            null,\n                            null);\n            java.io.File fileTarget = new java.io.File(fileURI);\n            response.getWriter()\n                    .println(\n                            \"Access to file: '\"\n                                    + org.owasp\n                                            .esapi\n                                            .ESAPI\n                                            .encoder()\n                                            .encodeForHTML(fileTarget.toString())\n                                    + \"' created.\");\n            if (fileTarget.exists()) {"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EqgJCqQBCBIYAipATRydwW0JYQ7RAAGdqUWvlM49DsfpLVympLwZKywOLXvKei+KzT+cXaLda1mcJud98h5sdEP19ZIijb0aANjPajIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBteST1gYSDOVoypCI2fGUZjKQjxoMmQNAkuKM5WObYN7fIjBRzptiqr6kloWGpN875JPpzdKWV0twPqyxu/1AMUL8xLJvAEXD5e8rqT3C12zA2PwqsAf25QNxCOVrIOdj93YFTbKR7uMLhmJLoNUBlQEGhQHUOaiTR5AjVYevN0iAWh2ioEgEPgiO/wFY8HYwi2ufSTVU1IHUIew7K1rNBGk5Oc+/IwMU6IOslQ+juPB28Oy3sYWHhYfvORj89QCzRIK1w4q/IntB+KAc34obm+FPZFgAoQsJzv7vKOQUQmIDHe8S9oNIiXptLYAEHUvm5F7DhiqCEve0X8IICbw0jb+OZe58NrNglCNj7odwzc0D+PG1mCTbCJpcihbKAb2cm7zPyqF/JKZuoDnhuiQRmQyqDDm9rL+eP8UgbGnuO0GWglnQIwhBxjVi6tNI3sRnKytyWLafLEIBEXvI4m0blSqykb5H/EsK58nUJ9TZQz0x0EJSvIa6XatNgDclS3UP0QsyuB3JIQRA1R3tc12LEafNESwgys103mlrMsAcXdxRxB3PGR9ds19HWb2M/EWdYvlCzYKKiMtk7UgxjSOjWZy1Yv/+az2pXnGwfkRLSqcLxIwAtakX3e+7Bi8drsOm8DIu1pQ8/FLMXowaeOn42QovNBF+wQJbJzTZBqmL92DsFIoEyRkP5ucwX711X/GD/CMP0jOINOZBkN5JnXOl7zcXZ0aW9oubLrv8ignq2H5Q9DRFcskVL/WorZ1qyQPGIoYXNOi+dKDm5LUlvFH6Gok6Hyg6xJGRg7XmwFv0z1lgSulDRjycj2NKlEXR9R9nbQLfekXXEO9mNQmm3+a8XqDl7gzwZAMuge6anwJ0ncBYanHJOy/MzeOJpRA1PVZuIylxRuCoO07Ac+O4ZI6vpQ5y+abvSVlcnrIPMHq/Q+0h/lvtdxsUEuhyyGurfsWGTgYhgV5d8WcxVRNvaDeRZ/jblrSqUBKxfKlTUcc2MGQKJsa6QMAO7cmyc/xWmNE9AAXB4XfXIO7vzCdY9Jmja+G65Angb+GKA47Pdff1syLrJ1MsfRp5hrzAEwh8IGg0Edmp6cxhCMcXfiLUi7JV9GukNYUuu0G8cb83cAsYnSVz+ucCv7tsh5oGhCqqbnni6A8eSKt3PKVbkAScO2DLzoYZKG+8QV35O5ecB1wJtnrm4gnr8+bMdBtRIZmJNMfUYiuTpjbuxS5VEPMp3HexXM3eVPUQ85xYkCh1EzrgcW0/lUy+fLFpJuG8Xb3GlbNXXoZoTSUqef+lNh1J1Umae3Iv2UDXL/c31K+h9aF6aDaRTBzGBooCXptIYuIST1xME7F5S94dqK46KEKk9OI1VL7sOjizTBgB",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01JGEfJHphKR8GBDGeLtPmdX",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The HTTP parameter \"BenchmarkTest01329\" is read from request.getParameterMap(), passed through an inner class method (Test.doSomething) that merely stores/retrieves it from a List with no validation or sanitization, and the resulting value (bar) is concatenated directly into a path string used to build a java.net.URI and then a java.io.File object. There is no path canonicalization, whitelist check, or removal of \"../\" sequences anywhere in the flow. The ESAPI encodeForHTML call is only applied when printing the resulting file path to the HTTP response (output encoding for XSS), not before using the tainted data to construct the File object, so it does not mitigate path traversal. Hence user input can control the file path passed to the file system, which is a genuine path/file injection vulnerability.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

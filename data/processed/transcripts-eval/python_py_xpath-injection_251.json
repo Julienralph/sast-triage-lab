@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/xpath-injection\nCodeQL message: XPath expression depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00105.py (lines 49-49)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/xpathi-00/BenchmarkTest00105', methods=['GET'])\n\tdef BenchmarkTest00105_get():\n\t\treturn BenchmarkTest00105_post()\n\n\t@app.route('/benchmark/xpathi-00/BenchmarkTest00105', methods=['POST'])\n\tdef BenchmarkTest00105_post():\n\t\tRESPONSE = \"\"\n\n\t\tparam = request.form.get(\"BenchmarkTest00105\")\n\t\tif not param:\n\t\t\tparam = \"\"\n\n\t\tnum = 86\n\t\t\n\t\tif 7 * 42 - num > 200:\n\t\t\tbar = 'This_should_always_happen'\n\t\telse:\n\t\t\tbar = param\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErQCCqQBCBIYAipAkLlMuuLuJSIp1IknlDUQzsClRcaBVi5wKJqLYc9CO2IMyDN9Fwi5sXCx4XebatyWTJ/DKPxtqOenPS4KHxuLCDIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB3fGT1gYSDOG3lCiIfJI5EipLyxoMdjUzNxyh/Nm7xlIrIjAqCvQQ5US4U4GCoB+CKwiHdkDCEHgDBelXTe0+6v0aYreSPrXx9v+2SlwH/2YQ/tIqPSX+oKBnU9L6n5oOh1Pzhy3lfPD20VWuxX+FhsKgvahSZfrNMC2xV1ear2GyYDP2K3qC9eADDmrCte/p5uIYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01EZnaB9UejAL6TZHphn29u1",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00105.py",
+          "start_line": 40,
+          "end_line": 90
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01EZnaB9UejAL6TZHphn29u1",
+        "content": "\t\t\tbar = param\n\n\t\timport lxml.etree\n\t\timport helpers.utils\n\n\t\ttry:\n\t\t\tfd = open(f'{helpers.utils.RES_DIR}/employees.xml', 'rb')\n\t\t\troot = lxml.etree.parse(fd)\n\t\t\tquery = f'/Employees/Employee[@emplid=\\'{bar}\\']'\n\t\t\trun_query = lxml.etree.XPath(query)\n\t\t\tnodes = run_query(root)\n\t\t\tnode_strings = []\n\t\t\tfor node in nodes:\n\t\t\t\tnode_strings.append(' '.join([e.text for e in node]))\n\n\t\t\tRESPONSE += (\n\t\t\t\tf'Your XPATH query results are: <br>[ {', '.join(node_strings)} ]'\n\t\t\t)\n\t\texcept:\n\t\t\tRESPONSE += (\n\t\t\t\tf'Error parsing XPath Query: \\'{escape_for_html(query)}\\''\n\t\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "This confirms the flow: `param` comes directly from `request.form.get(...)`, flows through a conditional branch (`bar = param` in the else branch, which is reachable), and is concatenated unsanitized into an XPath query string that is then compiled and executed via `lxml.etree.XPath(query)`. There is no escaping/validation of `bar` before use in the query.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01BCMhDd7zUudoeDNATcGnxA",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "User-controlled input from request.form.get(\"BenchmarkTest00105\") is assigned to `param`, which flows into `bar` via the else-branch of a trivially-always-false numeric condition (7*42-86=200, not >200, so the else branch executing `bar = param` is always taken). `bar` is then directly interpolated into an XPath expression string without any sanitization or escaping (only used by escape_for_html in the exception handler to display an error, not to sanitize the actual query), and the resulting string is compiled and executed with lxml.etree.XPath(query). This allows XPath injection, e.g. a param value like `' or '1'='1` would alter the query logic/bypass filtering.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

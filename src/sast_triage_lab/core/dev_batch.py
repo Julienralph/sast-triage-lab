@@ -23,6 +23,7 @@ def select_dev_batch(
     category: str,
     true_positive_count: int,
     false_positive_count: int,
+    exclude_alert_ids: frozenset[str] = frozenset(),
 ) -> list[DevBatchEntry]:
     """Sélectionne un petit lot déterministe pour une catégorie donnée.
 
@@ -31,12 +32,19 @@ def select_dev_batch(
     sélection renvoyée est toujours identique, ce qui est nécessaire pour
     que les tests sur ce lot restent reproductibles d'une exécution à
     l'autre.
+
+    ``exclude_alert_ids`` retire des candidats les alertes déjà utilisées
+    dans un autre lot (typiquement le lot de développement) : sans ça, le
+    lot d'évaluation finale réutiliserait des cas qu'on a déjà regardés en
+    détail pour régler le prompt ou la fenêtre de contexte, ce qui biaiserait
+    le résultat en notre faveur.
     """
     candidates = [
         (alert, labels_by_alert_id[alert.alert_id])
         for alert in alerts
         if alert.alert_id in labels_by_alert_id
         and labels_by_alert_id[alert.alert_id].category == category
+        and alert.alert_id not in exclude_alert_ids
     ]
     candidates.sort(key=lambda pair: pair[0].alert_id)
 

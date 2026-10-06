@@ -1,0 +1,66 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00617.py (lines 62-62)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00617', methods=['GET'])\n\tdef BenchmarkTest00617_get():\n\t\treturn BenchmarkTest00617_post()\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00617', methods=['POST'])\n\tdef BenchmarkTest00617_post():\n\t\tRESPONSE = \"\"\n\n\t\timport helpers.utils\n\t\tparam = \"\"\n\t\t\n\t\tfor name in request.headers.keys():\n\t\t\tif name.lower() in helpers.utils.commonHeaderNames:\n\t\t\t\tcontinue\n\t\t\n\t\t\tif request.headers.get_all(name):\n\t\t\t\tparam = name\n\t\t\t\tbreak\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "Er4CCqQBCBIYAipAHoVGe4839AEySmTDmifQ0SD5QVq+upVQWZlZtntex5qrzOo4h/qMhDJ9DV+OAK1oGqCltAoc2onHRhGJMuMy9jIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBt4WT1gYSDNU9jryao9ilkZjH0xoM9sU3yRYZxiWy36Q6IjABTdEnxyWG96XtgteYYJ1KtCU2bmCbAAfzdCqhHLs0EguGrH8WYllDuqpXjCTECzUqR06YlXCgzpHh21jTxTg+9Pz1sOPHo/pqpQ8HBOtrfI7nXaSbPSq1oL+Y29WpSgvOXMLN1dArUUl+IA8uGB6MJZcesePBO8PNGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01Xu9dpgpgmGDqNUuCE2P9gF",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00617.py",
+          "start_line": 1,
+          "end_line": 90
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01Xu9dpgpgmGDqNUuCE2P9gF",
+        "content": "'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00617', methods=['GET'])\n\tdef BenchmarkTest00617_get():\n\t\treturn BenchmarkTest00617_post()\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00617', methods=['POST'])\n\tdef BenchmarkTest00617_post():\n\t\tRESPONSE = \"\"\n\n\t\timport helpers.utils\n\t\tparam = \"\"\n\t\t\n\t\tfor name in request.headers.keys():\n\t\t\tif name.lower() in helpers.utils.commonHeaderNames:\n\t\t\t\tcontinue\n\t\t\n\t\t\tif request.headers.get_all(name):\n\t\t\t\tparam = name\n\t\t\t\tbreak\n\n\t\tstring61762 = 'help'\n\t\tstring61762 += param\n\t\tstring61762 += 'snapes on a plane'\n\t\tbar = string61762[4:-17]\n\n\t\timport pathlib\n\t\timport helpers.utils\n\n\t\ttry:\n\t\t\ttestfiles = pathlib.Path(helpers.utils.TESTFILES_DIR)\n\t\t\tp = (testfiles / bar).resolve()\n\n\t\t\tif not str(p).startswith(str(testfiles)):\n\t\t\t\tRESPONSE += (\n\t\t\t\t\t\"Invalid Path.\"\n\t\t\t\t)\n\t\t\t\treturn RESPONSE\n\n\t\t\tRESPONSE += (\n\t\t\t\tf'The beginning of file: \\'{escape_for_html(str(p))}\\' is:\\n\\n'\n\t\t\t\tf'{escape_for_html(p.read_text()[:1000])}'\n\t\t\t)\n\t\texcept OSError:\n\t\t\tRESPONSE += (\n\t\t\t\tf'Problem reading from file \\'{{escape_for_html(fileName)}}\\': '\n\t\t\t\tf'{escape_for_html(e.strerror)}'\n\t\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "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",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01TkMhkymZjCTNHKt6GpD9T5",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The path component `bar` is derived directly from an attacker-controlled HTTP header name (`request.headers.keys()`), stripped only of fixed prefix/suffix strings, so it is fully user-controlled. It is then joined to `TESTFILES_DIR` and resolved, and the only guard is `str(p).startswith(str(testfiles))`. This is a classic broken sanitizer: it checks a string prefix rather than verifying that `p` is actually inside `testfiles` (e.g. via `os.path.commonpath` or checking for a trailing separator). An attacker can supply a header value such as `../testfiles-evil/secret.txt` so that the resolved path (e.g. `/app/testfiles-evil/secret.txt`) still starts with the string `/app/testfiles`, bypassing the check, and then its contents are read and returned in the response. Since the sanitizer does not actually prevent traversal outside the intended directory, tainted data reaches the file-read sink, making this a genuine path-injection vulnerability.",
+          "missing_information": [
+            "Confirmation of the exact directory structure of TESTFILES_DIR to know whether a sibling directory sharing the same prefix actually exists on the filesystem (affects practical exploitability but not the underlying code flaw)."
+          ]
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

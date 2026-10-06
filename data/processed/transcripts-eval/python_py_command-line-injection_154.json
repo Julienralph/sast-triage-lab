@@ -1,0 +1,93 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/command-line-injection\nCodeQL message: This command line depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00167.py (lines 53-53)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/cmdi-00/BenchmarkTest00167', methods=['GET'])\n\tdef BenchmarkTest00167_get():\n\t\treturn BenchmarkTest00167_post()\n\n\t@app.route('/benchmark/cmdi-00/BenchmarkTest00167', methods=['POST'])\n\tdef BenchmarkTest00167_post():\n\t\tRESPONSE = \"\"\n\n\t\tparam = request.form.get(\"BenchmarkTest00167\")\n\t\tif not param:\n\t\t\tparam = \"\"\n\n\t\tTestParam = \"This should never happen\"\n\t\tif 'should' not in TestParam:\n\t\t\tbar = \"Ifnot case passed\"\n\t\telse:\n\t\t\tbar = param\n\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "id": "toolu_01D8tQYa1AL2exWKAAasCw2Y",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00167.py",
+          "start_line": 53,
+          "end_line": 100
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01D8tQYa1AL2exWKAAasCw2Y",
+        "content": "\t\t\tproc = subprocess.run(argStr, shell=True, capture_output=True, encoding=\"utf-8\")\n\n\t\t\tRESPONSE += (\n\t\t\t\thelpers.utils.commandOutput(proc)\n\t\t\t)\n\t\texcept IOError:\n\t\t\tRESPONSE += (\n\t\t\t\t\"Problem executing cmdi - subprocess.run(list) Test Case\"\n\t\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EscCCqQBCBIYAipA/c4YPd3/aXFDfxpgpbS7P/3bulmfm7jxTHz4LuMuy9EwK/uOKIz5Ik0DYj9emIQAsBxmk1MbKlnIs0yM5My5cjIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBwvCT1gYSDOiTdc+xWTZfe7Q48BoMRD+Y50EFaaPi/RT7IjBFpxY2dzuhCZtncYIplRUMiChiAoMIa/ySF4B2k4tO37MlXz32NOOETrTPBhjL5lUqUHxz+iLc6J24hr0nl5vIE4K8pzeJkH8myksIIn9bLk+QwrFMCw5g0+vXlQdVSrrPCIoQ/wmoMCgSIq9fWzKAq5S3yxewK0i0OpVq6V9fj7ejGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01XqZnyLjVU4tVSCRZiGDK1m",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00167.py",
+          "start_line": 1,
+          "end_line": 63
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01XqZnyLjVU4tVSCRZiGDK1m",
+        "content": "'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/cmdi-00/BenchmarkTest00167', methods=['GET'])\n\tdef BenchmarkTest00167_get():\n\t\treturn BenchmarkTest00167_post()\n\n\t@app.route('/benchmark/cmdi-00/BenchmarkTest00167', methods=['POST'])\n\tdef BenchmarkTest00167_post():\n\t\tRESPONSE = \"\"\n\n\t\tparam = request.form.get(\"BenchmarkTest00167\")\n\t\tif not param:\n\t\t\tparam = \"\"\n\n\t\tTestParam = \"This should never happen\"\n\t\tif 'should' not in TestParam:\n\t\t\tbar = \"Ifnot case passed\"\n\t\telse:\n\t\t\tbar = param\n\n\t\timport platform\n\t\timport subprocess\n\t\timport helpers.utils\n\n\t\targStr = \"\"\n\t\tif platform.system() == \"Windows\":\n\t\t\targStr = \"cmd.exe /c \"\n\t\telse:\n\t\t\targStr = \"sh -c \"\n\t\targStr += f\"echo {bar}\"\n\n\t\ttry:\n\t\t\tproc = subprocess.run(argStr, shell=True, capture_output=True, encoding=\"utf-8\")\n\n\t\t\tRESPONSE += (\n\t\t\t\thelpers.utils.commandOutput(proc)\n\t\t\t)\n\t\texcept IOError:\n\t\t\tRESPONSE += (\n\t\t\t\t\"Problem executing cmdi - subprocess.run(list) Test Case\"\n\t\t\t)\n\n\t\treturn RESPONSE"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "This confirms a clear taint flow: `param` comes directly from `request.form.get(...)` (user-controlled), assigned to `bar` (since the condition `'should' not in TestParam` is always false given `TestParam = \"This should never happen\"`), concatenated into `argStr`, and passed to `subprocess.run(argStr, shell=True, ...)`. No sanitization or validation occurs on `param`/`bar` before use in the shell command.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01LwjcoVEJjAvyH6LQqacnb8",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The value `param` is read directly from user input via `request.form.get(\"BenchmarkTest00167\")` with no validation/sanitization. It is assigned to `bar` (the branch bypassing this assignment is dead code since 'should' is always in TestParam), then concatenated into `argStr` via an f-string, and passed to `subprocess.run(argStr, shell=True, ...)`. This is a textbook shell command injection: an attacker-controlled string flows unsanitized into a shell=True subprocess call, allowing arbitrary command injection (e.g., via shell metacharacters like `; rm -rf /` or `$(...)`).",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

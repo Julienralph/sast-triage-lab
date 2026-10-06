@@ -1,0 +1,59 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/xpath-injection\nCodeQL message: XPath expression depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00207.py (lines 56-56)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/xpathi-00/BenchmarkTest00207', methods=['GET'])\n\tdef BenchmarkTest00207_get():\n\t\treturn BenchmarkTest00207_post()\n\n\t@app.route('/benchmark/xpathi-00/BenchmarkTest00207', methods=['POST'])\n\tdef BenchmarkTest00207_post():\n\t\tRESPONSE = \"\"\n\n\t\tvalues = request.form.getlist(\"BenchmarkTest00207\")\n\t\tparam = \"\"\n\t\tif values:\n\t\t\tparam = values[0]\n\n\t\tpossible = \"ABC\"\n\t\tguess = possible[0]\n\t\t\n\t\tmatch guess:\n\t\t\tcase 'A':\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "id": "toolu_01TXBwnKdsyYporU3JexpwcM",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00207.py",
+          "start_line": 40,
+          "end_line": 90
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01TXBwnKdsyYporU3JexpwcM",
+        "content": "\t\t\tcase 'A':\n\t\t\t\tbar = param\n\t\t\tcase 'B':\n\t\t\t\tbar = 'bob'\n\t\t\tcase 'C' | 'D':\n\t\t\t\tbar = param\n\t\t\tcase _:\n\t\t\t\tbar = 'bob\\'s your uncle'\n\n\t\timport lxml.etree\n\t\timport helpers.utils\n\n\t\ttry:\n\t\t\tfd = open(f'{helpers.utils.RES_DIR}/employees.xml', 'rb')\n\t\t\troot = lxml.etree.parse(fd)\n\t\t\tquery = f'/Employees/Employee[@emplid=\\'{bar}\\']'\n\t\t\tnodes = root.xpath(query)\n\t\t\tnode_strings = []\n\t\t\tfor node in nodes:\n\t\t\t\tnode_strings.append(' '.join([e.text for e in node]))\n\n\t\t\tRESPONSE += (\n\t\t\t\tf'Your XPATH query results are: <br>[ {', '.join(node_strings)} ]'\n\t\t\t)\n\t\texcept:\n\t\t\tRESPONSE += (\n\t\t\t\tf'Error parsing XPath Query: \\'{escape_for_html(query)}\\''\n\t\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "This confirms tainted `param` from request flows directly into XPath query string without sanitization, used in `root.xpath(query)`.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_017FUTkmACVv8p7hF6tv6SXN",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The value `param` is taken directly from `request.form.getlist(\"BenchmarkTest00207\")` (user-controlled input) and assigned to `bar` in multiple branches of the match statement without any sanitization or escaping. `bar` is then interpolated directly into an XPath expression string via an f-string (`f'/Employees/Employee[@emplid=\\'{bar}\\']'`), which is passed to `root.xpath(query)`. There is no validation, escaping, or parameterization of the value before it reaches the XPath sink, so a malicious user could inject XPath syntax (e.g., `' or '1'='1`) to alter query logic or exfiltrate data. This matches the classic XPath injection pattern and the taint flow is direct and unbroken.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

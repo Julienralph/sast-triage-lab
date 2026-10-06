@@ -35,6 +35,24 @@ def test_select_dev_batch_is_deterministic_and_respects_counts():
     ]
 
 
+def test_select_dev_batch_excludes_given_alert_ids():
+    alerts = [_alert(f"a{i}") for i in range(4)]
+    labels = {
+        "a0": ReferenceLabel("a0", "true_positive", "owasp", "pathtraver"),
+        "a1": ReferenceLabel("a1", "true_positive", "owasp", "pathtraver"),
+        "a2": ReferenceLabel("a2", "true_positive", "owasp", "pathtraver"),
+        "a3": ReferenceLabel("a3", "true_positive", "owasp", "pathtraver"),
+    }
+
+    batch = select_dev_batch(
+        alerts, labels, "pathtraver", true_positive_count=2, false_positive_count=0,
+        exclude_alert_ids=frozenset({"a0"}),
+    )
+
+    # a0 est exclue malgre son id le plus petit : a1 et a2 prennent sa place.
+    assert [entry.alert.alert_id for entry in batch] == ["a1", "a2"]
+
+
 def test_select_dev_batch_is_stable_across_calls():
     alerts = [_alert(f"a{i}") for i in range(4)]
     labels = {f"a{i}": ReferenceLabel(f"a{i}", "true_positive", "owasp", "pathtraver") for i in range(4)}

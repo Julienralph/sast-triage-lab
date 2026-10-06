@@ -1,0 +1,167 @@
+[
+  {
+    "alert_id": "python:py/path-injection:112",
+    "language": "python",
+    "rule_id": "py/path-injection",
+    "category": "pathtraver",
+    "expected_verdict": "false_positive",
+    "file_path": "testcode/BenchmarkTest00740.py",
+    "start_line": 53,
+    "end_line": 53,
+    "message": "This path depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/command-line-injection:152",
+    "language": "python",
+    "rule_id": "py/command-line-injection",
+    "category": "cmdi",
+    "expected_verdict": "true_positive",
+    "file_path": "testcode/BenchmarkTest00165.py",
+    "start_line": 57,
+    "end_line": 57,
+    "message": "This command line depends on a [user-provided value](1).\nThis command line depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/command-line-injection:153",
+    "language": "python",
+    "rule_id": "py/command-line-injection",
+    "category": "cmdi",
+    "expected_verdict": "true_positive",
+    "file_path": "testcode/BenchmarkTest00166.py",
+    "start_line": 53,
+    "end_line": 53,
+    "message": "This command line depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/command-line-injection:154",
+    "language": "python",
+    "rule_id": "py/command-line-injection",
+    "category": "cmdi",
+    "expected_verdict": "true_positive",
+    "file_path": "testcode/BenchmarkTest00167.py",
+    "start_line": 53,
+    "end_line": 53,
+    "message": "This command line depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/command-line-injection:155",
+    "language": "python",
+    "rule_id": "py/command-line-injection",
+    "category": "cmdi",
+    "expected_verdict": "true_positive",
+    "file_path": "testcode/BenchmarkTest00168.py",
+    "start_line": 60,
+    "end_line": 60,
+    "message": "This command line depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/command-line-injection:163",
+    "language": "python",
+    "rule_id": "py/command-line-injection",
+    "category": "cmdi",
+    "expected_verdict": "false_positive",
+    "file_path": "testcode/BenchmarkTest01097.py",
+    "start_line": 55,
+    "end_line": 55,
+    "message": "This command line depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/command-line-injection:164",
+    "language": "python",
+    "rule_id": "py/command-line-injection",
+    "category": "cmdi",
+    "expected_verdict": "false_positive",
+    "file_path": "testcode/BenchmarkTest01098.py",
+    "start_line": 53,
+    "end_line": 53,
+    "message": "This command line depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/xpath-injection:247",
+    "language": "python",
+    "rule_id": "py/xpath-injection",
+    "category": "xpathi",
+    "expected_verdict": "true_positive",
+    "file_path": "testcode/BenchmarkTest00018.py",
+    "start_line": 50,
+    "end_line": 50,
+    "message": "XPath expression depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/xpath-injection:248",
+    "language": "python",
+    "rule_id": "py/xpath-injection",
+    "category": "xpathi",
+    "expected_verdict": "true_positive",
+    "file_path": "testcode/BenchmarkTest00019.py",
+    "start_line": 54,
+    "end_line": 54,
+    "message": "XPath expression depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/xpath-injection:253",
+    "language": "python",
+    "rule_id": "py/xpath-injection",
+    "category": "xpathi",
+    "expected_verdict": "true_positive",
+    "file_path": "testcode/BenchmarkTest00107.py",
+    "start_line": 56,
+    "end_line": 56,
+    "message": "XPath expression depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/xpath-injection:256",
+    "language": "python",
+    "rule_id": "py/xpath-injection",
+    "category": "xpathi",
+    "expected_verdict": "true_positive",
+    "file_path": "testcode/BenchmarkTest00207.py",
+    "start_line": 56,
+    "end_line": 56,
+    "message": "XPath expression depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/xpath-injection:249",
+    "language": "python",
+    "rule_id": "py/xpath-injection",
+    "category": "xpathi",
+    "expected_verdict": "false_positive",
+    "file_path": "testcode/BenchmarkTest00021.py",
+    "start_line": 58,
+    "end_line": 58,
+    "message": "XPath expression depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/xpath-injection:250",
+    "language": "python",
+    "rule_id": "py/xpath-injection",
+    "category": "xpathi",
+    "expected_verdict": "false_positive",
+    "file_path": "testcode/BenchmarkTest00022.py",
+    "start_line": 59,
+    "end_line": 59,
+    "message": "XPath expression depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/xpath-injection:251",
+    "language": "python",
+    "rule_id": "py/xpath-injection",
+    "category": "xpathi",
+    "expected_verdict": "false_positive",
+    "file_path": "testcode/BenchmarkTest00105.py",
+    "start_line": 49,
+    "end_line": 49,
+    "message": "XPath expression depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/xpath-injection:252",
+    "language": "python",
+    "rule_id": "py/xpath-injection",
+    "category": "xpathi",
+    "expected_verdict": "false_positive",
+    "file_path": "testcode/BenchmarkTest00106.py",
+    "start_line": 46,
+    "end_line": 46,
+    "message": "XPath expression depends on a [user-provided value](1)."
+  }
+]

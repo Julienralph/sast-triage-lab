@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/command-line-injection\nCodeQL message: This command line depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00093.java (lines 88-88)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Nick Sanidas\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/cmdi-00/BenchmarkTest00093\")\npublic class BenchmarkTest00093 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n        javax.servlet.http.Cookie userCookie =\n                new javax.servlet.http.Cookie(\"BenchmarkTest00093\", \"ls\");\n        userCookie.setMaxAge(60 * 3); // Store cookie for 3 minutes\n        userCookie.setSecure(true);\n        userCookie.setHttpOnly(true);\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErcCCqQBCBIYAipAlIV+Cb8oYijCAE5cfFJFL6SuRIyPWT89G0u0ohHdALhJqPV31dHfmAi2Mw9tfU9++jzQNfZpIP61yE7hjO4EujIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBm+WT1gYSDEEgYYLIWftqsXCRzhoMj+YwcfQ/pxFpmGYMIjAgJliOHIXmGiQ3L9xW46eo82w1gpaSSjdSm/emr0g3Hh2t+I1HSPBwa05jYY2HIGYqQPYbBcrQ0p2oyNpDJnD+61tJlsFnaTR10alwJzMTpCE3cEJvUOMh9OrFtNVR/VhPZmuRMveVGvqDkEo0OzY55PwYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01WbkbNqhdXFSjDTp6jSDWhk",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00093.java",
+          "start_line": 40,
+          "end_line": 130
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01WbkbNqhdXFSjDTp6jSDWhk",
+        "content": "        userCookie.setHttpOnly(true);\n        userCookie.setPath(request.getRequestURI());\n        userCookie.setDomain(new java.net.URL(request.getRequestURL().toString()).getHost());\n        response.addCookie(userCookie);\n        javax.servlet.RequestDispatcher rd =\n                request.getRequestDispatcher(\"/cmdi-00/BenchmarkTest00093.html\");\n        rd.include(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        javax.servlet.http.Cookie[] theCookies = request.getCookies();\n\n        String param = \"noCookieValueSupplied\";\n        if (theCookies != null) {\n            for (javax.servlet.http.Cookie theCookie : theCookies) {\n                if (theCookie.getName().equals(\"BenchmarkTest00093\")) {\n                    param = java.net.URLDecoder.decode(theCookie.getValue(), \"UTF-8\");\n                    break;\n                }\n            }\n        }\n\n        String bar = \"alsosafe\";\n        if (param != null) {\n            java.util.List<String> valuesList = new java.util.ArrayList<String>();\n            valuesList.add(\"safe\");\n            valuesList.add(param);\n            valuesList.add(\"moresafe\");\n\n            valuesList.remove(0); // remove the 1st safe value\n\n            bar = valuesList.get(1); // get the last 'safe' value\n        }\n\n        String cmd = \"\";\n        String osName = System.getProperty(\"os.name\");\n        if (osName.indexOf(\"Windows\") != -1) {\n            cmd = org.owasp.benchmark.helpers.Utils.getOSCommandString(\"echo\");\n        }\n\n        String[] argsEnv = {\"Foo=bar\"};\n        Runtime r = Runtime.getRuntime();\n\n        try {\n            Process p = r.exec(cmd + bar, argsEnv);\n            org.owasp.benchmark.helpers.Utils.printOSCommandResults(p, response);\n        } catch (IOException e) {\n            System.out.println(\"Problem executing cmdi - TestCase\");\n            response.getWriter()\n                    .println(org.owasp.esapi.ESAPI.encoder().encodeForHTML(e.getMessage()));\n            return;\n        }\n    }\n}"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "This confirms the taint flow: cookie value → `param` → added to a list → retrieved via `valuesList.get(1)` → `bar` → concatenated into `cmd + bar` → passed to `Runtime.exec()`. The list manipulation does not sanitize the value at all; it's just reshuffling without validation.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01BmGGegaadC66fkjm2e2zM7",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The cookie value \"BenchmarkTest00093\" is read from the request, URL-decoded into `param`, then placed into a list along with two literal \"safe\" strings. No actual validation/sanitization occurs - it's just list manipulation (add/remove items) that doesn't restrict or escape the content of `param`. The value ends up in `bar` and is concatenated directly into the command string passed to `Runtime.exec(cmd + bar, argsEnv)`. This is a classic OWASP Benchmark command injection test case where the \"safe-looking\" list operations are a red herring and do not break the taint flow from user input (cookie) to the OS command execution sink.</justification>\n<parameter name=\"missing_information\">[]",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

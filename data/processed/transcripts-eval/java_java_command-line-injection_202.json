@@ -1,0 +1,98 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/command-line-injection\nCodeQL message: This command line depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00017.java (lines 63-63)\n\nCode:\n```\n/**\n * OWASP Benchmark v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Dave Wichers\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/cmdi-00/BenchmarkTest00017\")\npublic class BenchmarkTest00017 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "This is a well-known OWASP Benchmark test case for command injection. Let me view the rest of the file to confirm the taint flow.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01GHrhkzLfgxghgRhGw5Wbwd",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00017.java",
+          "start_line": 63,
+          "end_line": 120
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01GHrhkzLfgxghgRhGw5Wbwd",
+        "content": "            Process p = r.exec(cmd + param);\n            org.owasp.benchmark.helpers.Utils.printOSCommandResults(p, response);\n        } catch (IOException e) {\n            System.out.println(\"Problem executing cmdi - TestCase\");\n            response.getWriter()\n                    .println(org.owasp.esapi.ESAPI.encoder().encodeForHTML(e.getMessage()));\n            return;\n        }\n    }\n}"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErsCCqQBCBIYAipAJvyecbTcesB0Zg2LGUsTiUumIGBoMd9RuNpq99yEk0EpkgekzP+8Y72I4TmDfyZsSjLgwTUevJvjdQGC10/1MjIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBjOWT1gYSDB8hVJKv4X+iyOAm3hoMfoWwgwvRD5nGMMfmIjCy7Um+8oz5a+iHsHkkX4fe4lGOSjcOhtByiLwSJxpBf799M/9zyLW01WtxkLwddtwqRJJU2aQdUMVLaGvy/uckcauL7a37QP7SoF5CB94vj1jE9CE55d0CnrjOojN7qWV2+PDefy0WCAK2WKacPRs5AYECH4AlGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01TCsH7tSSRypzZfsgLSe4Ls",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00017.java",
+          "start_line": 34,
+          "end_line": 63
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01TCsH7tSSRypzZfsgLSe4Ls",
+        "content": "            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        // some code\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        String param = \"\";\n        java.util.Enumeration<String> headers = request.getHeaders(\"BenchmarkTest00017\");\n\n        if (headers != null && headers.hasMoreElements()) {\n            param = headers.nextElement(); // just grab first element\n        }\n\n        // URL Decode the header value since req.getHeaders() doesn't. Unlike req.getParameters().\n        param = java.net.URLDecoder.decode(param, \"UTF-8\");\n\n        String cmd = \"\";\n        String osName = System.getProperty(\"os.name\");\n        if (osName.indexOf(\"Windows\") != -1) {\n            cmd = org.owasp.benchmark.helpers.Utils.getOSCommandString(\"echo\");\n        }\n\n        Runtime r = Runtime.getRuntime();\n\n        try {\n            Process p = r.exec(cmd + param);"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "This confirms the classic OWASP Benchmark command injection pattern: `param` is read from a user-controlled HTTP header (`BenchmarkTest00017`), URL-decoded (no sanitization against command injection), and concatenated directly into `r.exec(cmd + param)`. There is no validation/sanitization breaking the taint flow.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01QpoJuHo283iegtdVyptZYe",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The value `param` originates from a user-controlled HTTP header (request.getHeaders(\"BenchmarkTest00017\")), is URL-decoded (which does not sanitize against command injection), and is then concatenated directly into a string passed to Runtime.exec(cmd + param). No validation, allow-listing, or encoding that would prevent command injection occurs between the source and the sink. This matches the well-known OWASP Benchmark command injection test case pattern, which is intentionally vulnerable.</justification>\n<parameter name=\"missing_information\">[]",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

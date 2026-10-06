@@ -1,0 +1,98 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00662.py (lines 48-48)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00662', methods=['GET'])\n\tdef BenchmarkTest00662_get():\n\t\treturn BenchmarkTest00662_post()\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00662', methods=['POST'])\n\tdef BenchmarkTest00662_post():\n\t\tRESPONSE = \"\"\n\n\t\tparam = request.args.get(\"BenchmarkTest00662\")\n\t\tif not param:\n\t\t\tparam = \"\"\n\n\t\tmap17035 = {}\n\t\tmap17035['keyA-17035'] = 'a-Value'\n\t\tmap17035['keyB-17035'] = param\n\t\tmap17035['keyC'] = 'another-Value'\n\t\tbar = map17035['keyB-17035']\n\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErECCqQBCBIYAipA8Wi4MvAAIm/U9GNMXC8x4SVkqxCv++e+Ni71N4dEmeYMSO/B7DgOt0rvR3K3aHS+StBpQFBuk64jpFHNpNrWvjIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBteaT1gYSDODRBEY8FVpm5PuxghoMtOsi19RO0MdhC5rmIjBV7sD0zPDUq3OJRymn1E/IhX4CCLiMPj0Ln44x6xjn7aveha9PP4a9q96oz9T/L3IqOh2lrxyryfHUlGoC0fyUI2VaRR0RfheYa95B61h5ljRCe+tS4Lgwm6zTjgkqWFs28zuBRrSZI7IEi/IYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01FPXCqnsT8eKyKoPtfdJCZn",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00662.py",
+          "start_line": 48,
+          "end_line": 90
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01FPXCqnsT8eKyKoPtfdJCZn",
+        "content": "\t\t\tfd = open(fileName, 'rb')\n\t\t\tRESPONSE += (\n\t\t\t\tf'The beginning of file: \\'{escape_for_html(fileName)}\\' is:\\n\\n'\n\t\t\t\tf'{escape_for_html(fd.read(1000).decode('utf-8'))}'\n\t\t\t)\n\t\texcept IOError as e:\n\t\t\tRESPONSE += (\n\t\t\t\tf'Problem reading from file \\'{{escape_for_html(fileName)}}\\': '\n\t\t\t\tf'{escape_for_html(e.strerror)}'\n\t\t\t)\n\t\tfinally:\n\t\t\ttry:\n\t\t\t\tif fd is not None:\n\t\t\t\t\tfd.close()\n\t\t\texcept IOError:\n\t\t\t\tpass # \"// we tried...\"\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErkCCqQBCBIYAipAAkx0KHfkrZoyAb3v5SEJzQB9DyyFSrVSfKl161w3rzutjS6EtBwnpN7HNUCGrkFEo8NMQ1TeOk9mFVcE7UHSfjIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBuOaT1gYSDFenx/+dnZP0TeU5bhoM+pDC3IO7N0LWjio3IjDGNshUeb2RDZyGRsnAP6i2l8RTQD8i2V0okAV0OPLEBpjebbV8mzNFUtIDq08yJIcqQmIwI2/sd9z07TuLJMAbFn309yxBaKFnFNjab9vnYeyZEm3S1ofVXr4tAVwt1kFwMRgWpIgz922o+fZJdImwBKK+iBgB",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01K9rgFco57fjhTSvMKg7W4N",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00662.py",
+          "start_line": 36,
+          "end_line": 48
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01K9rgFco57fjhTSvMKg7W4N",
+        "content": "\t\tmap17035['keyA-17035'] = 'a-Value'\n\t\tmap17035['keyB-17035'] = param\n\t\tmap17035['keyC'] = 'another-Value'\n\t\tbar = map17035['keyB-17035']\n\n\t\timport helpers.utils\n\n\t\tfileName = None\n\t\tfd = None\n\n\t\ttry:\n\t\t\tfileName = f'{helpers.utils.TESTFILES_DIR}/{bar}'\n\t\t\tfd = open(fileName, 'rb')"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "Tainted param flows directly into fileName and then to `open()` without any path validation or sanitization — only HTML-escaping on output, which doesn't prevent path traversal. This is a classic unsanitized path injection.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_0194JThwxmoS1E71zZJqR8an",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "User-controlled request parameter `param` (from request.args.get) is stored as `bar` and concatenated directly into `fileName = f'{TESTFILES_DIR}/{bar}'`, which is then passed to `open(fileName, 'rb')`. There is no path sanitization, normalization, or allow-list check before the file open; the only processing applied (escape_for_html) happens on the output content, not on the path, so it does not mitigate path traversal. This matches the classic OWASP Benchmark path traversal pattern and is a genuine path injection vulnerability.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

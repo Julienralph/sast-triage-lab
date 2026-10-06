@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/command-line-injection\nCodeQL message: This command line depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00006.java (lines 66-66)\n\nCode:\n```\n/**\n * OWASP Benchmark v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Dave Wichers\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/cmdi-00/BenchmarkTest00006\")\npublic class BenchmarkTest00006 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EoUDCqQBCBIYAipAqMp1AdZ2SNLPju9glLjKUiqa7AFXPQ0AVdcd5/DoZt63jm/dOYGzDDj2FpSkqk1018KS5WMmBKrNhUnP4fOYwjIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB/OST1gYSDIpmjDuYJhr2/KsF9RoMCeNtJuOPHYPr+VeOIjBnJaYNRYInV5Y0DITp6mwUE2P2++tCJ9wlFmFsMykkOBCIH5NqH0xp/3anZ7FTJcAqjQHCMQKd5aFkQbEkSUhOI5rcaDGB8DUHmTHMWYBUzwcFZz6uQiCT0axKWLxfyS2q83rQQgZjYm08yxC6PtIeicBHMA7el55TVi+M+oc4Gk0TTheLRilAEwDHONgmWqfrTMP8RG/IntUYaNYf453Auz2JHXcy5OrIyon8fOyUgGAJvVfGd/9stfpRdRgZGMQYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_011CbADJfvAsrzWY7xhrsc7K",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00006.java",
+          "start_line": 34,
+          "end_line": 100
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_011CbADJfvAsrzWY7xhrsc7K",
+        "content": "            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        // some code\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        String param = \"\";\n        if (request.getHeader(\"BenchmarkTest00006\") != null) {\n            param = request.getHeader(\"BenchmarkTest00006\");\n        }\n\n        // URL Decode the header value since req.getHeader() doesn't. Unlike req.getParameter().\n        param = java.net.URLDecoder.decode(param, \"UTF-8\");\n\n        java.util.List<String> argList = new java.util.ArrayList<String>();\n\n        String osName = System.getProperty(\"os.name\");\n        if (osName.indexOf(\"Windows\") != -1) {\n            argList.add(\"cmd.exe\");\n            argList.add(\"/c\");\n        } else {\n            argList.add(\"sh\");\n            argList.add(\"-c\");\n        }\n        argList.add(\"echo \" + param);\n\n        ProcessBuilder pb = new ProcessBuilder();\n\n        pb.command(argList);\n\n        try {\n            Process p = pb.start();\n            org.owasp.benchmark.helpers.Utils.printOSCommandResults(p, response);\n        } catch (IOException e) {\n            System.out.println(\n                    \"Problem executing cmdi - java.lang.ProcessBuilder(java.util.List) Test Case\");\n            throw new ServletException(e);\n        }\n    }\n}"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "Tainted header value is URL-decoded (not sanitized) and placed directly into a shell command executed via `sh -c \"echo <param>\"`. No validation/escaping occurs, so this is a genuine command injection.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01FqcaLAdJiu8vGipKixRqhf",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The HTTP header \"BenchmarkTest00006\" is read directly from the request, URL-decoded (which does not sanitize shell metacharacters), and concatenated into a string passed as an argument to `sh -c` / `cmd.exe /c` via ProcessBuilder. There is no validation, allow-listing, or escaping of the value before it reaches the command execution sink, so an attacker-controlled header can inject arbitrary shell commands (e.g., via `;`, `|`, backticks, etc.).",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

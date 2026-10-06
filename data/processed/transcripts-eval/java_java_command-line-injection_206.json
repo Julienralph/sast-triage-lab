@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/command-line-injection\nCodeQL message: This command line depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00171.java (lines 82-82)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Nick Sanidas\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/cmdi-00/BenchmarkTest00171\")\npublic class BenchmarkTest00171 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErICCqQBCBIYAipAB7PSBKwTi8AAEFlRoMinnRxZvCsgVeZtFqvGArlxKHWLLg46CpZpAGIjgU7QRdpOhyo1jj4UqxXByyqKNuXYwjIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBouWT1gYSDJazHfgxfXpTCSsFUhoMXaIJC1XjuYaAqVO1IjCo0WWQXesGZsbxEeSc7LpMrvxMdfHs55zc2ZEfBw+0RYGNF2Nr+Uc9am2u2NkaCQIqO939/1QPyQyzJIlqbWqdp8WGOb7mXrqXQrYZMtat3VMIpVy77omjP43xGhid24BdpVsZr2PFpYxWivUaGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01CvwrfWUuFEtfpKkhXhYvqE",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00171.java",
+          "start_line": 36,
+          "end_line": 110
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01CvwrfWUuFEtfpKkhXhYvqE",
+        "content": "    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        String param = \"\";\n        if (request.getHeader(\"BenchmarkTest00171\") != null) {\n            param = request.getHeader(\"BenchmarkTest00171\");\n        }\n\n        // URL Decode the header value since req.getHeader() doesn't. Unlike req.getParameter().\n        param = java.net.URLDecoder.decode(param, \"UTF-8\");\n\n        String bar = \"safe!\";\n        java.util.HashMap<String, Object> map40534 = new java.util.HashMap<String, Object>();\n        map40534.put(\"keyA-40534\", \"a_Value\"); // put some stuff in the collection\n        map40534.put(\"keyB-40534\", param); // put it in a collection\n        map40534.put(\"keyC\", \"another_Value\"); // put some stuff in the collection\n        bar = (String) map40534.get(\"keyB-40534\"); // get it back out\n        bar = (String) map40534.get(\"keyA-40534\"); // get safe value back out\n\n        String cmd = \"\";\n        String a1 = \"\";\n        String a2 = \"\";\n        String[] args = null;\n        String osName = System.getProperty(\"os.name\");\n\n        if (osName.indexOf(\"Windows\") != -1) {\n            a1 = \"cmd.exe\";\n            a2 = \"/c\";\n            cmd = \"echo \";\n            args = new String[] {a1, a2, cmd, bar};\n        } else {\n            a1 = \"sh\";\n            a2 = \"-c\";\n            cmd = org.owasp.benchmark.helpers.Utils.getOSCommandString(\"ls \");\n            args = new String[] {a1, a2, cmd + bar};\n        }\n\n        String[] argsEnv = {\"foo=bar\"};\n\n        Runtime r = Runtime.getRuntime();\n\n        try {\n            Process p = r.exec(args, argsEnv, new java.io.File(System.getProperty(\"user.dir\")));\n            org.owasp.benchmark.helpers.Utils.printOSCommandResults(p, response);\n        } catch (IOException e) {\n            System.out.println(\"Problem executing cmdi - TestCase\");\n            response.getWriter()\n                    .println(org.owasp.esapi.ESAPI.encoder().encodeForHTML(e.getMessage()));\n            return;\n        }\n    }\n}"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErsGCqQBCBIYAipAhq4P/Tm4vD9kLRxswVhdiHkzCGE8TQIkIv4gXI7m/C/sq5Kp+LeuVjuG8M5EzOxY9iydPflbtg5KXJkXyZQZEjIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBp+WT1gYSDPYFe61jNvt3PRAI5RoMj5blR7bYwHivAj4RIjBokwvRWVkuZCUq+SVIQ7NR/8zFxe8M7WIBafgIvVcQ+2qfBBpLwlrrousBeFHaMjsqwwTKEUeFRWH7ecljI3ww5v0HbNo8Q1cARE1te33h6oy2234rYytQmqgxF0PUV35lIF5LYSKuiAttZ3oFyzP+2yh9tTLIYbhjkoqc8qs2NzHiyQ++sLAc3J6t6ZX1BTvxzH8WSOMpMGR+dCi58Ldu49VvHIEkrQsMYoi3nzQgrsggkF4Xxoz5JdZUbgABI6WReGpHJQNx0ylCTuFtRo0/LDVhAb5VEY0/yKMbGB+cvcjQ7RPmL4O3ZKNwyS3B3I9YhmBOjyYM705VOSpZZvG3i7oHt46+9ofzrNkzXaEOarK7CVhGN6acxwVe9H3f5e9NHarEGH7WcZjHKjwAj3ORNDviICNE1FpT8NUoSuoj2H/aE7mFjcm/04LqFP4REMNtomJtH7KwFgV4Q1Phh5AeLxj0ZARxzW9eG778j2+BuvEeo9PgppkkknyYGrIxmWHkszk7jRoJafVEmW/s8cqFDLRMQ84SDKhenRImQpnUBn7WlR7w/mDFJDN8+jBbu5KwgXDH2lG8Xj07x9AynxrIG4jaaXr+001yWe/1POFqB3CTaVIAf7IKf+aidvE4pX4ff/uApxIdSL46Ck5KiwouaFnekjiRSC19aLD6FDoCF0zQ8dFi59kSnBCpEMcHyA5iUjBPXrl+HUe3vyqF9Uf8MBgxRlRmAJKXiVK1ZSg8BoyHcV8jf3YCZGo6tOchI60ejv5VM16VQ9Zp8LgRIlQzHmTilVlNUM/4Fsw39RNujBsSstPW0aH0+LAESKpS6HwKphSF02cYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01K3C9TeTx5P9nmWqQPyjHz6",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "false_positive",
+          "justification": "The tainted header value is stored in a HashMap under key \"keyB-40534\", but the variable 'bar' that is actually used in the command execution is subsequently reassigned to map40534.get(\"keyA-40534\"), which holds the hardcoded constant \"a_Value\", not the user-controlled value. The earlier assignment to the tainted value is overwritten before 'bar' is concatenated into the exec() arguments, so the final command line does not actually depend on user input despite CodeQL's taint tracking through the collection flagging it.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

@@ -1,0 +1,93 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/xpath-injection\nCodeQL message: XPath expression depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00019.py (lines 54-54)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/xpathi-00/BenchmarkTest00019', methods=['GET'])\n\tdef BenchmarkTest00019_get():\n\t\tresponse = make_response(render_template('web/xpathi-00/BenchmarkTest00019.html'))\n\t\tresponse.set_cookie('BenchmarkTest00019', '2222',\n\t\t\tmax_age=60*3,\n\t\t\tsecure=True,\n\t\t\tpath=request.path,\n\t\t\tdomain='localhost')\n\t\treturn response\n\t\treturn BenchmarkTest00019_post()\n\n\t@app.route('/benchmark/xpathi-00/BenchmarkTest00019', methods=['POST'])\n\tdef BenchmarkTest00019_post():\n\t\tRESPONSE = \"\"\n\n\t\timport urllib.parse\n\t\tparam = urllib.parse.unquote_plus(request.cookies.get(\"BenchmarkTest00019\", \"noCookieValueSupplied\"))\n\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErECCqQBCBIYAipAtVkhJ+S0vkXGWT2KzED+6D1vPQy96feQ+QKTdg0LEGZ1W4BLNXrWj/ETx9w0F5YHeN4XgoFThoDX/riBXQfbbTIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBh/GT1gYSDNHQA16RAD/nKlZBsxoM3DxALjFERcvlIDlAIjDGJijbgAeKJ54nrR8V9YpsTCKtfnf7q59++yfbNaYQKihraUREbGPaWRORgGs1StMqOjyOADZZw+T4uydfpxAVGWAxwNZNwcCyLtivFRo6sA7bqCpW/MBNaD/IMVe14afpCpHGRHtJtKQ46h0YAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01P9vJ1642t3CH5rQUYYFmct",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00019.py",
+          "start_line": 54,
+          "end_line": 90
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01P9vJ1642t3CH5rQUYYFmct",
+        "content": "\t\t\trun_query = lxml.etree.XPath(query)\n\t\t\tnodes = run_query(root)\n\t\t\tnode_strings = []\n\t\t\tfor node in nodes:\n\t\t\t\tnode_strings.append(' '.join([e.text for e in node]))\n\n\t\t\tRESPONSE += (\n\t\t\t\tf'Your XPATH query results are: <br>[ {', '.join(node_strings)} ]'\n\t\t\t)\n\t\texcept:\n\t\t\tRESPONSE += (\n\t\t\t\tf'Error parsing XPath Query: \\'{escape_for_html(query)}\\''\n\t\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "id": "toolu_01Po3sAUNUxTYc1ohpLMYEkR",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00019.py",
+          "start_line": 40,
+          "end_line": 60
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01Po3sAUNUxTYc1ohpLMYEkR",
+        "content": "\n\t\tmap31715 = {}\n\t\tmap31715['keyA-31715'] = 'a-Value'\n\t\tmap31715['keyB-31715'] = param\n\t\tmap31715['keyC'] = 'another-Value'\n\t\tbar = map31715['keyB-31715']\n\n\t\timport lxml.etree\n\t\timport helpers.utils\n\n\t\ttry:\n\t\t\tfd = open(f'{helpers.utils.RES_DIR}/employees.xml', 'rb')\n\t\t\troot = lxml.etree.parse(fd)\n\t\t\tquery = f'/Employees/Employee[@emplid=\\'{bar}\\']'\n\t\t\trun_query = lxml.etree.XPath(query)\n\t\t\tnodes = run_query(root)\n\t\t\tnode_strings = []\n\t\t\tfor node in nodes:\n\t\t\t\tnode_strings.append(' '.join([e.text for e in node]))\n\n\t\t\tRESPONSE += ("
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "Tainted value flows directly from cookie through map, unsanitized into XPath query string, confirming injection.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01RAwHDMevgdDcBywnG7DNU1",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "User-controlled input from request.cookies.get(\"BenchmarkTest00019\") is URL-decoded and assigned to `param`, stored in a dict and retrieved unchanged as `bar`, then directly interpolated into the XPath expression string `f'/Employees/Employee[@emplid=\\'{bar}\\']'` which is compiled and executed via lxml.etree.XPath(query). There is no sanitization, escaping, or validation of the value before it reaches the XPath sink (escape_for_html is only used in the error-handling branch, not on the query itself), so a crafted cookie value can inject arbitrary XPath syntax.</justification>\n<parameter name=\"missing_information\">[]",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

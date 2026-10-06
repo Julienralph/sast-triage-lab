@@ -1,0 +1,93 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00131.java (lines 82-82)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Nick Sanidas\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/pathtraver-00/BenchmarkTest00131\")\npublic class BenchmarkTest00131 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EtoDCqQBCBIYAipAC1xArkrX/tJHWwIklyvKDL5CVPxanX6L6K+S1WC+GeD4bvImIrBpOJa10q0BsFPV2NEI8DVklbYtk0m/NrKxYjIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB6OST1gYSDDzfJKfFL0Ij17WhfBoMWQt1TRSrSbnccCpwIjAmKYrBcXjVg3v8fu6jxe7rxKwCodFZ68HdkwB83gR5PLebt0zQTdwcDS8d+KzLRGUq4gFC456SeaG6P13i83GvSJhMn1MjO8ufGyTNab+ry0SfL35v01MuylWVFhgowwpP8E3C7QO8XA7PG1a2psLlcCt9GRJJU5CG9IQpl1EPRkg1/roEzlPQqwxiHlMhpev19qD1YcRn/9rXdzRPjx7SLfEMFaNiYX4YeTzKwT2DT1pZbAqigUYkF3e/2u7ZDOJsIta08Sh21zpjzgdmVOSOWAnWxhtKdSU0xXe8aGjtxiiBPojYdZOmC6zk2rbnE3ZCpW1OLLP4X6cWHvITI3YCuEuywaCzTxRGBlefyhlh+abKekyaGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01RJ5HkAEqzZzhZQhha8dYt9",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00131.java",
+          "start_line": 82,
+          "end_line": 160
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01RJ5HkAEqzZzhZQhha8dYt9",
+        "content": "        if (fileTarget.exists()) {\n            response.getWriter().println(\" And file already exists.\");\n        } else {\n            response.getWriter().println(\" But file doesn't exist yet.\");\n        }\n    }\n}"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "id": "toolu_01YFQ5tzx6QbEvrKbXzBWuZD",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00131.java",
+          "start_line": 39,
+          "end_line": 82
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01YFQ5tzx6QbEvrKbXzBWuZD",
+        "content": "    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        String param = \"\";\n        if (request.getHeader(\"BenchmarkTest00131\") != null) {\n            param = request.getHeader(\"BenchmarkTest00131\");\n        }\n\n        // URL Decode the header value since req.getHeader() doesn't. Unlike req.getParameter().\n        param = java.net.URLDecoder.decode(param, \"UTF-8\");\n\n        String bar;\n        String guess = \"ABC\";\n        char switchTarget = guess.charAt(1); // condition 'B', which is safe\n\n        // Simple case statement that assigns param to bar on conditions 'A', 'C', or 'D'\n        switch (switchTarget) {\n            case 'A':\n                bar = param;\n                break;\n            case 'B':\n                bar = \"bob\";\n                break;\n            case 'C':\n            case 'D':\n                bar = param;\n                break;\n            default:\n                bar = \"bob's your uncle\";\n                break;\n        }\n\n        java.io.File fileTarget = new java.io.File(bar);\n        response.getWriter()\n                .println(\n                        \"Access to file: '\"\n                                + org.owasp\n                                        .esapi\n                                        .ESAPI\n                                        .encoder()\n                                        .encodeForHTML(fileTarget.toString())\n                                + \"' created.\");\n        if (fileTarget.exists()) {"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EvcHCqQBCBIYAipA4qlVydkU+3AYJSiKB7LmuU2mds58CKD2YzV88SxdWvzBQRkPfb8sA7fuynNEWCoMue7ERMMfM5m/WXcM69Ci+DIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB7+ST1gYSDBijAuMDZqXrjvfoOhoM0F87gEFk7F/FWEYOIjAgBARWRZWfIJ3Eh1XMrdf3bjHXopdkKkllFUpF6b517AoqiIkFIYtMh5IV25WCrLoq/wVI7j53JfKKibMfd2Vc85I4MdTFDcPAeJT+db6lyeE14A9MQDEhdYVqLFHWGCQ+Kr92cKN5Bh+ahFdNPd1UKYl9sZ3nwt+3yt5GdxQ6IMAvC+BqNpHtEeW8z+wlcsa0X72GEg4GpoEMdKJ2MSsr13HqWp8Cqf8VyFie0hiWe43CiIbGapfKZTI6J1Cg20+cw3DyxZOyCpvHZl6fXYAv6/Sr275THq9RbnYmlfyS60Bu98PLHKpxOmiVeSad31OWbT7iYb31SVm1N8+PqNdI5odbNJLbfW9jbQ2Mo1bPMshh+P/2bfhrpDjQN7YyGEIZ560Q+pq/81/dq4bGicr5eIrcIwyIuuxCZ18Kv3a5+M5rIKGSFzEFGMeFgUuJXgexqp7ZpGsekn7CVRvnxPezoZFlNakOtJ3Mw9qpEOi57wXlPZHGnab3b5UIxBSvF2cwhLeKbF/Hi/b/ysURMbmQQSmUKf5g8/QCzyau+kTY1tT6QFl216NxVN39jrIJbxL93z4biiQ2lG0+rrYKB3+xoOOc7ZoCl3mUacH0Ww5bp6sDTqC9LGUJkZdYH5adnr0h5eoNIalvbhIJMgGGtjyOtCsTDvrKoPl0BCeepoHxjSPayg9ULNtCxdHQf5pv2ql2yGnm68Zb2fQ6kpMRSb8H80q+SdXj/zhNX2Sfkt2DzAeNErhzrHxhcnr0Jv9IuPlfdD0BSJxVH69xOyIlP4WsQMTV3Cd6FO3F9mK05UZXS7uDnlAov3MDQIJ7kd3ItdCRddzItMkfqrC+o6842pZDHyZ8Xc6vxk2f7g2okMLtc+xVSimbm1NzNYfQ/Hs3qSCwvUaUerqgClHobOe3kHt18x4W/Kn+E6a0duJXxMJJ8LnngK+KAKNoWnl0xuRFJ2EhY1TX2nmY9q2sdvNkkVhjxwyEcKCyO9U9+UPxB4ZBCARbk4wOSviJfj9od1MSNct2sjHLSLiAz3Z0C0915Np5D7CRrm6hRQZppJyxPtqDL6u9F06y5A7p4VtvxLwTkDzw8BgB",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01Rz56dFPum2xc6bQLpUyDTn",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "false_positive",
+          "justification": "The tainted value `param` is only assigned to `bar` in the 'A', 'C', or 'D' cases of a switch statement. However, `switchTarget` is derived from `guess.charAt(1)` where `guess = \"ABC\"` is a hardcoded constant, so `switchTarget` is always 'B'. In that branch, `bar` is hardcoded to \"bob\", not the user-controlled `param`. Therefore the File object created at line 82 is always built from the constant string \"bob\" (or the default branch value), and tainted user input never reaches the File constructor despite CodeQL's static taint tracking flagging it. This is a classic unreachable-taint-path false positive baked into the OWASP Benchmark test suite.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

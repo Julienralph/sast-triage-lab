@@ -1,0 +1,215 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01236.java (lines 75-75)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Dave Wichers\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/pathtraver-01/BenchmarkTest01236\")\npublic class BenchmarkTest01236 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EswCCqQBCBIYAipA/4/cqgKclhztoRxw8FU/5R7kVyumglMq7BCzVwUmjSIq5jM9fFCa7yKVTBhTZ0Md/tuS4kiOnNx9aqJSLgJ3GDIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB5oOT1gYSDAU5p2dXvGHWzNP2lhoMAis2tPSbevupiGlqIjBQIaDdkXOi5A2jjlr/6B9rENQ/uzuqQFCclmKX/wTr2TDsNbIsmC5XqC0OwYf20pIqVcfVeoiv+vqpayTnB9j68JiHyWQ0CJLHgKNWw90g92xTc48C/itPzhhN0AENq5VFWdia8b5cZozjlW1k+7H2eiBg+nBd0Keu8yFD32t4DD4YUTkTKz0YAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01UFT4i5GE17ibvtutXRtqVr",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01236.java",
+          "start_line": 36,
+          "end_line": 120
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01UFT4i5GE17ibvtutXRtqVr",
+        "content": "    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        String param = request.getParameter(\"BenchmarkTest01236\");\n        if (param == null) param = \"\";\n\n        String bar = new Test().doSomething(request, param);\n\n        // FILE URIs are tricky because they are different between Mac and Windows because of lack\n        // of standardization.\n        // Mac requires an extra slash for some reason.\n        String startURIslashes = \"\";\n        if (System.getProperty(\"os.name\").indexOf(\"Windows\") != -1)\n            if (System.getProperty(\"os.name\").indexOf(\"Windows\") != -1) startURIslashes = \"/\";\n            else startURIslashes = \"//\";\n\n        try {\n            java.net.URI fileURI =\n                    new java.net.URI(\n                            \"file:\"\n                                    + startURIslashes\n                                    + org.owasp.benchmark.helpers.Utils.TESTFILES_DIR\n                                            .replace('\\\\', '/')\n                                            .replace(' ', '_')\n                                    + bar);\n            java.io.File fileTarget = new java.io.File(fileURI);\n            response.getWriter()\n                    .println(\n                            \"Access to file: '\"\n                                    + org.owasp\n                                            .esapi\n                                            .ESAPI\n                                            .encoder()\n                                            .encodeForHTML(fileTarget.toString())\n                                    + \"' created.\");\n            if (fileTarget.exists()) {\n                response.getWriter().println(\" And file already exists.\");\n            } else {\n                response.getWriter().println(\" But file doesn't exist yet.\");\n            }\n        } catch (java.net.URISyntaxException e) {\n            throw new ServletException(e);\n        }\n    } // end doPost\n\n    private class Test {\n\n        public String doSomething(HttpServletRequest request, String param)\n                throws ServletException, IOException {\n\n            org.owasp.benchmark.helpers.ThingInterface thing =\n                    org.owasp.benchmark.helpers.ThingFactory.createThing();\n            String bar = thing.doSomething(param);\n\n            return bar;\n        }\n    } // end innerclass Test\n} // end DataflowThruInnerClass"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EuUECqQBCBIYAipAvuq5KtNU9kv0vQSxKA6vAICgIXrmnxe1SBd9hQyXRo5DjdYc0YapZmR4r5ycY4ZebesFnpG9wfQ9D0CLVaGxCDIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB6YOT1gYSDOobu2p9QsfLGdY6tRoMUGhZNyJcWLetDoyDIjAEe6zGawFdyRNX0Jn8EdbXw3qW8wwROcv+3dMHzVBEw5rSPx9nORU8r0O3azI9XUYq7QKyMMLffcPHKg4qnnrPXa2jrM0f4xqzmWADUnHvkNa5xpe5q8MpkzExuQhK+M1jp2g3ahJZJOb7g+sqLgbqgN89mRyxYzf3eSUXkukt50oGl1MK5dpNcqD9XI7LielffSQ20cl8kNyuVAkLY9AyCMJNNrIde9K4wuXPVNtxXrti+YZ6Lu/tGa+cV9zUvBQXs1DtezT7hp9qtAxJAPnsO5t+TG7HRELYRvk96jB88gFfmxB7/vx+xAqyeCmGfxz9gI5wltbjf7xQ+RQAzP+S0CzM23W8tl+hJqAP9NdZZzEtnC6ee+3kDah8NIf37ulwR59A/T/H6OK5nNSM+bX/G7XWUSR41Ee+/EXBGYxbU5d76A7s/vjA42BFj+X4VxVnX+EKo5HugboQJO9oAih4Y/Hdtumrr1JGSGn+PdUVwnDSStudFG1Ho7imuHqO3zgIbiWjX13CQrUl8cbl8jKZ4Je3lFKLQIucLWNVf1M1cBgB",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_019mcJ5TE32i2Hv7ZnocfP1G",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "pattern": "class ThingFactory"
+        },
+        "name": "search_references",
+        "type": "tool_use",
+        "toolset_name": null
+      },
+      {
+        "id": "toolu_01Ex43PDVmeFkBgN4EM3BKCV",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "pattern": "interface ThingInterface"
+        },
+        "name": "search_references",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_019mcJ5TE32i2Hv7ZnocfP1G",
+        "content": "[{\"file_path\": \"src/main/java/org/owasp/benchmark/helpers/ThingFactory.java\", \"line\": 24, \"snippet\": \"public class ThingFactory {\"}]"
+      },
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01Ex43PDVmeFkBgN4EM3BKCV",
+        "content": "[{\"file_path\": \"src/main/java/org/owasp/benchmark/helpers/ThingInterface.java\", \"line\": 20, \"snippet\": \"public interface ThingInterface {\"}]"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "id": "toolu_01QHPeVAYkXxaTq6g63hEwiN",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/helpers/ThingFactory.java",
+          "start_line": 1,
+          "end_line": 60
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01QHPeVAYkXxaTq6g63hEwiN",
+        "content": "/**\n * OWASP Benchmark Project\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details\n *\n * @author Nick Sanidas\n * @created 2015\n */\npackage org.owasp.benchmark.helpers;\n\nimport java.io.InputStream;\nimport java.lang.reflect.Constructor;\nimport java.util.Properties;\n\npublic class ThingFactory {\n\n    public static ThingInterface createThing() {\n\n        Properties props = new Properties();\n\n        // create a thing using reflection\n        try (InputStream thingproperties =\n                ThingFactory.class.getClassLoader().getResourceAsStream(\"thing.properties\")) {\n            if (thingproperties == null) {\n                System.out.println(\"Can't find thing.properties\");\n                return new Thing2();\n            }\n            props.load(thingproperties);\n            String which = \"org.owasp.benchmark.helpers.\" + props.getProperty(\"thing\");\n\n            Class<?> thing = Class.forName(which);\n            Constructor<?> thingConstructor = thing.getConstructor();\n            Object thingInstance = thingConstructor.newInstance();\n\n            return (ThingInterface) thingInstance;\n\n        } catch (Exception e) {\n            System.out.println(\"Error constructing Thing.\");\n            e.printStackTrace();\n            return new Thing1();\n        }\n    }\n}"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErECCqQBCBIYAipAuVkNVxaxTFllPmhEPvgbQu1iksibXN1utg6oKVyUrvR2hY6RaCw5BzV7UiKSc1Y7qLtiSDAzMhSq9Kzm/yRS5jIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBpYST1gYSDEIpe64MZUmfUj2R5xoM8OKBIsNOrUPpqes6IjAvkfJt5J1Wm7iKQ+w8R7JOHx7KCkT9KK0Tj5yfvK+j+hExu7tYvNzI/FwHhJUqAIwqOuNe5sX9EAjs5F9FZQf0tP8LXdN/a65vBqJqoAtj/LgNzT2l1UBvPMDe0AMN9lbS1Xfw+mGU++Dgrl4YAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_015cAqydjcavqcYEiD4K1bCm",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "pattern": "class Thing1"
+        },
+        "name": "search_references",
+        "type": "tool_use",
+        "toolset_name": null
+      },
+      {
+        "id": "toolu_0126KEga6ife41Pvwrqj7gDt",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "pattern": "class Thing2"
+        },
+        "name": "search_references",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_015cAqydjcavqcYEiD4K1bCm",
+        "content": "[{\"file_path\": \"src/main/java/org/owasp/benchmark/helpers/Thing1.java\", \"line\": 20, \"snippet\": \"public class Thing1 implements ThingInterface {\"}]"
+      },
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_0126KEga6ife41Pvwrqj7gDt",
+        "content": "[{\"file_path\": \"src/main/java/org/owasp/benchmark/helpers/Thing2.java\", \"line\": 20, \"snippet\": \"public class Thing2 implements ThingInterface {\"}]"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "id": "toolu_01DmawLnwiKoAkJbMnKL7f9Y",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/helpers/Thing1.java",
+          "start_line": 1,
+          "end_line": 40
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      },
+      {
+        "id": "toolu_01RFb7CJwqqraUkRPrJWorsZ",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/helpers/Thing2.java",
+          "start_line": 1,
+          "end_line": 40
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01DmawLnwiKoAkJbMnKL7f9Y",
+        "content": "/**\n * OWASP Benchmark Project\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details\n *\n * @author Nick Sanidas\n * @created 2015\n */\npackage org.owasp.benchmark.helpers;\n\npublic class Thing1 implements ThingInterface {\n\n    @Override\n    public String doSomething(String i) {\n        // just assign input to return value\n        String r = i;\n        return r;\n    }\n}"
+      },
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01RFb7CJwqqraUkRPrJWorsZ",
+        "content": "/**\n * OWASP Benchmark Project\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details\n *\n * @author Nick Sanidas\n * @created 2015\n */\npackage org.owasp.benchmark.helpers;\n\npublic class Thing2 implements ThingInterface {\n\n    @Override\n    public String doSomething(String i) {\n        if (i == null) return \"\";\n        String r = new StringBuilder(i).toString();\n        return r;\n    }\n}"
+      }
+    ]
+  }
+]

@@ -1,0 +1,66 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00738.py (lines 53-53)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00738', methods=['GET'])\n\tdef BenchmarkTest00738_get():\n\t\treturn BenchmarkTest00738_post()\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00738', methods=['POST'])\n\tdef BenchmarkTest00738_post():\n\t\tRESPONSE = \"\"\n\n\t\tvalues = request.args.getlist(\"BenchmarkTest00738\")\n\t\tparam = \"\"\n\t\tif values:\n\t\t\tparam = values[0]\n\n\t\tpossible = \"ABC\"\n\t\tguess = possible[1]\n\t\t\n\t\tmatch guess:\n\t\t\tcase 'A':\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EqwCCqQBCBIYAipAXZTDrHadyuOvA2gZ5KwzfohF23GpRyf11SWkDW9vP/O7xiCaqizgLS2VegRFw7X3vAvvSivAtb8u3Gbmf5ZWKTIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBgOeT1gYSDGZ8HSeuieEtoDXEkBoMhtmzqzBgwlTIDz3ZIjDr7s4Z/Mw9YJO1ur9PIy2yCHmu29Xg3iXoJZFA82d/PHZmIEFszK9kXdELjZt7tocqNWzrvjowj3QcqI8zpSL7g1o4nh0gzfAerRgNXKBi8xWyg+V8unHsDsbqhPzrzwVhlOvXOoVJGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01JyCtfYzYBACEvo6U2x79ie",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00738.py",
+          "start_line": 1,
+          "end_line": 100
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01JyCtfYzYBACEvo6U2x79ie",
+        "content": "'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00738', methods=['GET'])\n\tdef BenchmarkTest00738_get():\n\t\treturn BenchmarkTest00738_post()\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00738', methods=['POST'])\n\tdef BenchmarkTest00738_post():\n\t\tRESPONSE = \"\"\n\n\t\tvalues = request.args.getlist(\"BenchmarkTest00738\")\n\t\tparam = \"\"\n\t\tif values:\n\t\t\tparam = values[0]\n\n\t\tpossible = \"ABC\"\n\t\tguess = possible[1]\n\t\t\n\t\tmatch guess:\n\t\t\tcase 'A':\n\t\t\t\tbar = param\n\t\t\tcase 'B':\n\t\t\t\tbar = 'bob'\n\t\t\tcase 'C' | 'D':\n\t\t\t\tbar = param\n\t\t\tcase _:\n\t\t\t\tbar = 'bob\\'s your uncle'\n\n\t\timport codecs\n\t\timport helpers.utils\n\n\t\ttry:\n\t\t\tfileTarget = codecs.open(f'{helpers.utils.TESTFILES_DIR}/{bar}','r','utf-8')\n\n\t\t\tRESPONSE += (\n\t\t\t\tf\"Access to file: \\'{escape_for_html(fileTarget.name)}\\' created.\"\n\t\t\t)\n\n\t\t\tRESPONSE += (\n\t\t\t\t\" And file already exists.\"\n\t\t\t)\n\n\t\texcept FileNotFoundError:\n\t\t\tRESPONSE += (\n\t\t\t\t\" But file doesn't exist yet.\"\n\t\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EpsHCqQBCBIYAipAAkBDOcwWg8sqno8NTHsFxbSK13wMBk3WvxWv8bW56+w74lKxOyp2LMjjqoCeW3/lm2LOM9j9SVorvHnjDQKD9TIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBhOeT1gYSDEKiuS1IeCHQ9rkYuhoMgZEMhzhy5PCMebQvIjBH+VNW5s6ZjwMspPSU5euZ8XP0Bqt+DilpKfBNnf2iwnkB0U7r4CoDz+A4cYsJ/s4qowWv5MqfiQUV9kTcV5d1n4eU5mT+MWqbYQMYJjf7CVUqWTw2JbBVgPJmz0GEeCMRJJDK88ykTULsf/jdgVtMPT5ubKEU8eLDw8SkZ5jwlmTmLKu1SwbI6RvHUC+SCT2gzGhryYqUTMokkXEh7sOU7/riduMBwahc1t6n2sU22XMUOGyfo3pUPayjSsKLH9Y1MWDAbNu9ienTN+Bpl8IdRydmMdPFp+p9zH5EV53DvryasCLivPSpXAS5Tt+qcoG8yr6gqj6m0KLQI1mRG5E1CBhyGcsh5Go5JYj72yEzDBOlsMIBUNHDxBoWVn/N22uzwyYZQcDN4Hdh4SWHaANFvhaEXULuDquT8gyCpA16Qitg9b675q8RPD9CzBDak/ShOyW2gZTv/kQARcYlIuPSxyYwDBLqJdchkarz5rMRX70vGBG6HUC0++3O3tT5ZzwP2nyeZYvsOx/yH5ej5QbBr5KEE9WxmhTNRRXit80Y4ZNRKwp7Q2YVvqvLAGprC4hPwex9YSGyDzPJQ2t/dT9GlrcV9W6BTq2rJAJDwSlrXyeRfO9L9dNH6WRY/lwbsoGJO8VOCHAzfHoBt5iDvG3tqQBkLgT4U1Ytw3CuKo4AxdtdDUP6koXxvLON+KwQ5AiyH08OgQuNIqB8uaH+t7vDC2Pg/FN+NAIeH0kNTuqFr0Oi8kJ80Nf8xSWOzLc3cSGK8kmn1jORzYvKMj7DxBqWwa25dz9PW5Wi26pgSYwSGtU1TDu9rdrFiCuWw09OAuG9SliNIzihpkQhvxUGdg6UXyk4A10O/XCvnwBAdmzHGrMrFNj8hL0IV/5g/V51kV7Qhq6/tcii8xcFoWQd5X5BuarBuId7F62Ob0dpUz6jVNTjdwO+B64YtEs338lsRa/PjS2GlmUYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01EnzD2CsebR7pUuia1hYrLw",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "false_positive",
+          "justification": "The sink `codecs.open` uses the variable `bar`, which depends on a `match` statement against `guess = possible[1]`. Since `possible = \"ABC\"`, `guess` is always the constant 'B', which falls into the `case 'B':` branch, setting `bar = 'bob'`. The branches that assign `bar = param` (the tainted request parameter) can never be reached at runtime because `guess` is a fixed, non-tainted value. Hence the path passed to `codecs.open` is always `'bob'` plus a fixed directory, never user input, so no path injection is actually possible despite the superficial data flow pattern that CodeQL's taint tracking picks up (it doesn't evaluate the constant-folding of `guess`).</justification>\n<parameter name=\"missing_information\">[]",
+          "missing_information": [
+            "None - the control flow and constant value fully determine the outcome, so no additional reachability information is needed."
+          ]
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

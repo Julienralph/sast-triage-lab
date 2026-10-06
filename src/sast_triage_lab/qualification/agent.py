@@ -86,12 +86,14 @@ class ExploringAgentQualifier(Qualifier):
         budget: CallBudget,
         repository: ReadOnlyRepository,
         max_turns: int = 5,
+        transcripts_dir: Path | None = None,
     ):
         self.client = client
         self.model = model
         self.budget = budget
         self.repository = repository
         self.max_turns = max_turns
+        self.transcripts_dir = transcripts_dir
         self.system_prompt = _PROMPT_PATH.read_text(encoding="utf-8")
 
     def qualify(self, alert: CodeQLAlert, initial_context: str) -> QualificationResult:
@@ -109,6 +111,24 @@ class ExploringAgentQualifier(Qualifier):
         total_input_tokens = 0
         total_output_tokens = 0
 
+        try:
+            return self._run_loop(alert, messages, started_at, total_input_tokens, total_output_tokens)
+        finally:
+            # On sauvegarde la conversation complete quoi qu'il arrive :
+            # verdict trouve, plafond de tours atteint, ou erreur API. Sans
+            # ca, un cas bloque (comme celui qui a motive cette correction)
+            # reste une boite noire, impossible a auditer apres coup.
+            if self.transcripts_dir is not None:
+                self._write_transcript(alert.alert_id, messages)
+
+    def _run_loop(
+        self,
+        alert: CodeQLAlert,
+        messages: list[dict[str, Any]],
+        started_at: float,
+        total_input_tokens: int,
+        total_output_tokens: int,
+    ) -> QualificationResult:
         for turn in range(self.max_turns):
             # Chaque tour de boucle = un appel reel a l'API = un cran du budget.
             self.budget.consume()
@@ -210,3 +230,35 @@ class ExploringAgentQualifier(Qualifier):
             return {"type": "tool_result", "tool_use_id": block.id, "content": content}
         except (FileNotFoundError, PermissionError, ValueError, KeyError) as error:
             return {"type": "tool_result", "tool_use_id": block.id, "content": str(error), "is_error": True}
+
+    def _write_transcript(self, alert_id: str, messages: list[dict[str, Any]]) -> None:
+        self.transcripts_dir.mkdir(parents=True, exist_ok=True)
+        safe_name = alert_id.replace(":", "_").replace("/", "_")
+        path = self.transcripts_dir / f"{safe_name}.json"
+        path.write_text(
+            json.dumps(_serialize_messages(messages), indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+
+
+def _serialize_messages(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Convertit la conversation en structures JSON ordinaires.
+
+    Les messages qu'on construit nous-memes (listes/dicts) passent tels
+    quels. Les blocs renvoyes par le SDK Anthropic (TextBlock, ToolUseBlock,
+    ...) sont des objets Pydantic : on les convertit via ``model_dump()``,
+    recursivement, pour pouvoir relire la conversation plus tard sans avoir
+    besoin du SDK installe.
+    """
+    def convert(value: Any) -> Any:
+        if isinstance(value, (str, int, float, bool)) or value is None:
+            return value
+        if isinstance(value, list):
+            return [convert(item) for item in value]
+        if isinstance(value, dict):
+            return {key: convert(item) for key, item in value.items()}
+        if hasattr(value, "model_dump"):
+            return convert(value.model_dump())
+        return str(value)
+
+    return [convert(message) for message in messages]

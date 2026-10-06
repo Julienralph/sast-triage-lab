@@ -1,0 +1,98 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01239.java (lines 60-60)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Dave Wichers\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/pathtraver-01/BenchmarkTest01239\")\npublic class BenchmarkTest01239 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EskCCqQBCBIYAipAlu4/NqVL5vpHZht+kaQipbd+Csh3cmsAUhAmvN/4IrFMmpu47xPHqp2/LU4TQTexaOAVBSdFXfDswSVR+F2c3zIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBrIST1gYSDMtMdWLHLK2d+BfJ0RoMknYjknjei+TssxNXIjD1+WlOvZpbjYSYUqjpKBTFyJj9x+WHi/r8luPQ28a7bcs+vvbyYPMFphILv8jyX0QqUlmuCPGFbKDKtKWv7KmQtHKmsyYwa4sYov0IpRq+8bseqkrkE7GzRf/4Q9tOhQxxfioHPfOfYbVkj3k9ksR01zslbRPxmbqqqJhKNq7l+B+WlC4YAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01DQLn3BaEuK11Bks76hUzU8",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01239.java",
+          "start_line": 60,
+          "end_line": 130
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01DQLn3BaEuK11Bks76hUzU8",
+        "content": "                new java.io.FileOutputStream(new java.io.FileInputStream(fileName).getFD()); ) {\n            response.getWriter()\n                    .println(\n                            \"Now ready to write to file: \"\n                                    + org.owasp.esapi.ESAPI.encoder().encodeForHTML(fileName));\n\n        } catch (Exception e) {\n            System.out.println(\"Couldn't open FileOutputStream on file: '\" + fileName + \"'\");\n        }\n    } // end doPost\n\n    private class Test {\n\n        public String doSomething(HttpServletRequest request, String param)\n                throws ServletException, IOException {\n\n            String bar = \"alsosafe\";\n            if (param != null) {\n                java.util.List<String> valuesList = new java.util.ArrayList<String>();\n                valuesList.add(\"safe\");\n                valuesList.add(param);\n                valuesList.add(\"moresafe\");\n\n                valuesList.remove(0); // remove the 1st safe value\n\n                bar = valuesList.get(1); // get the last 'safe' value\n            }\n\n            return bar;\n        }\n    } // end innerclass Test\n} // end DataflowThruInnerClass"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErUCCqQBCBIYAipAWUXiYELbqX7l2Z3DmWDRdWvDsQs8v7xLQUh66yFd4a0iRJp6yvK8eu1AXf++Z992ef0Mky4B6bOc/4YFMyb2zDIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBroST1gYSDDrRe3TL1TuuIn3efRoM3HwZAkYXmQnzonQYIjC9ckUxm2IbRJK2/B3mtX4URUgex1rqPjx3WzEyPHVM3MHxLlxPIcw7ZR/v/jTapMwqPpAa9UBqnJDj1Ba0jeAM03wGecxIAk74fxauHE+HnTimxMfk5Gt/yWjHmhWAgGHtqCiV5LTEKyhN+fsQ44htGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01AEBGxMHtpyeyYWV12yDX3w",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01239.java",
+          "start_line": 34,
+          "end_line": 60
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01AEBGxMHtpyeyYWV12yDX3w",
+        "content": "            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        String param = request.getParameter(\"BenchmarkTest01239\");\n        if (param == null) param = \"\";\n\n        String bar = new Test().doSomething(request, param);\n\n        String fileName = org.owasp.benchmark.helpers.Utils.TESTFILES_DIR + bar;\n\n        try (\n        // Create the file first so the test won't throw an exception if it doesn't exist.\n        // Note: Don't actually do this because this method signature could cause a tool to find\n        // THIS file constructor\n        // as a vuln, rather than the File signature we are trying to actually test.\n        // If necessary, just run the benchmark twice. The 1st run should create all the necessary\n        // files.\n        // new java.io.File(org.owasp.benchmark.helpers.Utils.TESTFILES_DIR + bar).createNewFile();\n\n        java.io.FileOutputStream fos =\n                new java.io.FileOutputStream(new java.io.FileInputStream(fileName).getFD()); ) {"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "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",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01ALLCsfikmGh1mJn12ES4Di",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "false_positive",
+          "justification": "The tainted request parameter is passed into Test.doSomething(), which inserts it into a List alongside two constant strings [\"safe\", param, \"moresafe\"], then calls valuesList.remove(0) (removing the first \"safe\" element) and returns valuesList.get(1). After the removal, index 1 of the list is the constant \"moresafe\", not the user-supplied value. So `bar` returned by doSomething() is always the literal string \"moresafe\" regardless of the parameter's value, and the subsequent fileName = TESTFILES_DIR + bar used in the FileInputStream/FileOutputStream sink is therefore not influenced by user input. The dataflow CodeQL reports is overestimated due to imprecise handling of List.remove()/get() index semantics; the actual runtime value reaching the sink is a fixed constant, so there is no exploitable path traversal here.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

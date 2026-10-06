@@ -1,0 +1,98 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00620.py (lines 50-50)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00620', methods=['GET'])\n\tdef BenchmarkTest00620_get():\n\t\treturn BenchmarkTest00620_post()\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00620', methods=['POST'])\n\tdef BenchmarkTest00620_post():\n\t\tRESPONSE = \"\"\n\n\t\timport helpers.utils\n\t\tparam = \"\"\n\t\t\n\t\tfor name in request.headers.keys():\n\t\t\tif name.lower() in helpers.utils.commonHeaderNames:\n\t\t\t\tcontinue\n\t\t\n\t\t\tif request.headers.get_all(name):\n\t\t\t\tparam = name\n\t\t\t\tbreak\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErwCCqQBCBIYAipA4+AiPx2HhUQ8TD5moTmV9YV5glSvPtmr7rPkmtlOrK7AdvQ0SheQEzqNREW1Y6XwDrBeoKiJpFgz+KODCAKHKTIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB14ST1gYSDB9O/Z3HHTJXieb3dhoMjOrXasD31VJvp2MeIjCQfyIVd4L9WmFNAwpLkLJfWy7OznXbpMRxt2iikIe3dkkLrj0K1uI62bdT8/F5A6cqRSrNYJOqyyZ3Ley2tuK5w0jD6/vmaakm4eRHVcPGeTr8XL1WlyHEs1cIjNv5GkbYPcQ2G47M9KuMqNBAzXpif/Xd1SVVzxgB",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01Q8wnd8WYeugNkcEQbmapaN",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00620.py",
+          "start_line": 50,
+          "end_line": 90
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01Q8wnd8WYeugNkcEQbmapaN",
+        "content": "\t\t\twith open(fileName, 'wb') as fd:\n\t\t\t\tRESPONSE += (\n\t\t\t\t\tf'Now ready to write to file: {escape_for_html(fileName)}'\n\t\t\t\t)\n\t\texcept IOError as e:\n\t\t\tRESPONSE += (\n\t\t\t\tf'Problem reading from file \\'{escape_for_html(fileName)}\\': '\n\t\t\t\tf'{escape_for_html(e.strerror)}'\n\t\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErsCCqQBCBIYAipAAykpR3nKBVN0rpTqpkMKOOjPmBtgQBacIFBVACnwUctkngceWGGhWkba00GFIeRL34f3sdQicXXbhk/MfrydoTIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB2YST1gYSDCrkpR3F4opAeTcHnRoMOXuB9zs6oxpSrc1+IjBOskRfh4Gz60EL7BM2oGEGhZv8GihHCMB3KAPkoJLANtjKL+zyJvnJgfL5jFvMdBUqRL/dhzb9T0f5yA6FaM80+0xrp4Q/rQ8Uw3D7SMCbT4ZuCUzuKZ1Zk6Xnu/CFQrRlgZzjgvXa3QRXlAbN2nj9Dv6sg6P4GAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01X6tvEkAnmEi7ffNa7sWWDb",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00620.py",
+          "start_line": 38,
+          "end_line": 52
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01X6tvEkAnmEi7ffNa7sWWDb",
+        "content": "\t\t\tif request.headers.get_all(name):\n\t\t\t\tparam = name\n\t\t\t\tbreak\n\n\t\timport base64\n\t\ttmp = base64.b64encode(param.encode('utf-8'))\n\t\tbar = base64.b64decode(tmp).decode('utf-8')\n\n\t\timport helpers.utils\n\n\t\ttry:\n\t\t\tfileName = f'{helpers.utils.TESTFILES_DIR}/{bar}'\n\t\t\twith open(fileName, 'wb') as fd:\n\t\t\t\tRESPONSE += (\n\t\t\t\t\tf'Now ready to write to file: {escape_for_html(fileName)}'"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "The tainted header name (`param`/`bar`) flows unsanitized (just base64 encode/decode roundtrip, no validation) into `fileName` which is used in `open()` for writing — a classic path traversal sink. No sanitization breaks the taint.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_012e6Mia9jJomgP46GEZJDzR",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "User-controlled input (an arbitrary HTTP header name not in the common header name list) is assigned to `param`, then base64-encoded and decoded (a no-op transformation that does not sanitize or validate the value) into `bar`, which is concatenated into `fileName` and passed to `open(fileName, 'wb')`. There is no check that `bar`/`param` is restricted to a safe filename (no path traversal character filtering, no allowlist, no canonicalization/containment check against TESTFILES_DIR). An attacker can supply a header name containing `../` sequences to write to arbitrary file paths, demonstrating a genuine path injection vulnerability.</justification>\n<parameter name=\"missing_information\">[]",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

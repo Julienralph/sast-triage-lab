@@ -1,0 +1,98 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00739.py (lines 55-55)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00739', methods=['GET'])\n\tdef BenchmarkTest00739_get():\n\t\treturn BenchmarkTest00739_post()\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00739', methods=['POST'])\n\tdef BenchmarkTest00739_post():\n\t\tRESPONSE = \"\"\n\n\t\tvalues = request.args.getlist(\"BenchmarkTest00739\")\n\t\tparam = \"\"\n\t\tif values:\n\t\t\tparam = values[0]\n\n\t\tnum = 106\n\t\t\n\t\tbar = \"This should never happen\" if (7*42) - num > 200 else param\n\n\t\timport platform\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EsQCCqQBCBIYAipAK1YciBsx2MetDKKpVdUvLxnxqpXiNAu0MamZVolwTg2BQ8+liBoHWXYDuEXDsfP5yDulenVSJ/sOGgxsHrJ7KDIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBz+aT1gYSDAh6YMLqwH6mE3d7RxoMDRtFomWwl6CviTy1IjALVLMeD7drub/ORSfg2IZx3r9RVruBBDDJCTixk0vZZuCI5ZsT4l97yq2552QC1TEqTfyVEMjYBbAaPFIrTkBblEEDKr3bHPvNBXQswuNsLQTXcNKjMAT97WK7IMoroFzJyr4Ch4P32PocFLqdhXqNS8kTqDPIk2e68NWLewOHGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01KPWTmsz7ngq8fuSXZrzKEh",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00739.py",
+          "start_line": 55,
+          "end_line": 100
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01KPWTmsz7ngq8fuSXZrzKEh",
+        "content": "\t\t\tfileTarget = codecs.open(f'{helpers.utils.TESTFILES_DIR}/{bar}','r','utf-8')\n\n\t\t\tRESPONSE += (\n\t\t\t\tf\"Access to file: \\'{escape_for_html(fileTarget.name)}\\' created.\"\n\t\t\t)\n\n\t\t\tRESPONSE += (\n\t\t\t\t\" And file already exists.\"\n\t\t\t)\n\t\texcept FileNotFoundError:\n\t\t\tRESPONSE += (\n\t\t\t\t\" But file doesn't exist yet.\"\n\t\t\t)\n\t\texcept IOError:\n\t\t\tpass\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErECCqQBCBIYAipA8VU/p4UVhFEeF/34UXJEO4VixiE/8Mwn/ZzTrzEl+Ax/WMKbo0PbMnxv4KXNWuuSvc16RAW382U/qNyLMhKulzIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB0uaT1gYSDGlWmmDzyZxH8usgHBoMlbY4zJ4WoxxJxmFNIjD/4598QqvvnVVD+KdV8RDgvWTQDvnl0hOgpDUT4Qg4CV91zSY68Plhoo/F0d/T5zQqOkwAF0lrXmPjUJ55cQLNDeJetQfBguUvGQllsFXjiFOGG8D5rcf2Z0+yUrF1KyG+VvgMa7dVv2ybmuYYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01KgCywa1C4izdZrTtt8j3jN",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00739.py",
+          "start_line": 34,
+          "end_line": 56
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01KgCywa1C4izdZrTtt8j3jN",
+        "content": "\t\t\tparam = values[0]\n\n\t\tnum = 106\n\t\t\n\t\tbar = \"This should never happen\" if (7*42) - num > 200 else param\n\n\t\timport platform\n\t\timport codecs\n\t\timport helpers.utils\n\t\tfrom urllib.parse import urlparse\n\t\tfrom urllib.request import url2pathname\n\n\t\tstartURIslashes = \"\"\n\n\t\tif platform.system() == \"Windows\":\n\t\t\tstartURIslashes = \"/\"\n\t\telse:\n\t\t\tstartURIslashes = \"//\"\n\n\t\ttry:\n\t\t\tfileURI = urlparse(\"file:\" + startURIslashes + helpers.utils.TESTFILES_DIR.replace('\\\\', '/').replace(' ', '_') + bar)\n\t\t\tfileTarget = codecs.open(f'{helpers.utils.TESTFILES_DIR}/{bar}','r','utf-8')\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "This confirms the tainted `param` (from `request.args.getlist`) flows unsanitized into `bar`, which is directly concatenated into a file path opened with `codecs.open`. No validation or sanitization occurs — this is a classic path traversal / path injection vulnerability, consistent with the OWASP Benchmark test suite design (this test case is a \"true\" vulnerable case).",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01BphDyYk1BJx9KYR8vuRGj7",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "User-controlled input from request.args.getlist(\"BenchmarkTest00739\") is assigned to param, then to bar (with only an unrelated conditional that doesn't affect attacker-controlled values), and bar is concatenated directly into a file path passed to codecs.open() without any sanitization, normalization, or allow-listing. This allows path traversal (e.g., via '../' sequences) to access arbitrary files, matching the path-injection sink pattern.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

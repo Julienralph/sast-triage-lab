@@ -55,7 +55,7 @@ class SimpleQualifier(Qualifier):
         try:
             response = self.client.messages.parse(
                 model=self.model,
-                max_tokens=1024,
+                max_tokens=4096,
                 system=self.system_prompt,
                 messages=[{"role": "user", "content": user_message}],
                 output_format=SimpleVerdict,
@@ -75,6 +75,27 @@ class SimpleQualifier(Qualifier):
 
         duration_ms = (time.monotonic() - started_at) * 1000
         verdict = response.parsed_output
+
+        if verdict is None:
+            # La reponse a ete coupee avant la fin du JSON (probablement par
+            # max_tokens, voir le meme probleme deja rencontre sur l'agent) :
+            # on ne plante pas, on renvoie un resultat clair pour ne pas
+            # perdre les alertes suivantes du lot.
+            return QualificationResult(
+                alert_id=alert.alert_id,
+                language=alert.language,
+                method="simple",
+                verdict="uncertain",
+                justification="Reponse incomplete, non conforme au format JSON attendu (probablement coupee par max_tokens).",
+                technical_status="error",
+                duration_ms=duration_ms,
+                model_calls=1,
+                token_usage={
+                    "input": response.usage.input_tokens,
+                    "output": response.usage.output_tokens,
+                },
+                prompt_version=PROMPT_VERSION,
+            )
 
         return QualificationResult(
             alert_id=alert.alert_id,

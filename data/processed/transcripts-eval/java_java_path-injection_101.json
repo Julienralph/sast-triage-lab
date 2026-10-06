@@ -1,0 +1,98 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01238.java (lines 54-54)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Dave Wichers\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/pathtraver-01/BenchmarkTest01238\")\npublic class BenchmarkTest01238 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErMCCqQBCBIYAipAqoLsf6KF4cMJeaWsbh6JmAThv/X1j7yhVZ3CUrslQ0BJmtd2ZU/d1qhPjmR4McWaOjJPnObEdAwVgLstd8nnLTIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBo+ST1gYSDDkUXIxs2r+CT+BocRoMgjhQ9bLwlt+56EwuIjAjpZM+PiHvkqCvqLHp78vqSB1N18kjrG1FDocLZ2DjUQGD9cKKWIw3NZKKxhOGrM0qPBKiDvTbGY1Wp43lnpp0W0ibuwd70GIYj+CPKj22lfPDyoM6o/d4mYi++uqxnwZAR9syltkYkvZMqBRpJBgB",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_0162fndzzoLfrRA8FfWRTv2u",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01238.java",
+          "start_line": 54,
+          "end_line": 120
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_0162fndzzoLfrRA8FfWRTv2u",
+        "content": "            fos = new java.io.FileOutputStream(new java.io.File(fileName), false);\n            response.getWriter()\n                    .println(\n                            \"Now ready to write to file: \"\n                                    + org.owasp.esapi.ESAPI.encoder().encodeForHTML(fileName));\n\n        } catch (Exception e) {\n            System.out.println(\"Couldn't open FileOutputStream on file: '\" + fileName + \"'\");\n            //\t\t\tSystem.out.println(\"File exception caught and swallowed: \" + e.getMessage());\n        } finally {\n            if (fos != null) {\n                try {\n                    fos.close();\n                    fos = null;\n                } catch (Exception e) {\n                    // we tried...\n                }\n            }\n        }\n    } // end doPost\n\n    private class Test {\n\n        public String doSomething(HttpServletRequest request, String param)\n                throws ServletException, IOException {\n\n            String bar = \"\";\n            if (param != null) {\n                java.util.List<String> valuesList = new java.util.ArrayList<String>();\n                valuesList.add(\"safe\");\n                valuesList.add(param);\n                valuesList.add(\"moresafe\");\n\n                valuesList.remove(0); // remove the 1st safe value\n\n                bar = valuesList.get(0); // get the param value\n            }\n\n            return bar;\n        }\n    } // end innerclass Test\n} // end DataflowThruInnerClass"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErwCCqQBCBIYAipAFvK1wmAqU2KZfmpjvmu4/MbZybgPyG4tbCJp1/nZdLFNm4lEZ7nXB/X75jeXFtyuZC6Z4dBzHfnT8/bclYmlYzIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBpuST1gYSDM8amVD+3BXtw/FQ1RoM1Gm3mQrcyEaceP7xIjDAL84r9dMdgNoNsbaMzBk+P6EDN56mTB0vH4+nSzyxLTeUgRDFzOV4nKmVl4hb/bgqRVTuiu++8hzlbG127i0XPcWeuI8kg2GcW8qVUa5f2o3Jx3El+HSXdKc5jwtzvLBJ+YOvR8DJ4VplRfpiAJanH/UiKspLpBgB",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01LYbVMn1bMguixFAxD1onYn",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01238.java",
+          "start_line": 34,
+          "end_line": 60
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01LYbVMn1bMguixFAxD1onYn",
+        "content": "            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        String param = request.getParameter(\"BenchmarkTest01238\");\n        if (param == null) param = \"\";\n\n        String bar = new Test().doSomething(request, param);\n\n        String fileName = null;\n        java.io.FileOutputStream fos = null;\n\n        try {\n            fileName = org.owasp.benchmark.helpers.Utils.TESTFILES_DIR + bar;\n\n            fos = new java.io.FileOutputStream(new java.io.File(fileName), false);\n            response.getWriter()\n                    .println(\n                            \"Now ready to write to file: \"\n                                    + org.owasp.esapi.ESAPI.encoder().encodeForHTML(fileName));\n\n        } catch (Exception e) {"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "The tainted `param` goes through a trivial pass-through (`Test.doSomething`), is concatenated into `fileName`, and used directly in `new java.io.FileOutputStream(new java.io.File(fileName), false)` — no path validation, canonicalization, or allow-listing is performed anywhere in the flow.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_015S5JxV1hzMDWMWiTFo9M6Y",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "User-controlled request parameter \"BenchmarkTest01238\" flows (via a trivial list add/remove pass-through in the inner Test class, which does not sanitize anything) into fileName = TESTFILES_DIR + bar, which is then used directly to construct a java.io.File / FileOutputStream. There is no validation, canonicalization, or allow-list check on the path component before it reaches the file-creation sink, so an attacker can supply path traversal sequences (e.g. ../../) to write to arbitrary file locations. This matches the classic OWASP Benchmark path-injection pattern and is a true positive.</justification>\n<parameter name=\"missing_information\">[]",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

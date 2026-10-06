@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/xml/xpath-injection\nCodeQL message: XPath expression depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00116.java (lines 91-91)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Nick Sanidas\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/xpathi-00/BenchmarkTest00116\")\npublic class BenchmarkTest00116 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n        javax.servlet.http.Cookie userCookie =\n                new javax.servlet.http.Cookie(\"BenchmarkTest00116\", \"2222\");\n        userCookie.setMaxAge(60 * 3); // Store cookie for 3 minutes\n        userCookie.setSecure(true);\n        userCookie.setHttpOnly(true);\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EusCCqQBCBIYAipAGOF754WaIKxpIChrf6fwDJUM+bVxyMAnPdDAdXYRrmtrDVeKg3aPMgwFzO0Q9OhwVCvwjb4biClhb8/FCw+BDjIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBiuaT1gYSDMWeDcaNPn7mOoKVrBoMua5BUQKNPNREyuOeIjAnlj+FrB+aAVTyXo5AopRy4tPwBatI9Ev/Ss6eqwWRo4fML32i4JbiGYmg6Hf9ihYqdE8fJFmSfwhkclcMURCRghNA9xUs3Ts8sUQXfhvlDacDEV3dSsb9my4Y5vyX2OJamAL7ViWd6yYSaa7lKYw0jiNbE6x3E7kSCp86G2k1FyQGJ3AUktW/0wDqXIZ/G48t9hs5BigrrWbpzvlAwAA35MwJCu84GAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01F5mpivhuYFPp7RQepS9sp4",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00116.java",
+          "start_line": 40,
+          "end_line": 120
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01F5mpivhuYFPp7RQepS9sp4",
+        "content": "        userCookie.setHttpOnly(true);\n        userCookie.setPath(request.getRequestURI());\n        userCookie.setDomain(new java.net.URL(request.getRequestURL().toString()).getHost());\n        response.addCookie(userCookie);\n        javax.servlet.RequestDispatcher rd =\n                request.getRequestDispatcher(\"/xpathi-00/BenchmarkTest00116.html\");\n        rd.include(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        javax.servlet.http.Cookie[] theCookies = request.getCookies();\n\n        String param = \"noCookieValueSupplied\";\n        if (theCookies != null) {\n            for (javax.servlet.http.Cookie theCookie : theCookies) {\n                if (theCookie.getName().equals(\"BenchmarkTest00116\")) {\n                    param = java.net.URLDecoder.decode(theCookie.getValue(), \"UTF-8\");\n                    break;\n                }\n            }\n        }\n\n        String bar = \"safe!\";\n        java.util.HashMap<String, Object> map51005 = new java.util.HashMap<String, Object>();\n        map51005.put(\"keyA-51005\", \"a_Value\"); // put some stuff in the collection\n        map51005.put(\"keyB-51005\", param); // put it in a collection\n        map51005.put(\"keyC\", \"another_Value\"); // put some stuff in the collection\n        bar = (String) map51005.get(\"keyB-51005\"); // get it back out\n        bar = (String) map51005.get(\"keyA-51005\"); // get safe value back out\n\n        try {\n            java.io.FileInputStream file =\n                    new java.io.FileInputStream(\n                            org.owasp.benchmark.helpers.Utils.getFileFromClasspath(\n                                    \"employees.xml\", this.getClass().getClassLoader()));\n            javax.xml.parsers.DocumentBuilderFactory builderFactory =\n                    javax.xml.parsers.DocumentBuilderFactory.newInstance();\n            // Prevent XXE\n            builderFactory.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true);\n            javax.xml.parsers.DocumentBuilder builder = builderFactory.newDocumentBuilder();\n            org.w3c.dom.Document xmlDocument = builder.parse(file);\n            javax.xml.xpath.XPathFactory xpf = javax.xml.xpath.XPathFactory.newInstance();\n            javax.xml.xpath.XPath xp = xpf.newXPath();\n\n            String expression = \"/Employees/Employee[@emplid='\" + bar + \"']\";\n            org.w3c.dom.NodeList nodeList =\n                    (org.w3c.dom.NodeList)\n                            xp.compile(expression)\n                                    .evaluate(xmlDocument, javax.xml.xpath.XPathConstants.NODESET);\n\n            response.getWriter().println(\"Your query results are: <br/>\");\n\n            for (int i = 0; i < nodeList.getLength(); i++) {\n                org.w3c.dom.Element value = (org.w3c.dom.Element) nodeList.item(i);\n                response.getWriter().println(value.getTextContent() + \"<br/>\");\n            }\n        } catch (javax.xml.xpath.XPathExpressionException\n                | javax.xml.parsers.ParserConfigurationException\n                | org.xml.sax.SAXException e) {\n            response.getWriter()\n                    .println(\n                            \"Error parsing XPath input: '\"\n                                    + org.owasp.esapi.ESAPI.encoder().encodeForHTML(bar)\n                                    + \"'\");\n            throw new ServletException(e);\n        }\n    }\n}"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "Et0ICqQBCBIYAipA8hT+SB559Z8itj+6NPg72AZWFIXj3en3VaLUkkfPXZjqCY+JbGhZ5iT42zRZbMO6L6KQCrVEUeiguHmss6tQaDIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBkOaT1gYSDHXfaFZI1eS0WbHyrBoMe+s22TNCXq3QDNmvIjAC3GD3LeAycFq/GqwhsuGQ7pqYlkV2ELrGbbG+6wCmB9/U/vpLk3kRcKpFnLh1lQsq5QZGTg5hbnIuHCXwOX7AmYmqRtBEaSuBBif5qCEOZaeT+p0E4syrl2a07bUrWzadNOMek34uM8v3Gezg3mmqAmBF8hg6c3fWXzwPpDy6YPi/vRGNt3L7zbiZw2CYl95R1gfL/HspXqmvupumERMdZGQJ3297cfzxUXzYfvgS7QhB6BgZHyHb4lsOt3WFooUzi2weyUrQZuI4gZIPBNd4O5CIt1O28CIWJrJxDNZVCwNsSTxy7qbCE/e9uyQsttExAiUZhz0Ae8umo4qdnbN8KgDHb83tuURfE1E2k9/kZdMeAc7oATJB33HsdaRKYq0KT86dBksB0Y7F0LcaEwXpqH/b2+vovBvjdncpnubQsTXcMt4cUjcQgTcKYSKvVkaKfyueGuIWtIfpMfKac1KuCOCDXY168Ubcn5GtTTwuIP8J4m2K7rascqDEGQ2mRJvf6t2tJrFNeRgY2oma5jblLNgveTKocpbZX74IfrqCQB186m7vIEoFpCWIPSuyoIqwjgGFjZP9ReN9cBv8zCT6/fsiGXLmDxTEYXdkhvRhg4//1nve8mnhW7jjin0UhfxkvtIupCWm/nggdkM2M8gzj1vlvphqFxq3+paas2p8qZJNHPrcUVKEDdCDqVituflQKFPG6WKYoActU86tb0MfKLguQk/Jd5ab8wnig/igqtOm9hQ/YocSC4eVcCfxEQFMmR4GstqGVO6mAqSthGLVb/R7Ve2pcLiOgoNK478dr4OFbHx5AnE+WdIVf0QrZfdF6YF0EF5arOGKoowv3vDJEUjt2w78uM8hurXBrQ5HLOryIGkN1u7P0+mklPg6wCVlewSiPjKghDzcEaJ45bjzJNqtDTCiUHL2Duf/rRTO4QogRVdIgBqkFjGNG584QF2dv0MhAXGbkFhrKq6eKn+JXE9bMOFlf/nXnraUYuSWs/G8Vzi26rA4aCzmLgn4myCp/cXcY7Y8m3RYcWVkEF+XtjQlouVcBqFuH2zQ/uH3CWPoBWJ0WN2JCPPFnpHMLdESzqr4KNxnlYIJaVoaicHFXxWoCOnYEiCiDSm6bGA/1jkRRVM9b071nqLhrULgPPmOekg56dov8zqfJwgvRF/iYouJW5VZ27Bd688mjT4lwDWGGSj2pNrdXgFa15yFgVygNOVotdvflxgB",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01QBnMpJXCsMBAgjdLcNyxJg",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "false_positive",
+          "justification": "The XPath expression is built from the variable `bar`. Although `bar` is first assigned from the tainted cookie-derived `param` via `map51005.get(\"keyB-51005\")`, it is immediately overwritten by the next line `bar = (String) map51005.get(\"keyA-51005\");`, which returns the constant string \"a_Value\" that was put into the map earlier. Therefore the value actually used in the XPath expression (`/Employees/Employee[@emplid='\" + bar + \"']`) is always the hard-coded \"a_Value\" and never reflects the user-supplied cookie value. The taint flow is broken before reaching the XPath sink, so the query cannot be manipulated by user input despite CodeQL flagging a path through the HashMap.</justification>\n<parameter name=\"missing_information\">[]",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

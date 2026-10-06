@@ -1,0 +1,98 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00619.py (lines 53-53)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00619', methods=['GET'])\n\tdef BenchmarkTest00619_get():\n\t\treturn BenchmarkTest00619_post()\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00619', methods=['POST'])\n\tdef BenchmarkTest00619_post():\n\t\tRESPONSE = \"\"\n\n\t\timport helpers.utils\n\t\tparam = \"\"\n\t\t\n\t\tfor name in request.headers.keys():\n\t\t\tif name.lower() in helpers.utils.commonHeaderNames:\n\t\t\t\tcontinue\n\t\t\n\t\t\tif request.headers.get_all(name):\n\t\t\t\tparam = name\n\t\t\t\tbreak\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErUCCqQBCBIYAipAm7qHFWv6oxplgVzgTHp56fjPfeea03z+ocxRhkN1nDebD4DRESwIr/Oomx8b2mGtOCxsBdJFw9QlQVrLNs7buTIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBy4ST1gYSDDEC+I1gBGQbf8N9QxoMGcfQOJsvbCopmT45IjD8umF2pX8lMQSjEqzkU/p9NCvglONINS1k4inExKMRmmFcmDLpZ03sj/0TdIfNCDgqPsb/CkdLn+1mcDzkhcXVlpzC290iMx6yzsJgdrSITMVUFUBWFeoDi3CLfg9c/IcwzmsziJK3LE3ekZpY39npGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_015BazP5ApzzPz3BFhShnFwr",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00619.py",
+          "start_line": 53,
+          "end_line": 90
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_015BazP5ApzzPz3BFhShnFwr",
+        "content": "\t\t\twith open(fileName, 'rb') as fd:\n\t\t\t\tRESPONSE += (\n\t\t\t\t\tf'The beginning of file: \\'{escape_for_html(fileName)}\\' is:\\n\\n'\n\t\t\t\t\tf'{escape_for_html(fd.read(1000).decode('utf-8'))}'\n\t\t\t\t)\n\t\texcept IOError as e:\n\t\t\tRESPONSE += (\n\t\t\t\tf'Problem reading from file \\'{{escape_for_html(fileName)}}\\': '\n\t\t\t\tf'{escape_for_html(e.strerror)}'\n\t\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EsACCqQBCBIYAipAKZd1unpE3olHb9j6Af6AMoMm2lqzr4jIrvwWip8o3yanmIATAdR8wk1g8zglfBqPl1CCAD34D54E9hcQiqHeczIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBzoST1gYSDGTdcxLMGK9Edv8lQRoMHM0pecV6cwQmZyNwIjDgIfzRe8beqviyaTRLVPBdwYqVtgguBBT5a7qSJzRm5P9Ml6f892YYsrLyDK+B+BoqSXmuBRLKH2hr1nw1hRwRHBOzgJAFo2Kc+/4BnoKIKSd7l+Tle0LjWtZ0cJXiVUmSRhC0Xie2CAJ0jpMD4VqRIT/GkSBewfkCLesYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01QswGS3jmfZqRB6oCPwt8dh",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00619.py",
+          "start_line": 35,
+          "end_line": 53
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01QswGS3jmfZqRB6oCPwt8dh",
+        "content": "\t\t\tif name.lower() in helpers.utils.commonHeaderNames:\n\t\t\t\tcontinue\n\t\t\n\t\t\tif request.headers.get_all(name):\n\t\t\t\tparam = name\n\t\t\t\tbreak\n\n\t\tbar = \"This should never happen\"\n\t\tif 'should' in bar:\n\t\t\tbar = param\n\n\t\timport helpers.utils\n\n\t\tfileName = None\n\t\tfd = None\n\n\t\ttry:\n\t\t\tfileName = f'{helpers.utils.TESTFILES_DIR}/{bar}'\n\t\t\twith open(fileName, 'rb') as fd:"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "Eq0GCqQBCBIYAipAUytUBt9CVU1i3dmWijebEMTNY/yJvn1u/2yzi5PDshO4612zFb8ll+XQyDhekwr6azl29NsiwI56RgFhtLaphDIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB0oST1gYSDLn2SrMs/eFjO1UVrRoMzDpKSRMwn98QXckEIjCc0vYBO/F/qD+emTwgWdj/jrhQBwniXJt2S4N91/jUfxS2BCa+0VFSzkCHMTSePwkqtQT+ndX0EgwCmErwIdWBtzrGy3aLaE1+XCSIR6hBq7g1m4SysvO51Z3h7jguAxD73XuB/2HcL/S2E2anY+2FGSIinbf8T0ndVjw0G4imA1Pzfj5R2jmJgyBuKR3Ap3NGf3eBqLFqtTZGRd48hJVtK+CbCncPeIBdhTbJJjnaNyAT0PRj1n8EHJU9CyxwqBrOGQVT9onpWOg0B9IHqGIsdYq3ZhEiLR2nspD7J6g45QGg4XMB1ogRZJHfpB/PugzyyNCWxYi9vQ3x6W+U0LmSi2Qhix5y3+0mOTYdOCyxOZO+LiyyhuY0MS7j+OPbaVRTpnIHaXJdk8pWrQwmlPkVJGK/mZ2fdKRfdiDPjDYyDx16F0mezGLkjEYQQDBTmAWBcHu2ONlWsQgjWzyIflnS7RWRYvlhTSWC165UWykRP/1OYqOFSZjfbVGFzG0GanzybJhRxFsCYXeoaqyHNBQyXv8pfc4Pm8NTTKaQJMDRPNmA5Y7XunN6KyXSHoVt59MCs2HF04S0wIzK92gr/DiDBqCgdGoGWEiUP7mV94LPoIHdVn3YHgUa5grtoAFV9g3UYgcFJMTnaiy4PeFdurNJEacNw+BradgS/jNTrxUSRaMrbIuEr6AkrgviC9IpBhqwOf2qYnQ/3smUxX2QHuf86FrkZnihNVPTuTzJUyPy4zIjoddHHODO2ckIpoPad1SQ4Y3lowrB5R6xj5ZrrEZEzghFzYxv/OpHqU2vSnUbBEyrr6UTH333GAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_014ezBijCLkL9z2HDJQeuFdA",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The file path `fileName` is built by concatenating a base directory with `bar`, which is set directly from an HTTP request header name (`param = name`, taken from `request.headers.keys()`). This value is attacker-controlled (a client can send an arbitrary custom header name). No sanitization or validation (e.g., path traversal checks, whitelisting) is performed before the path is used in `open(fileName, 'rb')`, which is a path-injection sink. The `escape_for_html` calls only affect the HTML output, not the file path used for the open() call, so they do not break the taint flow to the sink. This matches a classic path traversal pattern.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

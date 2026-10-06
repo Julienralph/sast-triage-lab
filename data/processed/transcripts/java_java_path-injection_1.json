@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00001.java (lines 72-72)\n\nCode:\n```\n/**\n * OWASP Benchmark v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Dave Wichers\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/pathtraver-00/BenchmarkTest00001\")\npublic class BenchmarkTest00001 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n        javax.servlet.http.Cookie userCookie =\n                new javax.servlet.http.Cookie(\"BenchmarkTest00001\", \"FileName\");\n        userCookie.setMaxAge(60 * 3); // Store cookie for 3 minutes\n        userCookie.setSecure(true);\n        userCookie.setHttpOnly(true);\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "Er0CCqQBCBIYAipAftrv4vvdlWEu9xukuHYmaixU3X1G1p8KCTvDWSVuEv9k/M63oCPySlP+WMwZURXH6iSj69SXFia4RU5wFonckzIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB1YOT1gYSDFEcQ/ZBq4DNN9gKGhoMWg5/hLwjjObFCDl0IjCbOJUdnvhvjrntWi1bRhScvQzalN+OZkK3rq/p2blsP2IUo+cRSGQNG7OSqiyvTMYqRv9z+u0PWld9VlPO/Vc5Su7OOYAIOBQd/PyIC5KTuKLb4QJHEIZm9IkW+NioEJ+ahgBw3Wmlgo3kiRpSZFjHBmyZutsjkg4YAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_0162uFDuDoB4HAwXEgLLioi8",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00001.java",
+          "start_line": 40,
+          "end_line": 110
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_0162uFDuDoB4HAwXEgLLioi8",
+        "content": "        userCookie.setHttpOnly(true);\n        userCookie.setPath(request.getRequestURI());\n        userCookie.setDomain(new java.net.URL(request.getRequestURL().toString()).getHost());\n        response.addCookie(userCookie);\n        javax.servlet.RequestDispatcher rd =\n                request.getRequestDispatcher(\"/pathtraver-00/BenchmarkTest00001.html\");\n        rd.include(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        // some code\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        javax.servlet.http.Cookie[] theCookies = request.getCookies();\n\n        String param = \"noCookieValueSupplied\";\n        if (theCookies != null) {\n            for (javax.servlet.http.Cookie theCookie : theCookies) {\n                if (theCookie.getName().equals(\"BenchmarkTest00001\")) {\n                    param = java.net.URLDecoder.decode(theCookie.getValue(), \"UTF-8\");\n                    break;\n                }\n            }\n        }\n\n        String fileName = null;\n        java.io.FileInputStream fis = null;\n\n        try {\n            fileName = org.owasp.benchmark.helpers.Utils.TESTFILES_DIR + param;\n            fis = new java.io.FileInputStream(new java.io.File(fileName));\n            byte[] b = new byte[1000];\n            int size = fis.read(b);\n            response.getWriter()\n                    .println(\n                            \"The beginning of file: '\"\n                                    + org.owasp.esapi.ESAPI.encoder().encodeForHTML(fileName)\n                                    + \"' is:\\n\\n\"\n                                    + org.owasp\n                                            .esapi\n                                            .ESAPI\n                                            .encoder()\n                                            .encodeForHTML(new String(b, 0, size)));\n        } catch (Exception e) {\n            System.out.println(\"Couldn't open FileInputStream on file: '\" + fileName + \"'\");\n            response.getWriter()\n                    .println(\n                            \"Problem getting FileInputStream: \"\n                                    + org.owasp\n                                            .esapi\n                                            .ESAPI\n                                            .encoder()\n                                            .encodeForHTML(e.getMessage()));\n        } finally {\n            if (fis != null) {\n                try {\n                    fis.close();\n                    fis = null;\n                } catch (Exception e) {\n                    // we tried...\n                }\n            }\n        }\n    }\n}"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "This is the classic OWASP Benchmark path traversal test case: `param` comes from a cookie value (user-controlled), decoded, concatenated into a file path and used to open a `FileInputStream` with no path validation/canonicalization/sanitization. This is a genuine path injection vulnerability.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_014LLHKPBSNDhQhygNZTNSzc",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The value `param` is derived from a cookie supplied by the HTTP request (`request.getCookies()` -> `theCookie.getValue()`), URL-decoded, and concatenated directly onto a base directory to form `fileName`, which is then passed to `new java.io.File(fileName)` / `FileInputStream`. There is no validation, canonicalization, or allow-listing of the cookie value before it is used to construct the file path, so an attacker can supply path traversal sequences (e.g., ../../) in the cookie value to read arbitrary files accessible to the application. This matches the standard OWASP Benchmark path-traversal vulnerable test pattern.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

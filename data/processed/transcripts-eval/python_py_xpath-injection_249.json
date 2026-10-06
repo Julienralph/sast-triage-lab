@@ -1,0 +1,98 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/xpath-injection\nCodeQL message: XPath expression depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00021.py (lines 58-58)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/xpathi-00/BenchmarkTest00021', methods=['GET'])\n\tdef BenchmarkTest00021_get():\n\t\tresponse = make_response(render_template('web/xpathi-00/BenchmarkTest00021.html'))\n\t\tresponse.set_cookie('BenchmarkTest00021', '2222',\n\t\t\tmax_age=60*3,\n\t\t\tsecure=True,\n\t\t\tpath=request.path,\n\t\t\tdomain='localhost')\n\t\treturn response\n\t\treturn BenchmarkTest00021_post()\n\n\t@app.route('/benchmark/xpathi-00/BenchmarkTest00021', methods=['POST'])\n\tdef BenchmarkTest00021_post():\n\t\tRESPONSE = \"\"\n\n\t\timport urllib.parse\n\t\tparam = urllib.parse.unquote_plus(request.cookies.get(\"BenchmarkTest00021\", \"noCookieValueSupplied\"))\n\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EqYCCqQBCBIYAipAP/01tMGvbVt7C+ZOIMHAnJybv9ednASYlkJld/XiK2YmkptqcMjVSd++a+zdt2GZcgM+5dkJV/uohMh4TeiWozIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBpPGT1gYSDCCqXZB2BxiTBVAuhxoM8yVkYn9q3OXf2/J/IjAZr3m6JJlClv52Eg/W9mHZScf/6hzBpJ0Slm0WcNLLBJCvxxiVkHIz+Xnlxlz7YXAqL64CP6ZHJ5GAakAXsSKXRbU5w+O07UgGjIUbnXuX3GI6F/NX13u8K0EJZYeX/6/iGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01KpwS7BA4qLWFpMdtqJFgf3",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00021.py",
+          "start_line": 58,
+          "end_line": 100
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01KpwS7BA4qLWFpMdtqJFgf3",
+        "content": "\t\t\tnodes = root.xpath(query)\n\t\t\tnode_strings = []\n\t\t\tfor node in nodes:\n\t\t\t\tnode_strings.append(' '.join([e.text for e in node]))\n\n\t\t\tRESPONSE += (\n\t\t\t\tf'Your XPATH query results are: <br>[ {', '.join(node_strings)} ]'\n\t\t\t)\n\t\texcept:\n\t\t\tRESPONSE += (\n\t\t\t\tf'Error parsing XPath Query: \\'{escape_for_html(query)}\\''\n\t\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErcCCqQBCBIYAipAlgGWnXw3FYwRp9C+qo0b8cb/1zButPRIDt2BbuwOMVdl/quM9iremFLOUlJ9lC1i7DAWsLqFZOMgNIEsNnUQ0DIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBpvGT1gYSDHDGduJC2XQnijgi3RoMcsX6dAhP0O+YjNMNIjDkYS2QZoNjZpdH0Z8Sm0+p807LTfRGqH4Xn1tTiJYU6avVnFVpSESjaSkYko7/aE0qQGmBph3pkKKQPHspXhl66mMhVRGeizUGEcBQup91ZC8zOMgzpFRq1okubG+sxbq5CI0mvKxFLqvZzif9E8B6C58YAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01QJyRP4sQWzQrnS4CuYtHof",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00021.py",
+          "start_line": 34,
+          "end_line": 58
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01QJyRP4sQWzQrnS4CuYtHof",
+        "content": "\t@app.route('/benchmark/xpathi-00/BenchmarkTest00021', methods=['POST'])\n\tdef BenchmarkTest00021_post():\n\t\tRESPONSE = \"\"\n\n\t\timport urllib.parse\n\t\tparam = urllib.parse.unquote_plus(request.cookies.get(\"BenchmarkTest00021\", \"noCookieValueSupplied\"))\n\n\t\tbar = \"This should never happen\"\n\t\tif 'should' in bar:\n\t\t\tbar = param\n\n\t\timport lxml.etree\n\t\timport helpers.utils\n\n\t\ttry:\n\t\t\tif '\\'' in bar:\n\t\t\t\tRESPONSE += (\n\t\t\t\t\t\"Employee ID must not contain apostrophes\"\n\t\t\t\t)\n\t\t\t\treturn RESPONSE\n\n\t\t\tfd = open(f'{helpers.utils.RES_DIR}/employees.xml', 'rb')\n\t\t\troot = lxml.etree.parse(fd)\n\t\t\tquery = f'/Employees/Employee[@emplid=\\'{bar}\\']'\n\t\t\tnodes = root.xpath(query)"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "Confirmed: `param` comes from a cookie (user-controlled), flows unchanged into `bar`, then directly interpolated into an XPath query string passed to `root.xpath(query)`. The only check is rejecting apostrophes, which doesn't prevent XPath injection via other XPath syntax (e.g., `or`, boolean functions, etc.). This is a genuine XPath injection sink with tainted input.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01PMwA7Ly5TF9EPWtJeHDSHZ",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The cookie value 'BenchmarkTest00021' is read via request.cookies.get, URL-decoded, and assigned to 'bar' (since the constant condition 'should' in bar is always true, bar is overwritten with the tainted param). This tainted value is directly concatenated into an XPath expression string (query = f'/Employees/Employee[@emplid=\\'{bar}\\']') which is then passed to lxml's root.xpath(query). The only mitigation is rejecting single-quote characters, which is insufficient to prevent XPath injection (attackers can still inject boolean conditions, use other XPath operators, or exploit the fact that the quote check can be bypassed with encoding or other injection techniques not using the apostrophe character, e.g. closing the predicate using functions or using 'or' logic without quotes). There is no proper escaping or parameterization of the XPath query, so this is a genuine, exploitable XPath injection vulnerability.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

@@ -47,10 +47,17 @@ def main() -> None:
         "dev-batch",
         help="Sélectionne un petit lot d'alertes Java + Python pour tester la chaîne",
     )
-    dev_batch.add_argument("--category", default="pathtraver", help="Catégorie OWASP à échantillonner (défaut : pathtraver)")
-    dev_batch.add_argument("--true-count", type=int, default=3, help="Nombre de vraies failles par langage (défaut : 3)")
-    dev_batch.add_argument("--false-count", type=int, default=2, help="Nombre de faux positifs par langage (défaut : 2)")
+    dev_batch.add_argument(
+        "--category", nargs="+", default=["pathtraver"],
+        help="Une ou plusieurs catégories OWASP à échantillonner (défaut : pathtraver)",
+    )
+    dev_batch.add_argument("--true-count", type=int, default=3, help="Nombre de vraies failles par langage et par catégorie (défaut : 3)")
+    dev_batch.add_argument("--false-count", type=int, default=2, help="Nombre de faux positifs par langage et par catégorie (défaut : 2)")
     dev_batch.add_argument("--out", type=Path, default=Path("data/processed/dev-batch.json"))
+    dev_batch.add_argument(
+        "--exclude-batch", type=Path, default=None,
+        help="Lot existant dont les alertes ne doivent pas être réutilisées (ex : le lot de développement)",
+    )
 
     qualify_simple = subparsers.add_parser(
         "qualify-simple",
@@ -77,6 +84,10 @@ def main() -> None:
     qualify_agent.add_argument(
         "--initial-context-lines", type=int, default=40,
         help="Lignes de code donnees au depart, avant exploration (defaut : 40, volontairement plus court que l'appel simple)",
+    )
+    qualify_agent.add_argument(
+        "--transcripts-dir", type=Path, default=Path("data/processed/transcripts"),
+        help="Dossier ou sauvegarder la conversation complete de chaque alerte (defaut : data/processed/transcripts)",
     )
 
     evaluate = subparsers.add_parser(
@@ -127,6 +138,12 @@ def _run_build_labels(args: argparse.Namespace) -> None:
 
 
 def _run_dev_batch(args: argparse.Namespace) -> None:
+    exclude_alert_ids: frozenset[str] = frozenset()
+    if args.exclude_batch is not None:
+        excluded = json.loads(args.exclude_batch.read_text(encoding="utf-8"))
+        exclude_alert_ids = frozenset(entry["alert_id"] for entry in excluded)
+        print(f"Exclusion de {len(exclude_alert_ids)} alertes deja presentes dans {args.exclude_batch}")
+
     entries = []
     for language in sorted(_DEFAULTS):
         defaults = _DEFAULTS[language]
@@ -135,31 +152,33 @@ def _run_dev_batch(args: argparse.Namespace) -> None:
         labels = build_reference_labels(alerts, expected, language)
         labels_by_alert_id = {label.alert_id: label for label in labels}
 
-        batch = select_dev_batch(
-            alerts, labels_by_alert_id, args.category,
-            true_positive_count=args.true_count,
-            false_positive_count=args.false_count,
-        )
-        if len(batch) < args.true_count + args.false_count:
-            print(f"Attention ({language}) : seulement {len(batch)} alertes trouvees pour '{args.category}', sur {args.true_count + args.false_count} demandees.")
+        for category in args.category:
+            batch = select_dev_batch(
+                alerts, labels_by_alert_id, category,
+                true_positive_count=args.true_count,
+                false_positive_count=args.false_count,
+                exclude_alert_ids=exclude_alert_ids,
+            )
+            if len(batch) < args.true_count + args.false_count:
+                print(f"Attention ({language}/{category}) : seulement {len(batch)} alertes trouvees sur {args.true_count + args.false_count} demandees.")
 
-        for entry in batch:
-            entries.append({
-                "alert_id": entry.alert.alert_id,
-                "language": entry.alert.language,
-                "rule_id": entry.alert.rule_id,
-                "category": entry.category,
-                "expected_verdict": entry.expected_verdict,
-                "file_path": entry.alert.file_path,
-                "start_line": entry.alert.start_line,
-                "end_line": entry.alert.end_line,
-                "message": entry.alert.message,
-            })
+            for entry in batch:
+                entries.append({
+                    "alert_id": entry.alert.alert_id,
+                    "language": entry.alert.language,
+                    "rule_id": entry.alert.rule_id,
+                    "category": entry.category,
+                    "expected_verdict": entry.expected_verdict,
+                    "file_path": entry.alert.file_path,
+                    "start_line": entry.alert.start_line,
+                    "end_line": entry.alert.end_line,
+                    "message": entry.alert.message,
+                })
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(entries, indent=2, ensure_ascii=False), encoding="utf-8")
 
-    print(f"Lot de developpement ({args.category}) : {len(entries)} alertes")
+    print(f"Lot ({', '.join(args.category)}) : {len(entries)} alertes")
     for entry in entries:
         print(f"  {entry['alert_id']:35s} {entry['expected_verdict']:15s} {entry['file_path']}:{entry['start_line']}")
     print(f"Fichier ecrit : {args.out}")
@@ -267,6 +286,7 @@ def _run_qualify_agent(args: argparse.Namespace) -> None:
         repository = repositories[entry["language"]]
         agent = ExploringAgentQualifier(
             client=client, model=model, budget=budget, repository=repository, max_turns=args.max_turns,
+            transcripts_dir=args.transcripts_dir,
         )
         try:
             # Contexte de depart volontairement plus court que l'appel simple :

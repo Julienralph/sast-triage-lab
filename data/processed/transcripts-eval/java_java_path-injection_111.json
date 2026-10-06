@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01409.java (lines 67-67)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Dave Wichers\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/pathtraver-01/BenchmarkTest01409\")\npublic class BenchmarkTest01409 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "Er4CCqQBCBIYAipA+fnskbnXrGgw65hrGXLsSPVD1NGFaVWJKjvlc7k+ytAXLEv/Isuu9QHOQqTy9YmeCZf3khFAZ/s+3shBFVs9PzIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB9OST1gYSDP3Y5V0D0J/Omm9F9BoM4GcWS9yoyRarrmhhIjCYikS+j/zQDbN5B3oPM0FR5eNwC5oKa7uVR3rElaYJ5DfWqswxr10PdJBDxiak4sUqR+0VvTims1z4XXKnTjXE3YuWQqtEzBhx88Ra4l/ymZQYUhLDAhFkIhqozkjjMRPyn0SJ693MIetCx2rEH/gE3JOjbjE7FUjuGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01JSTxioxsdxLhPqqfo9eKTz",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01409.java",
+          "start_line": 36,
+          "end_line": 110
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01JSTxioxsdxLhPqqfo9eKTz",
+        "content": "    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        String param = \"\";\n        boolean flag = true;\n        java.util.Enumeration<String> names = request.getParameterNames();\n        while (names.hasMoreElements() && flag) {\n            String name = (String) names.nextElement();\n            String[] values = request.getParameterValues(name);\n            if (values != null) {\n                for (int i = 0; i < values.length && flag; i++) {\n                    String value = values[i];\n                    if (value.equals(\"BenchmarkTest01409\")) {\n                        param = name;\n                        flag = false;\n                    }\n                }\n            }\n        }\n\n        String bar = new Test().doSomething(request, param);\n\n        String fileName = org.owasp.benchmark.helpers.Utils.TESTFILES_DIR + bar;\n        java.io.InputStream is = null;\n\n        try {\n            java.nio.file.Path path = java.nio.file.Paths.get(fileName);\n            is = java.nio.file.Files.newInputStream(path, java.nio.file.StandardOpenOption.READ);\n            byte[] b = new byte[1000];\n            int size = is.read(b);\n            response.getWriter()\n                    .println(\n                            \"The beginning of file: '\"\n                                    + org.owasp.esapi.ESAPI.encoder().encodeForHTML(fileName)\n                                    + \"' is:\\n\\n\");\n            response.getWriter()\n                    .println(org.owasp.esapi.ESAPI.encoder().encodeForHTML(new String(b, 0, size)));\n            is.close();\n        } catch (Exception e) {\n            System.out.println(\"Couldn't open InputStream on file: '\" + fileName + \"'\");\n            response.getWriter()\n                    .println(\n                            \"Problem getting InputStream: \"\n                                    + org.owasp\n                                            .esapi\n                                            .ESAPI\n                                            .encoder()\n                                            .encodeForHTML(e.getMessage()));\n        } finally {\n            if (is != null) {\n                try {\n                    is.close();\n                    is = null;\n                } catch (Exception e) {\n                    // we tried...\n                }\n            }\n        }\n    } // end doPost\n\n    private class Test {\n\n        public String doSomething(HttpServletRequest request, String param)\n                throws ServletException, IOException {\n\n            String bar = \"safe!\";\n            java.util.HashMap<String, Object> map58007 = new java.util.HashMap<String, Object>();\n            map58007.put(\"keyA-58007\", \"a_Value\"); // put some stuff in the collection\n            map58007.put(\"keyB-58007\", param); // put it in a collection\n            map58007.put(\"keyC\", \"another_Value\"); // put some stuff in the collection\n            bar = (String) map58007.get(\"keyB-58007\"); // get it back out"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "The code reads a request parameter value, stores into map, retrieves it back as `bar`, then uses it directly in `Paths.get(fileName)` with no sanitization. This is a classic OWASP Benchmark path traversal test case, no actual sanitization occurs.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01JfB69bQfBXqCzkS61kAcBm",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The value of 'bar' originates directly from a user-controlled HTTP parameter (request.getParameterValues via the parameter-name matching loop), is stored and retrieved unchanged from a HashMap (no sanitization or validation performed), then concatenated into fileName and passed to Paths.get()/Files.newInputStream(), a path traversal sink. There is no validation, canonicalization, or allow-listing of the value before use, so a user can supply '../' sequences to read arbitrary files. This matches the known OWASP Benchmark path-traversal vulnerable pattern.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

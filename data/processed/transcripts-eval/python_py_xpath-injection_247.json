@@ -1,0 +1,98 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/xpath-injection\nCodeQL message: XPath expression depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00018.py (lines 50-50)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/xpathi-00/BenchmarkTest00018', methods=['GET'])\n\tdef BenchmarkTest00018_get():\n\t\tresponse = make_response(render_template('web/xpathi-00/BenchmarkTest00018.html'))\n\t\tresponse.set_cookie('BenchmarkTest00018', '2222',\n\t\t\tmax_age=60*3,\n\t\t\tsecure=True,\n\t\t\tpath=request.path,\n\t\t\tdomain='localhost')\n\t\treturn response\n\t\treturn BenchmarkTest00018_post()\n\n\t@app.route('/benchmark/xpathi-00/BenchmarkTest00018', methods=['POST'])\n\tdef BenchmarkTest00018_post():\n\t\tRESPONSE = \"\"\n\n\t\timport urllib.parse\n\t\tparam = urllib.parse.unquote_plus(request.cookies.get(\"BenchmarkTest00018\", \"noCookieValueSupplied\"))\n\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EqsCCqQBCBIYAipAzmEmsarNEOMXgqnSSdwpviptZfpUsfo+GTCrxX8fBUhqOF1PpaVNVgL6qnfbSBqRK58TmoHRxwlJo9z/2k2hgDIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB/fCT1gYSDCfaksozSqEigNQSmxoMWSHomJ7sLukOPFiCIjCa6QRtrbaCMEsJR3umVkTy2kv+O/KI+aqgRWEyL8AvV0n5SIob91J1kHzvVlI6FN0qNHUd+C/r9FKp4O427Mbj1TXZe/VajifBzWuux/OhFysXjCXdaeGC38HbFl4zMkYS1xzqRMcYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_017Lzc7QNoqZ7maQhmmb6GVb",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00018.py",
+          "start_line": 50,
+          "end_line": 90
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_017Lzc7QNoqZ7maQhmmb6GVb",
+        "content": "\t\t\trun_query = lxml.etree.XPath(query)\n\t\t\tnodes = run_query(root)\n\t\t\tnode_strings = []\n\t\t\tfor node in nodes:\n\t\t\t\tnode_strings.append(' '.join([e.text for e in node]))\n\n\t\t\tRESPONSE += (\n\t\t\t\tf'Your XPATH query results are: <br>[ {', '.join(node_strings)} ]'\n\t\t\t)\n\t\texcept:\n\t\t\tRESPONSE += (\n\t\t\t\tf'Error parsing XPath Query: \\'{escape_for_html(query)}\\''\n\t\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "Er8CCqQBCBIYAipA0mKPfntuUzNsHeRulOdToCdssVcHDZ2SpuFjXGR0i/OQHV3mgjUdz3QgtdlXX6fHhwJzC0fSG4N5QuZVLuWGDjIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagB//CT1gYSDDH6UPXaUns0bZ/h1xoMLAts9kWOLxTYTW0fIjCilnx7jelKsWaZbSfaqxZLgCXmCdQ+DGebqjRkWbX50Wyo4Xyvd2Dgz7mE+2xO6gwqSB03iDaVKRLNA/hvzSV/Vpuz3DqLJFUGBs824pHfMuhG23tBOzZDE4FUnHznSReoXuSbA0XNgjn8sIXakQyA4FLT1+Ul+yT+PhgB",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01NCzW7A1h1vsVQEYjFsFDpT",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00018.py",
+          "start_line": 36,
+          "end_line": 52
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01NCzW7A1h1vsVQEYjFsFDpT",
+        "content": "\t\tRESPONSE = \"\"\n\n\t\timport urllib.parse\n\t\tparam = urllib.parse.unquote_plus(request.cookies.get(\"BenchmarkTest00018\", \"noCookieValueSupplied\"))\n\n\t\tbar = param\n\n\t\timport lxml.etree\n\t\timport helpers.utils\n\n\t\ttry:\n\t\t\tfd = open(f'{helpers.utils.RES_DIR}/employees.xml', 'rb')\n\t\t\troot = lxml.etree.parse(fd)\n\t\t\tquery = f'/Employees/Employee[@emplid=\\'{bar}\\']'\n\t\t\trun_query = lxml.etree.XPath(query)\n\t\t\tnodes = run_query(root)\n\t\t\tnode_strings = []"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "Tainted cookie value `bar` from `request.cookies.get` flows directly into an XPath expression string via f-string interpolation, then passed to `lxml.etree.XPath(query)`. No sanitization or escaping is applied before building the query. This is a genuine XPath injection.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01Uch5MRyDKgiNR8Xhgq8tDd",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The value 'bar' is derived directly from request.cookies.get(\"BenchmarkTest00018\", ...) (user-controlled cookie), decoded via urllib.parse.unquote_plus, and then interpolated unescaped into an XPath query string (query = f'/Employees/Employee[@emplid=\\'{bar}\\']') which is compiled and executed via lxml.etree.XPath(query). There is no validation, escaping, or parameterization between the tainted source and the XPath sink, so a user can inject XPath syntax (e.g., ' or '1'='1) to alter query semantics - a classic XPath injection.</justification>\n<parameter name=\"missing_information\">[]",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

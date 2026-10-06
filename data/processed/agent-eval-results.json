@@ -1,0 +1,843 @@
+[
+  {
+    "alert_id": "java:java/path-injection:101",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "User-controlled request parameter \"BenchmarkTest01238\" flows (via a trivial list add/remove pass-through in the inner Test class, which does not sanitize anything) into fileName = TESTFILES_DIR + bar, which is then used directly to construct a java.io.File / FileOutputStream. There is no validation, canonicalization, or allow-list check on the path component before it reaches the file-creation sink, so an attacker can supply path traversal sequences (e.g. ../../) to write to arbitrary file locations. This matches the classic OWASP Benchmark path-injection pattern and is a true positive.</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 9952.44849997107,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 7680,
+      "output": 721
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:104",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The HTTP parameter \"BenchmarkTest01329\" is read from request.getParameterMap(), passed through an inner class method (Test.doSomething) that merely stores/retrieves it from a List with no validation or sanitization, and the resulting value (bar) is concatenated directly into a path string used to build a java.net.URI and then a java.io.File object. There is no path canonicalization, whitelist check, or removal of \"../\" sequences anywhere in the flow. The ESAPI encodeForHTML call is only applied when printing the resulting file path to the HTTP response (output encoding for XSS), not before using the tainted data to construct the File object, so it does not mitigate path traversal. Hence user input can control the file path passed to the file system, which is a genuine path/file injection vulnerability.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 13049.184299947228,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 7729,
+      "output": 966
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:105",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The request parameter \"BenchmarkTest01330\" is read from request.getParameterMap(), passed through a trivial inner-class method (Test.doSomething) that always returns the tainted value unmodified (the condition (500/42)+196>200 is always true), concatenated with a constant directory path, and used directly to construct a java.io.File / FileOutputStream. There is no validation, canonicalization, or allow-listing of the value before it reaches the file system sink, so an attacker-controlled value can include path traversal sequences (e.g., ../../) to write files outside the intended directory. This matches the known OWASP Benchmark path-injection test pattern and is a true positive.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 6752.776599954814,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4785,
+      "output": 513
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:107",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The tainted data originates from request.getParameterNames()/getParameterValues (user-controlled HTTP parameter name), is passed to an inner class method Test.doSomething, which forwards it unchanged to ThingFactory.createThing().doSomething(param). The concrete implementation (Thing1/Thing2) is a pure pass-through (returns the input unmodified), so 'bar' retains the exact attacker-controlled value. This value is then used directly as a path segment in 'new java.io.File(new java.io.File(TESTFILES_DIR), bar)' with no sanitization, normalization, or validation of path traversal sequences (e.g., '../'). This matches the classic OWASP Benchmark path-injection true-positive test pattern.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 19266.637600027025,
+    "model_calls": 5,
+    "token_usage": {
+      "input": 17326,
+      "output": 1019
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:106",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "User-controlled request parameter \"BenchmarkTest01331\" is stored in `param`, passed to Test.doSomething where it is placed into a list and retrieved again (no actual sanitization - just list add/remove/get operations that don't filter or validate content), returned as `bar`, then concatenated into `fileName` and used directly in `new FileOutputStream(fileName)`. There is no path validation, canonicalization check, or allow-listing performed on the tainted value before it reaches the file system sink, so an attacker can supply path traversal sequences (e.g. ../../) to write to arbitrary locations. This matches the classic OWASP Benchmark path-traversal pattern and is a genuine true positive for path injection.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 6843.462199962232,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4844,
+      "output": 556
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:109",
+    "language": "java",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "The file path used in FileInputStream is built from `bar`, which comes from `Test.doSomething(request, param)`. Inside that method, `bar` is assigned via a switch statement whose target is `\"ABC\".charAt(1)`, a compile-time constant equal to 'B'. Only the 'B' case executes, which sets `bar = \"bob\"` (a hardcoded string), not the tainted `param`. The branches that would assign `param` to `bar` ('A', 'C', 'D') are dead code and never execute. Therefore, despite the apparent data-flow from the HTTP request to the FileInputStream constructor, the actual runtime value of `bar` is always the constant \"bob\", and user input never reaches the sink. This is the classic OWASP Benchmark pattern of unreachable tainted branches guarded by a constant condition, making the CodeQL path-injection finding a false positive.</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 12016.64129999699,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 8388,
+      "output": 954
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:11",
+    "language": "java",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "The tainted value `param` is only assigned to `bar` in the 'A', 'C', or 'D' cases of a switch statement. However, `switchTarget` is derived from `guess.charAt(1)` where `guess = \"ABC\"` is a hardcoded constant, so `switchTarget` is always 'B'. In that branch, `bar` is hardcoded to \"bob\", not the user-controlled `param`. Therefore the File object created at line 82 is always built from the constant string \"bob\" (or the default branch value), and tainted user input never reaches the File constructor despite CodeQL's static taint tracking flagging it. This is a classic unreachable-taint-path false positive baked into the OWASP Benchmark test suite.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 12218.333799974062,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 7164,
+      "output": 911
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:111",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The value of 'bar' originates directly from a user-controlled HTTP parameter (request.getParameterValues via the parameter-name matching loop), is stored and retrieved unchanged from a HashMap (no sanitization or validation performed), then concatenated into fileName and passed to Paths.get()/Files.newInputStream(), a path traversal sink. There is no validation, canonicalization, or allow-listing of the value before use, so a user can supply '../' sequences to read arbitrary files. This matches the known OWASP Benchmark path-traversal vulnerable pattern.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 8277.79979998013,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 5127,
+      "output": 523
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:200",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The HTTP header \"BenchmarkTest00006\" is read directly from the request, URL-decoded (which does not sanitize shell metacharacters), and concatenated into a string passed as an argument to `sh -c` / `cmd.exe /c` via ProcessBuilder. There is no validation, allow-listing, or escaping of the value before it reaches the command execution sink, so an attacker-controlled header can inject arbitrary shell commands (e.g., via `;`, `|`, backticks, etc.).",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 7247.98029998783,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4684,
+      "output": 505
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:201",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The value of the \"BenchmarkTest00015\" HTTP header is read directly from the request, URL-decoded, and concatenated into a shell command string (\"echo \" + param) which is then passed to ProcessBuilder and executed via pb.start(). There is no validation, allow-listing, or escaping of the header value before it is used to build the OS command, so an attacker can inject arbitrary shell commands (e.g. via `; rm -rf /` or similar) through the header. This matches the classic OWASP Benchmark command injection pattern and is a genuine true positive.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 6366.526099969633,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4642,
+      "output": 439
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:202",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The value `param` originates from a user-controlled HTTP header (request.getHeaders(\"BenchmarkTest00017\")), is URL-decoded (which does not sanitize against command injection), and is then concatenated directly into a string passed to Runtime.exec(cmd + param). No validation, allow-listing, or encoding that would prevent command injection occurs between the source and the sink. This matches the well-known OWASP Benchmark command injection test case pattern, which is intentionally vulnerable.</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 9966.118899988942,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 7172,
+      "output": 710
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:203",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The doPost method reads a cookie value (user-controlled), URL-decodes it into `param`, then assigns it to `bar` via a switch statement. Since guess=\"ABC\" and switchTarget=guess.charAt(2)='C', the 'C'/'D' case is taken, so bar=param (tainted). This tainted string is concatenated into \"echo \" + bar and passed as part of the command list to ProcessBuilder, which then executes via a shell (sh -c / cmd.exe /c). No sanitization or escaping is performed on the cookie value before it's embedded in the shell command string, allowing shell metacharacters (e.g., ; | & $()) in the cookie value to inject arbitrary commands. This matches the classic OWASP Benchmark command injection pattern and is a true positive.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 7249.99189999653,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 5157,
+      "output": 603
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:204",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The cookie value \"BenchmarkTest00093\" is read from the request, URL-decoded into `param`, then placed into a list along with two literal \"safe\" strings. No actual validation/sanitization occurs - it's just list manipulation (add/remove items) that doesn't restrict or escape the content of `param`. The value ends up in `bar` and is concatenated directly into the command string passed to `Runtime.exec(cmd + bar, argsEnv)`. This is a classic OWASP Benchmark command injection test case where the \"safe-looking\" list operations are a red herring and do not break the taint flow from user input (cookie) to the OS command execution sink.</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 7856.519799970556,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 5128,
+      "output": 583
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:206",
+    "language": "java",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "The tainted header value is stored in a HashMap under key \"keyB-40534\", but the variable 'bar' that is actually used in the command execution is subsequently reassigned to map40534.get(\"keyA-40534\"), which holds the hardcoded constant \"a_Value\", not the user-controlled value. The earlier assignment to the tainted value is overwritten before 'bar' is concatenated into the exec() arguments, so the final command line does not actually depend on user input despite CodeQL's taint tracking through the collection flagging it.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 8847.499799972866,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4967,
+      "output": 625
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:214",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The header value \"BenchmarkTest00307\" is read via request.getHeaders(), URL-decoded, placed into a list and retrieved again (no actual sanitization, just data movement), then concatenated into a string passed directly to Runtime.exec(cmd + bar, argsEnv). There is no validation, allow-listing, or escaping of the user-controlled value before it reaches the command execution sink, so an attacker controlling the HTTP header can inject OS commands.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 5390.019399987068,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4783,
+      "output": 421
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/command-line-injection:215",
+    "language": "java",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "The tainted value `param` (from the HTTP header, URL-decoded) is only assigned to `bar` in the 'A', 'C', or 'D' branches of the switch statement. However, `switchTarget` is derived from a hardcoded literal string `guess = \"ABC\"` via `guess.charAt(1)`, which always evaluates to the constant 'B'. The 'B' case always executes and sets `bar = \"bob\"`, a hardcoded safe string. The branches that would propagate the tainted `param` value into `bar` (and subsequently into `cmd + bar` passed to `Runtime.exec`) are unreachable dead code given this constant switch target. Therefore, despite the apparent data-flow path CodeQL identified, the tainted value can never actually reach the `Runtime.exec` sink at runtime, making this a false positive.",
+    "references": [],
+    "missing_information": [
+      "Confirmation that CodeQL's taint-tracking analysis for this rule does not perform constant-folding/dead-code elimination on the switch statement, which is consistent with the general over-approximation behavior of static analysis tools on this classic OWASP Benchmark test pattern."
+    ],
+    "technical_status": "success",
+    "duration_ms": 13631.89419999253,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4887,
+      "output": 1110
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4122",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The value from request header \"BenchmarkTest00207\" is URL-decoded, then passed through Base64 encode+decode (a round-trip that is a no-op and not a sanitizer), and the resulting string 'bar' is directly concatenated into an XPath expression string \"/Employees/Employee[@emplid='\" + bar + \"']\" which is then evaluated via XPath.evaluate(). There is no escaping or validation of special XPath characters (like quotes), so a user-controlled header value can break out of the quoted literal and inject arbitrary XPath syntax, leading to XPath injection.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 7424.710699997377,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4995,
+      "output": 510
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4123",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "User-controlled request parameter \"BenchmarkTest00442\" is assigned to `bar` via a ternary condition that is always false (7*42-106=188 which is not >200), so `bar` always equals the tainted `param`. This value is concatenated directly into an XPath expression string without any sanitization or escaping, then evaluated with xp.evaluate(expression, xmlDocument). This allows XPath injection, e.g. via input like `' or '1'='1`. No validation, encoding, or parameterization is applied before use in the XPath expression (the ESAPI encode call only happens in the error-handling branch for HTML output, not for the XPath expression itself).</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 9107.558799965773,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4908,
+      "output": 555
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4124",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "User-controlled data (a request parameter name matching a magic value) flows through ThingFactory/ThingInterface.doSomething (Thing1 and Thing2 implementations both pass the input through unchanged, with no sanitization or encoding) into variable `bar`, which is directly concatenated into an XPath expression string `\"/Employees/Employee[@emplid='\" + bar + \"']\"` passed to XPath.evaluate(). There is no validation, escaping, or allow-listing applied to the value before it reaches the XPath sink, so a crafted parameter name could inject XPath syntax, confirming a real XPath injection vulnerability.</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 49794.37189997407,
+    "model_calls": 4,
+    "token_usage": {
+      "input": 13171,
+      "output": 1054
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4127",
+    "language": "java",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The value of the \"BenchmarkTest01223\" HTTP header is read via request.getHeaders(), URL-decoded, passed through a trivial pass-through helper method (Test.doSomething, which for switchTarget='A' just returns the param unchanged), and then concatenated directly into an XPath expression string (\"/Employees/Employee[@emplid='\" + bar + \"']\") that is compiled and evaluated with XPath.evaluate(). There is no sanitization, escaping, or validation of the value anywhere in the flow - only an XXE mitigation (disallow-doctype-decl) is applied, which does not address XPath injection. An attacker can supply a header value like `' or '1'='1` to manipulate the XPath query logic. This matches the classic XPath injection pattern and is a true positive.</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 8561.855199979618,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 5972,
+      "output": 586
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4121",
+    "language": "java",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "The XPath expression is built from the variable `bar`. Although `bar` is first assigned from the tainted cookie-derived `param` via `map51005.get(\"keyB-51005\")`, it is immediately overwritten by the next line `bar = (String) map51005.get(\"keyA-51005\");`, which returns the constant string \"a_Value\" that was put into the map earlier. Therefore the value actually used in the XPath expression (`/Employees/Employee[@emplid='\" + bar + \"']`) is always the hard-coded \"a_Value\" and never reflects the user-supplied cookie value. The taint flow is broken before reaching the XPath sink, so the query cannot be manipulated by user input despite CodeQL flagging a path through the HashMap.</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 11663.199200003874,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 5651,
+      "output": 838
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4125",
+    "language": "java",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "The tainted value (param, derived from the request query string) is stored in map47458 under key \"keyB-47458\", but immediately afterward `bar` is reassigned from map47458.get(\"keyA-47458\"), which maps to the constant string \"a_Value\" put in earlier. Thus by the time `bar` is used to build the XPath expression `\"/Employees/Employee[@emplid='\" + bar + \"']\"`, it no longer carries the user-controlled value - it's the hardcoded \"a_Value\". The dataflow from user input to the XPath sink is broken by this reassignment, so the expression does not actually depend on user input despite CodeQL's taint tracking flagging it.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 10853.796700015664,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 5394,
+      "output": 800
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4126",
+    "language": "java",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "The XPath expression at line 83 is built from variable `bar`, which comes from `Test.doSomething()`. Inside that method, `guess = \"ABC\"` and `switchTarget = guess.charAt(1)` is always the constant character 'B'. The switch statement therefore always takes the `case 'B':` branch, which sets `bar = \"bob\"` - a hard-coded constant, not the tainted `param` (derived from the cookie value). The branches that assign `bar = param` (cases 'A', 'C', 'D') are dead code that can never execute given the fixed value of `switchTarget`. CodeQL's taint analysis does not evaluate this compile-time-constant control flow and conservatively assumes the tainted assignment could occur, leading to a flagged XPath injection that in practice can never be reached with attacker-controlled data. This matches the known OWASP Benchmark pattern of deliberately unreachable tainted branches used to test false-positive rates in static analyzers.</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 11402.010899968445,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 6264,
+      "output": 892
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/xml/xpath-injection:4132",
+    "language": "java",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "The tainted request parameter flows into doSomething(), but the actual value returned (and later used to build the XPath expression) is determined by a switch statement on a hardcoded constant: `String guess = \"ABC\"; char switchTarget = guess.charAt(1);` which always evaluates to 'B'. The 'B' case returns the hardcoded string \"bob\", not the tainted `param`. The branches that would return the user-supplied `param` (cases 'A', 'C', 'D') are dead code that can never execute. Therefore `bar` used in `xp.compile(expression)` is always the constant \"bob\", and the XPath expression is never actually influenced by user input at runtime, despite CodeQL's static dataflow analysis matching a path from the source parameter to the sink. This is one of OWASP Benchmark's intentional false-positive test cases designed to test whether a static analyzer can follow control-flow constraints that neutralize the tainted path.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 10043.39920001803,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 5339,
+      "output": 715
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:105",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "User-controlled request parameter `param` (from request.args.get) is stored as `bar` and concatenated directly into `fileName = f'{TESTFILES_DIR}/{bar}'`, which is then passed to `open(fileName, 'rb')`. There is no path sanitization, normalization, or allow-list check before the file open; the only processing applied (escape_for_html) happens on the output content, not on the path, so it does not mitigate path traversal. This matches the classic OWASP Benchmark path traversal pattern and is a genuine path injection vulnerability.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 9845.890800002962,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 6758,
+      "output": 612
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:107",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "User-controlled input from request.args.get(\"BenchmarkTest00665\") flows through a dictionary (map59129) without any sanitization into variable `bar`, which is directly concatenated into `fileName = f'{helpers.utils.TESTFILES_DIR}/{bar}'` and passed to `open(fileName, 'rb')`. There is no validation, normalization, or whitelist check on the path component, allowing path traversal (e.g., using '../' sequences) to read arbitrary files outside the intended TESTFILES_DIR. This matches the classic OWASP Benchmark path-traversal pattern and is a genuine path injection vulnerability.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 9042.635800025892,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 6702,
+      "output": 629
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:109",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The `param` variable is taken directly from user-controlled `request.args.getlist(\"BenchmarkTest00737\")` with no validation or sanitization. It is assigned to `bar` (since guess is always 'A' from `possible[0]`), and `bar` is then concatenated directly into a file path passed to `codecs.open()`. There is no normalization, whitelisting, or path-traversal check (e.g., no check for '..' or restriction to a safe base directory beyond simple string concatenation), so an attacker can supply a path like `../../etc/passwd` to read arbitrary files, and the code also leaks file existence information back in the response, confirming exploitability.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 7672.204999951646,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4673,
+      "output": 547
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:111",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "User-controlled input from request.args.getlist(\"BenchmarkTest00739\") is assigned to param, then to bar (with only an unrelated conditional that doesn't affect attacker-controlled values), and bar is concatenated directly into a file path passed to codecs.open() without any sanitization, normalization, or allow-listing. This allows path traversal (e.g., via '../' sequences) to access arbitrary files, matching the path-injection sink pattern.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 9439.140799979214,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 6677,
+      "output": 632
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:106",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "User-controlled `bar` (from request.args.get) is concatenated directly into a file path (`fileName = f'{TESTFILES_DIR}/{bar}'`) which is then passed to `open()`. The only guard is a naive substring check `if '../' in bar`, which is an incomplete blacklist: it only catches the literal three-character sequence '../' and can be bypassed by alternate path-traversal techniques (e.g. backslash-based traversal '..\\\\', or other OS-specific separators, or by splitting the sequence across multiple characters that still resolve to a parent-directory traversal in some environments). The check does not canonicalize the path (no os.path.abspath/os.path.normpath + prefix check), so it does not reliably prevent directory traversal. Thus tainted data reaches the `open()` sink with insufficient sanitization, matching the classic Path Injection pattern.",
+    "references": [],
+    "missing_information": [
+      "Exact OS/filesystem environment Benchmark runs on (affects whether backslash-based bypass is exploitable)",
+      "Whether werkzeug/Flask pre-normalizes query parameters in a way that would prevent alternate encodings from reaching the check unescaped"
+    ],
+    "technical_status": "success",
+    "duration_ms": 22925.702000036836,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4676,
+      "output": 1735
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:108",
+    "language": "python",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "The alleged tainted data flow depends on `param` reaching `bar` and then being used to build `fileName` passed to `open()`. However, `bar` is only set to `param` in the `match guess` branches for cases 'A' and 'C'/'D'. `guess` is computed deterministically as `possible[1]` where `possible = \"ABC\"` is a hard-coded constant string, so `guess` is always `'B'` at runtime. This means the actual code path always executes `case 'B': bar = 'bob'`, a constant, and the branches that assign `bar = param` (the tainted value) are dead code that can never execute. Consequently, `fileName` constructed from `bar` is never actually derived from user input in any real execution, and the file open operation at the sink is never reachable with attacker-controlled data. CodeQL's static taint tracking does not evaluate the fixed string indexing (`possible[1]` on the literal \"ABC\" always yielding 'B'), causing it to conservatively treat all match arms as reachable and flag the path as tainted, but the control flow is in fact fully determined and safe. This is a known OWASP Benchmark false-positive pattern designed to test exactly this kind of unreachable-branch condition.</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 16202.602999983355,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 9330,
+      "output": 1162
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:110",
+    "language": "python",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "The sink `codecs.open` uses the variable `bar`, which depends on a `match` statement against `guess = possible[1]`. Since `possible = \"ABC\"`, `guess` is always the constant 'B', which falls into the `case 'B':` branch, setting `bar = 'bob'`. The branches that assign `bar = param` (the tainted request parameter) can never be reached at runtime because `guess` is a fixed, non-tainted value. Hence the path passed to `codecs.open` is always `'bob'` plus a fixed directory, never user input, so no path injection is actually possible despite the superficial data flow pattern that CodeQL's taint tracking picks up (it doesn't evaluate the constant-folding of `guess`).</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [
+      "None - the control flow and constant value fully determine the outcome, so no additional reachability information is needed."
+    ],
+    "technical_status": "success",
+    "duration_ms": 9666.757899976801,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4661,
+      "output": 728
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:112",
+    "language": "python",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "User input from request.args flows through a base64 encode/decode round-trip (which does not alter the value) and is then concatenated into a file path (./testfiles/{bar}) that is opened with open(). CodeQL correctly identifies the taint flow from a user-controlled source to a file-open sink, but the code includes an explicit check `if '../' in bar: return error` before the open() call. \n\nAnalyzing possible bypasses: the base directory (TESTFILES_DIR = './testfiles') is a relative path, so even if bar begins with '/', string concatenation just produces a path like './testfiles//etc/passwd', which still resolves under ./testfiles rather than becoming an absolute path escape, because it is not an os.path.join (which would honor a leading slash) - it's a literal f-string concatenation, so a leading '/' in bar does not override the prefix. For an attacker to escape the testfiles directory and reach an arbitrary external file, the payload necessarily requires at least one directory-traversal segment of the form '../' (dot, dot, slash) appearing literally in the string to go up a directory and then continue toward the target file/subpath; any such occurrence is caught by the literal substring check. The only way to avoid the literal '../' substring is to end the path in a bare '..' segment with no trailing slash, but that always resolves to a directory itself, not a path to a specific arbitrary file - so it cannot be leveraged to read an arbitrary file outside the sandbox directory. There is no evidence of null-byte truncation working under Python 3 (open() raises ValueError on embedded NUL), nor of encoded variants of '../' reaching this point (Flask/Werkzeug already URL-decodes request.args before this code runs, so double-encoding is not an issue since the comparison happens after decoding). \n\nGiven this, while the taint flow is real, the explicit (if limited-looking) blacklist check on '../' is actually sufficient to prevent directory traversal/path injection in this specific code because of how the path is constructed (simple relative-path string concatenation rather than os.path.join, which closes off the common bypass vectors). CodeQL's static taint-tracking engine does not recognize this manual string-containment check as a sanitizer, producing a false positive.",
+    "references": [],
+    "missing_information": [
+      "Confirmation of the OS the application is deployed on (Windows would allow a backslash based bypass of the '../' check, which would change the verdict to true positive)",
+      "Whether request.args values can contain raw NUL bytes or other characters that behave unexpectedly in this Flask/Werkzeug version",
+      "The expected/intended classification from the OWASP Benchmark test suite metadata for BenchmarkTest00740 (true vulnerability vs. false positive), which was not available to cross-check"
+    ],
+    "technical_status": "success",
+    "duration_ms": 85703.68269999744,
+    "model_calls": 4,
+    "token_usage": {
+      "input": 23563,
+      "output": 6813
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/command-line-injection:152",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The `param` value comes directly from `request.form.get(\"BenchmarkTest00165\")` (user input) with no sanitization applied. The list manipulation (append 'safe', param, 'moresafe', then pop(0)) is a no-op disguise - it removes the first element 'safe', leaving lst = [param, 'moresafe'], so bar = lst[0] = param (the raw user input). This bar is then interpolated directly into a shell command string `f\"echo {bar}\"` which is executed via `subprocess.run([...,\"-c\", cmd], ...)` with shell interpretation (sh -c / cmd.exe -c). Since bar is attacker-controlled and gets passed as part of a shell command string, special characters (e.g., `; rm -rf`, backticks, $()) will be interpreted by the shell, resulting in command injection. No validation, allow-listing, or escaping is performed on param before it reaches the sink.</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [
+      "None - flow from source to sink is fully visible in the provided code"
+    ],
+    "technical_status": "success",
+    "duration_ms": 8966.38219995657,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4157,
+      "output": 680
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/command-line-injection:153",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "User-controlled input from request.form.get(\"BenchmarkTest00166\") flows unsanitized into `bar`, which is directly interpolated into a shell command string (`argStr += f\"echo {bar}\"`) and executed via `subprocess.run(argStr, shell=True, ...)`. No escaping, allow-listing, or use of a list-based argv (which would avoid shell interpretation) is performed. This is a classic command injection pattern - an attacker can supply a value like `; rm -rf / #` or similar shell metacharacters to execute arbitrary commands.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 9752.317200007383,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 7119,
+      "output": 689
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/command-line-injection:154",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The value `param` is read directly from user input via `request.form.get(\"BenchmarkTest00167\")` with no validation/sanitization. It is assigned to `bar` (the branch bypassing this assignment is dead code since 'should' is always in TestParam), then concatenated into `argStr` via an f-string, and passed to `subprocess.run(argStr, shell=True, ...)`. This is a textbook shell command injection: an attacker-controlled string flows unsanitized into a shell=True subprocess call, allowing arbitrary command injection (e.g., via shell metacharacters like `; rm -rf /` or `$(...)`).",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 10596.462099987548,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 7044,
+      "output": 698
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/command-line-injection:155",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The value `param` is taken directly from `request.form.get(\"BenchmarkTest00168\")` with no sanitization. The `match guess` statement is a red herring: `guess = possible[0]` where `possible = \"ABC\"`, so `guess` is always 'A', meaning the 'A' branch (`bar = param`) is always executed. This tainted `bar` is then interpolated directly into a shell command string (`argStr += f\"echo {bar}\"`) which is executed via `subprocess.run(argStr, shell=True, ...)`. Since shell=True is used with an unsanitized, attacker-controlled string embedded via f-string (not passed as an argument list), an attacker can inject shell metacharacters (e.g., `; rm -rf /` or backticks) to execute arbitrary commands. There is no validation, escaping, or allow-listing applied to `param` before it reaches the shell. This is a genuine command injection vulnerability.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 7905.618199962191,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4185,
+      "output": 597
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/command-line-injection:163",
+    "language": "python",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "The tainted value `param` (derived from `request.path`) is only assigned to `bar` in the `else` branch of `if 7 * 42 - num > 200`. Since `num` is hardcoded to 86, this expression evaluates to `294 - 86 = 208`, which is always greater than 200. Therefore the condition is always True, and the `else` branch (where `bar = param`) is unreachable dead code. `bar` is always set to the literal string `'This_should_always_happen'`, which is what actually gets concatenated into `argStr` and passed to `subprocess.run`. The user-controlled `request.path` value never reaches the command-line sink in any real execution path, so despite CodeQL's path-insensitive taint tracking flagging it, there is no exploitable command injection here.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 12890.735599969048,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 6540,
+      "output": 1102
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/command-line-injection:164",
+    "language": "python",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "The tainted value traced by CodeQL originates from `request.path.split('/')[1]`. However, this Flask route is registered with a completely static URL pattern ('/benchmark/cmdi-00/BenchmarkTest01098'), with no dynamic `<variable>` segments. Because Flask only dispatches to this view function when the incoming request path exactly matches this static pattern, `request.path` for any request actually routed here will always be exactly '/benchmark/cmdi-00/BenchmarkTest01098' (or a normalized variant), so parts[1] is always the literal constant string 'benchmark' — it can never contain attacker-supplied data. The subsequent string slicing (`bar = string29419[4:-17]`) that feeds into the `subprocess.run(argStr, shell=True, ...)` call is therefore built from a hard-coded constant, not user input. CodeQL's taint tracking appears to treat `request.path` generically as a tainted source without accounting for the fact that, in this specific fixed-route handler, the extracted path segment cannot vary with attacker input. Hence there is no real command injection vulnerability here.</justification>\n<parameter name=\"missing_information\">[\"Confirmation of exact Flask routing behavior/configuration (e.g., strict_slashes, any URL rewriting middleware or reverse proxy) that could theoretically alter request.path before it reaches this handler, though none is evident in the code shown.\"]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 29858.606399968266,
+    "model_calls": 4,
+    "token_usage": {
+      "input": 12223,
+      "output": 2238
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:247",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The value 'bar' is derived directly from request.cookies.get(\"BenchmarkTest00018\", ...) (user-controlled cookie), decoded via urllib.parse.unquote_plus, and then interpolated unescaped into an XPath query string (query = f'/Employees/Employee[@emplid=\\'{bar}\\']') which is compiled and executed via lxml.etree.XPath(query). There is no validation, escaping, or parameterization between the tainted source and the XPath sink, so a user can inject XPath syntax (e.g., ' or '1'='1) to alter query semantics - a classic XPath injection.</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 9893.299799994566,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 6868,
+      "output": 676
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:248",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "User-controlled input from request.cookies.get(\"BenchmarkTest00019\") is URL-decoded and assigned to `param`, stored in a dict and retrieved unchanged as `bar`, then directly interpolated into the XPath expression string `f'/Employees/Employee[@emplid=\\'{bar}\\']'` which is compiled and executed via lxml.etree.XPath(query). There is no sanitization, escaping, or validation of the value before it reaches the XPath sink (escape_for_html is only used in the error-handling branch, not on the query itself), so a crafted cookie value can inject arbitrary XPath syntax.</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 9017.995800008066,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 6900,
+      "output": 601
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:253",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "User-controlled input from request.form.get(\"BenchmarkTest00107\") is assigned to `param`, then to `bar` (in the 'A', 'C', 'D' branches of the match statement, which are reachable since guess='A'). `bar` is directly string-concatenated into an XPath expression `'/Employees/Employee[@emplid=\\'' + bar + '\\']'` which is passed unescaped to `root.xpath(query)`. There is no sanitization, escaping, or parameterization of the XPath query between the tainted source and the xpath() sink - only HTML-escaping (escape_for_html) is applied later in the except branch for error display, which does not protect the actual xpath() call. This allows XPath injection, e.g. input like `' or '1'='1` to manipulate the query logic.</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 9566.168299992569,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4230,
+      "output": 600
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:256",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The value `param` is taken directly from `request.form.getlist(\"BenchmarkTest00207\")` (user-controlled input) and assigned to `bar` in multiple branches of the match statement without any sanitization or escaping. `bar` is then interpolated directly into an XPath expression string via an f-string (`f'/Employees/Employee[@emplid=\\'{bar}\\']'`), which is passed to `root.xpath(query)`. There is no validation, escaping, or parameterization of the value before it reaches the XPath sink, so a malicious user could inject XPath syntax (e.g., `' or '1'='1`) to alter query logic or exfiltrate data. This matches the classic XPath injection pattern and the taint flow is direct and unbroken.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 7392.349799978547,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4222,
+      "output": 498
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:249",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "The cookie value 'BenchmarkTest00021' is read via request.cookies.get, URL-decoded, and assigned to 'bar' (since the constant condition 'should' in bar is always true, bar is overwritten with the tainted param). This tainted value is directly concatenated into an XPath expression string (query = f'/Employees/Employee[@emplid=\\'{bar}\\']') which is then passed to lxml's root.xpath(query). The only mitigation is rejecting single-quote characters, which is insufficient to prevent XPath injection (attackers can still inject boolean conditions, use other XPath operators, or exploit the fact that the quote check can be bypassed with encoding or other injection techniques not using the apostrophe character, e.g. closing the predicate using functions or using 'or' logic without quotes). There is no proper escaping or parameterization of the XPath query, so this is a genuine, exploitable XPath injection vulnerability.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 15389.990399999078,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 6930,
+      "output": 798
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:250",
+    "language": "python",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "The tainted value `bar` (derived unmodified from the `BenchmarkTest00022` cookie) is interpolated into an XPath string literal: `f'/Employees/Employee[@emplid=\\'{bar}\\']'`. Before this query is built, the code explicitly checks `if '\\'' in bar: ... return`, rejecting any input containing a single-quote character. Because the query wraps `bar` in single quotes, the only way to break out of the string literal and inject arbitrary XPath syntax is to include a literal apostrophe in the value (there is no other metacharacter that would let an attacker escape a single-quoted XPath string literal). Since the code guards specifically against that character and returns before reaching the `root.xpath(query)` call whenever it is present, the classic XPath-injection breakout is not reachable with this specific sink construction. CodeQL's taint tracking flags the flow because the guard is not a library-recognized sanitizer, but inspection of the actual guard logic shows it correctly neutralizes the only exploitable injection vector for this particular query shape.</justification>\n<parameter name=\"missing_information\">[\"Confirmation of how XPath engine (lxml.etree) handles any other special characters inside a single-quoted string context that might theoretically allow escaping without an apostrophe (none identified, but worth cross-checking against lxml/XPath 1.0 spec corner cases).\"]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 45099.94710003957,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 11931,
+      "output": 3684
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:251",
+    "language": "python",
+    "method": "agent",
+    "verdict": "true_positive",
+    "justification": "User-controlled input from request.form.get(\"BenchmarkTest00105\") is assigned to `param`, which flows into `bar` via the else-branch of a trivially-always-false numeric condition (7*42-86=200, not >200, so the else branch executing `bar = param` is always taken). `bar` is then directly interpolated into an XPath expression string without any sanitization or escaping (only used by escape_for_html in the exception handler to display an error, not to sanitize the actual query), and the resulting string is compiled and executed with lxml.etree.XPath(query). This allows XPath injection, e.g. a param value like `' or '1'='1` would alter the query logic/bypass filtering.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 8186.737200012431,
+    "model_calls": 2,
+    "token_usage": {
+      "input": 4204,
+      "output": 570
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/xpath-injection:252",
+    "language": "python",
+    "method": "agent",
+    "verdict": "false_positive",
+    "justification": "The XPath query is built from the variable `bar`, which is assigned via a conditional expression: `bar = \"This_should_always_happen\" if 7 * 18 + num > 200 else param`. With `num = 106` fixed in the source code, the condition `7*18+num > 200` evaluates to `126+106=232 > 200`, which is always True. Therefore `bar` is always set to the constant string `\"This_should_always_happen\"` and never to `param` (the user-controlled value from `request.form.get(...)`). Consequently the XPath expression built in `query = f'/Employees/Employee[@emplid=\\'{bar}\\']'` never actually incorporates user input at runtime, despite CodeQL's taint tracking flagging the data-flow path from `request.form` to the `lxml.etree.XPath` sink. This is a classic OWASP Benchmark \"always-true/false guard\" pattern intended to test whether a static analyzer can reason about constant-folded conditions; since the condition is statically always true, the injection is not actually exploitable.</justification>\n<parameter name=\"missing_information\">[]",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 15238.324099977035,
+    "model_calls": 3,
+    "token_usage": {
+      "input": 6616,
+      "output": 1097
+    },
+    "prompt_version": "agent_v1",
+    "config_version": "unversioned"
+  }
+]

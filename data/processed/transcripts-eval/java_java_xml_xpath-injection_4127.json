@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/xml/xpath-injection\nCodeQL message: XPath expression depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01223.java (lines 72-72)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Dave Wichers\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/xpathi-00/BenchmarkTest01223\")\npublic class BenchmarkTest01223 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EtgCCqQBCBIYAipArrp2j9Nf5tF7HCSDJSqatLI7/RGFT6ocsJNYBF5vC4+3OcYbwwQCeSFj/4tUxwnzuE+rJhOkJda8qOSxHxaF2DIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBgeaT1gYSDKvJZ6U2JmGCfzD4TxoMJxXQmU9dqQ5QL6YfIjBYj87kvE0e66u/N9X+YXHs+Qe8dv8+ffyvjIIIpQTz2yQqHmXFTTFHz+xUDFQs4R4qYWQiHaTnpzpnHrImvI+C6LFTozkUGgCQoRZWZShRosvC5dZ/ny6g0NycQfpxxMGgm8Rwu0sOg29mlQceF5kESbaU7C+3fqeDxT0xJC6XNlW4+s3ycLUhnuKr/Ie/yG0e3zoYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01XxpjuknYcZDCwRenuP1WN4",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01223.java",
+          "start_line": 1,
+          "end_line": 130
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01XxpjuknYcZDCwRenuP1WN4",
+        "content": "/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Dave Wichers\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/xpathi-00/BenchmarkTest01223\")\npublic class BenchmarkTest01223 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        String param = \"\";\n        java.util.Enumeration<String> headers = request.getHeaders(\"BenchmarkTest01223\");\n\n        if (headers != null && headers.hasMoreElements()) {\n            param = headers.nextElement(); // just grab first element\n        }\n\n        // URL Decode the header value since req.getHeaders() doesn't. Unlike req.getParameters().\n        param = java.net.URLDecoder.decode(param, \"UTF-8\");\n\n        String bar = new Test().doSomething(request, param);\n\n        try {\n            java.io.FileInputStream file =\n                    new java.io.FileInputStream(\n                            org.owasp.benchmark.helpers.Utils.getFileFromClasspath(\n                                    \"employees.xml\", this.getClass().getClassLoader()));\n            javax.xml.parsers.DocumentBuilderFactory builderFactory =\n                    javax.xml.parsers.DocumentBuilderFactory.newInstance();\n            // Prevent XXE\n            builderFactory.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true);\n            javax.xml.parsers.DocumentBuilder builder = builderFactory.newDocumentBuilder();\n            org.w3c.dom.Document xmlDocument = builder.parse(file);\n            javax.xml.xpath.XPathFactory xpf = javax.xml.xpath.XPathFactory.newInstance();\n            javax.xml.xpath.XPath xp = xpf.newXPath();\n\n            String expression = \"/Employees/Employee[@emplid='\" + bar + \"']\";\n            org.w3c.dom.NodeList nodeList =\n                    (org.w3c.dom.NodeList)\n                            xp.compile(expression)\n                                    .evaluate(xmlDocument, javax.xml.xpath.XPathConstants.NODESET);\n\n            response.getWriter().println(\"Your query results are: <br/>\");\n\n            for (int i = 0; i < nodeList.getLength(); i++) {\n                org.w3c.dom.Element value = (org.w3c.dom.Element) nodeList.item(i);\n                response.getWriter().println(value.getTextContent() + \"<br/>\");\n            }\n        } catch (javax.xml.xpath.XPathExpressionException\n                | javax.xml.parsers.ParserConfigurationException\n                | org.xml.sax.SAXException e) {\n            response.getWriter()\n                    .println(\n                            \"Error parsing XPath input: '\"\n                                    + org.owasp.esapi.ESAPI.encoder().encodeForHTML(bar)\n                                    + \"'\");\n            throw new ServletException(e);\n        }\n    } // end doPost\n\n    private class Test {\n\n        public String doSomething(HttpServletRequest request, String param)\n                throws ServletException, IOException {\n\n            String bar;\n            String guess = \"ABC\";\n            char switchTarget = guess.charAt(2);\n\n            // Simple case statement that assigns param to bar on conditions 'A', 'C', or 'D'\n            switch (switchTarget) {\n                case 'A':\n                    bar = param;\n                    break;\n                case 'B':\n                    bar = \"bobs_your_uncle\";\n                    break;\n                case 'C':\n                case 'D':\n                    bar = param;\n                    break;\n                default:\n                    bar = \"bobs_your_uncle\";\n                    break;\n            }\n\n            return bar;\n        }\n    } // end innerclass Test\n} // end DataflowThruInnerClass"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "This is a clear true positive - standard OWASP Benchmark XPath injection test case where user-controlled header value flows unsanitized into an XPath expression.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01CAkeBWYzG87w1XMbbSLmbT",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The value of the \"BenchmarkTest01223\" HTTP header is read via request.getHeaders(), URL-decoded, passed through a trivial pass-through helper method (Test.doSomething, which for switchTarget='A' just returns the param unchanged), and then concatenated directly into an XPath expression string (\"/Employees/Employee[@emplid='\" + bar + \"']\") that is compiled and evaluated with XPath.evaluate(). There is no sanitization, escaping, or validation of the value anywhere in the flow - only an XXE mitigation (disallow-doctype-decl) is applied, which does not address XPath injection. An attacker can supply a header value like `' or '1'='1` to manipulate the XPath query logic. This matches the classic XPath injection pattern and is a true positive.</justification>\n<parameter name=\"missing_information\">[]",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

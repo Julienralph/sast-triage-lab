@@ -1,0 +1,59 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/command-line-injection\nCodeQL message: This command line depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00077.java (lines 99-99)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Nick Sanidas\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/cmdi-00/BenchmarkTest00077\")\npublic class BenchmarkTest00077 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n        javax.servlet.http.Cookie userCookie =\n                new javax.servlet.http.Cookie(\"BenchmarkTest00077\", \"ECHOOO\");\n        userCookie.setMaxAge(60 * 3); // Store cookie for 3 minutes\n        userCookie.setSecure(true);\n        userCookie.setHttpOnly(true);\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "id": "toolu_015UrmsUJUyRGL4CP8m9JQte",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00077.java",
+          "start_line": 40,
+          "end_line": 140
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_015UrmsUJUyRGL4CP8m9JQte",
+        "content": "        userCookie.setHttpOnly(true);\n        userCookie.setPath(request.getRequestURI());\n        userCookie.setDomain(new java.net.URL(request.getRequestURL().toString()).getHost());\n        response.addCookie(userCookie);\n        javax.servlet.RequestDispatcher rd =\n                request.getRequestDispatcher(\"/cmdi-00/BenchmarkTest00077.html\");\n        rd.include(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        javax.servlet.http.Cookie[] theCookies = request.getCookies();\n\n        String param = \"noCookieValueSupplied\";\n        if (theCookies != null) {\n            for (javax.servlet.http.Cookie theCookie : theCookies) {\n                if (theCookie.getName().equals(\"BenchmarkTest00077\")) {\n                    param = java.net.URLDecoder.decode(theCookie.getValue(), \"UTF-8\");\n                    break;\n                }\n            }\n        }\n\n        String bar;\n        String guess = \"ABC\";\n        char switchTarget = guess.charAt(2);\n\n        // Simple case statement that assigns param to bar on conditions 'A', 'C', or 'D'\n        switch (switchTarget) {\n            case 'A':\n                bar = param;\n                break;\n            case 'B':\n                bar = \"bobs_your_uncle\";\n                break;\n            case 'C':\n            case 'D':\n                bar = param;\n                break;\n            default:\n                bar = \"bobs_your_uncle\";\n                break;\n        }\n\n        java.util.List<String> argList = new java.util.ArrayList<String>();\n\n        String osName = System.getProperty(\"os.name\");\n        if (osName.indexOf(\"Windows\") != -1) {\n            argList.add(\"cmd.exe\");\n            argList.add(\"/c\");\n        } else {\n            argList.add(\"sh\");\n            argList.add(\"-c\");\n        }\n        argList.add(\"echo \" + bar);\n\n        ProcessBuilder pb = new ProcessBuilder(argList);\n\n        try {\n            Process p = pb.start();\n            org.owasp.benchmark.helpers.Utils.printOSCommandResults(p, response);\n        } catch (IOException e) {\n            System.out.println(\n                    \"Problem executing cmdi - java.lang.ProcessBuilder(java.util.List) Test Case\");\n            throw new ServletException(e);\n        }\n    }\n}"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "The code takes a cookie value, decodes it, and passes it into a shell command via ProcessBuilder with \"sh -c echo <bar>\". This is a genuine command injection vulnerability - the switch statement always flows to case 'A' (since switchTarget is 'C' based on \"ABC\".charAt(2)), so bar = param (tainted value from cookie).",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01VV5ruMuwtzoh5o7bknP4q4",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The doPost method reads a cookie value (user-controlled), URL-decodes it into `param`, then assigns it to `bar` via a switch statement. Since guess=\"ABC\" and switchTarget=guess.charAt(2)='C', the 'C'/'D' case is taken, so bar=param (tainted). This tainted string is concatenated into \"echo \" + bar and passed as part of the command list to ProcessBuilder, which then executes via a shell (sh -c / cmd.exe /c). No sanitization or escaping is performed on the cookie value before it's embedded in the shell command string, allowing shell metacharacters (e.g., ; | & $()) in the cookie value to inject arbitrary commands. This matches the classic OWASP Benchmark command injection pattern and is a true positive.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

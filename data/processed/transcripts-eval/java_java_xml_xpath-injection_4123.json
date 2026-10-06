@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/xml/xpath-injection\nCodeQL message: XPath expression depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00442.java (lines 68-68)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Nick Sanidas\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/xpathi-00/BenchmarkTest00442\")\npublic class BenchmarkTest00442 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErICCqQBCBIYAipAsUvQkWIrNsVH/vHmSd2rDnN5NB2Ur9sE4WAzyciBnGvSRfuXKpMWJHd39mUB4FVm/oVdd9T4WF+zdELFdxb/LjIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBxuWT1gYSDMRVSDRKJV4/cpeboxoMdmgRnhb8hCpjXew0IjB71sCp6RIuDTVMdSoxiMljJppDtKUlC6D9Dz8nSVLiPbWvZMo8JZWsmPrJXMPPGVkqO0EdQd9FejPIv5Pu62i7swu3aUGJCmfpjY1yEiYGZf5xU6b86PKQ1nlIcqstGyqCnKVXo61U720Lsx/5GAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01M5HAWBiWgYCZU41opyrxnT",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00442.java",
+          "start_line": 38,
+          "end_line": 110
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01M5HAWBiWgYCZU41opyrxnT",
+        "content": "    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        String param = request.getParameter(\"BenchmarkTest00442\");\n        if (param == null) param = \"\";\n\n        String bar;\n\n        // Simple ? condition that assigns param to bar on false condition\n        int num = 106;\n\n        bar = (7 * 42) - num > 200 ? \"This should never happen\" : param;\n\n        try {\n            java.io.FileInputStream file =\n                    new java.io.FileInputStream(\n                            org.owasp.benchmark.helpers.Utils.getFileFromClasspath(\n                                    \"employees.xml\", this.getClass().getClassLoader()));\n            javax.xml.parsers.DocumentBuilderFactory builderFactory =\n                    javax.xml.parsers.DocumentBuilderFactory.newInstance();\n            // Prevent XXE\n            builderFactory.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true);\n            javax.xml.parsers.DocumentBuilder builder = builderFactory.newDocumentBuilder();\n            org.w3c.dom.Document xmlDocument = builder.parse(file);\n            javax.xml.xpath.XPathFactory xpf = javax.xml.xpath.XPathFactory.newInstance();\n            javax.xml.xpath.XPath xp = xpf.newXPath();\n\n            String expression = \"/Employees/Employee[@emplid='\" + bar + \"']\";\n            String result = xp.evaluate(expression, xmlDocument);\n\n            response.getWriter().println(\"Your query results are: \" + result + \"<br/>\");\n\n        } catch (javax.xml.xpath.XPathExpressionException\n                | javax.xml.parsers.ParserConfigurationException\n                | org.xml.sax.SAXException e) {\n            response.getWriter()\n                    .println(\n                            \"Error parsing XPath input: '\"\n                                    + org.owasp.esapi.ESAPI.encoder().encodeForHTML(bar)\n                                    + \"'\");\n            throw new ServletException(e);\n        }\n    }\n}"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "citations": null,
+        "text": "Tainted request parameter flows (via ternary that always picks param) directly into XPath expression string concatenation, then evaluated — classic XPath injection, true positive matching OWASP Benchmark's intended vulnerable test case.",
+        "type": "text"
+      },
+      {
+        "id": "toolu_01TJdMDqKVqhosGq4mbGvm8a",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "User-controlled request parameter \"BenchmarkTest00442\" is assigned to `bar` via a ternary condition that is always false (7*42-106=188 which is not >200), so `bar` always equals the tainted `param`. This value is concatenated directly into an XPath expression string without any sanitization or escaping, then evaluated with xp.evaluate(expression, xmlDocument). This allows XPath injection, e.g. via input like `' or '1'='1`. No validation, encoding, or parameterization is applied before use in the XPath expression (the ESAPI encode call only happens in the error-handling branch for HTML output, not for the XPath expression itself).</justification>\n<parameter name=\"missing_information\">[]",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

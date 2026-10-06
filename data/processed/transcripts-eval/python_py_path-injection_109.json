@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/path-injection\nCodeQL message: This path depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00737.py (lines 53-53)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00737', methods=['GET'])\n\tdef BenchmarkTest00737_get():\n\t\treturn BenchmarkTest00737_post()\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00737', methods=['POST'])\n\tdef BenchmarkTest00737_post():\n\t\tRESPONSE = \"\"\n\n\t\tvalues = request.args.getlist(\"BenchmarkTest00737\")\n\t\tparam = \"\"\n\t\tif values:\n\t\t\tparam = values[0]\n\n\t\tpossible = \"ABC\"\n\t\tguess = possible[0]\n\t\t\n\t\tmatch guess:\n\t\t\tcase 'A':\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EtMCCqQBCBIYAipA8i6l4NPuueTsK8vOYKxwASwReCP0NZ5uQjSqQkHehjImhyjVClRuVwqve8c/RGkZphH9IN5xyfV+sAmzptU6FTIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagByOaT1gYSDO4l6d9Vy92T0hZ1kRoMkbe8KilsjrzjbZ3MIjBY4cTOuOQ80llCLxFnthNEq/4WeypwufcVbAMOa73ZfzJ1C1WES36+k5f4ok7lhxUqXMOvrTd8o2/Gh+cEadcXDTyPUJZnyN3SKZ/84t4l9WpeirI33I+/hCgicgbfEU7wcchrlz521SOykn8o6YGHM2BEuT70jCJ9Flh9zJXkSi6DqLCEzUE44WU8zDOeGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01H2LWg8cGcfmocw3XFR9KfG",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00737.py",
+          "start_line": 1,
+          "end_line": 90
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01H2LWg8cGcfmocw3XFR9KfG",
+        "content": "'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00737', methods=['GET'])\n\tdef BenchmarkTest00737_get():\n\t\treturn BenchmarkTest00737_post()\n\n\t@app.route('/benchmark/pathtraver-01/BenchmarkTest00737', methods=['POST'])\n\tdef BenchmarkTest00737_post():\n\t\tRESPONSE = \"\"\n\n\t\tvalues = request.args.getlist(\"BenchmarkTest00737\")\n\t\tparam = \"\"\n\t\tif values:\n\t\t\tparam = values[0]\n\n\t\tpossible = \"ABC\"\n\t\tguess = possible[0]\n\t\t\n\t\tmatch guess:\n\t\t\tcase 'A':\n\t\t\t\tbar = param\n\t\t\tcase 'B':\n\t\t\t\tbar = 'bob'\n\t\t\tcase 'C' | 'D':\n\t\t\t\tbar = param\n\t\t\tcase _:\n\t\t\t\tbar = 'bob\\'s your uncle'\n\n\t\timport codecs\n\t\timport helpers.utils\n\n\t\ttry:\n\t\t\tfileTarget = codecs.open(f'{helpers.utils.TESTFILES_DIR}/{bar}','r','utf-8')\n\n\t\t\tRESPONSE += (\n\t\t\t\tf\"Access to file: \\'{escape_for_html(fileTarget.name)}\\' created.\"\n\t\t\t)\n\n\t\t\tRESPONSE += (\n\t\t\t\t\" And file already exists.\"\n\t\t\t)\n\n\t\texcept FileNotFoundError:\n\t\t\tRESPONSE += (\n\t\t\t\t\" But file doesn't exist yet.\"\n\t\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EqUECqQBCBIYAipAd8Jafn/YupKZSJr/FEkCueyd1efZlzORQn7MY3cH5EKVzMc+EwSsbKHpB0tCVCpaMmUSE/TDaJ02nTq/iu0+qTIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBy+aT1gYSDMu068+sWuV+9aGc6xoME2aro8yVLmIRBUVTIjA/fcxCpRzMzIqBv50wsZ1ZDccOPQYySPan/LQELN4VLiCRuD/VeywJZl61lFsCO0QqrQJipC/zc6GsrpVuppeYnjzQzl85A7ZGeRA6cYQpPkpuTokHiceKV1Cxvxs0zZt89KfO5iWYB9Lhe0+oWqguqYwPqW3tFp7GfXtepaH4qjN3lC5W0ASqIpco8FwLiBhSF7W/A9lzt7WmjW44rmdUAHZNFbef6z6BwjJAGPrCoQB3XsKrUsa4duwVqMyny9Eh5xQ976Qyf8qSrN6E35v71yykhKOYzyy6G/Rl/uXDRgSmckNobrmKrbtLk4QfXXpcQerNKx88f7mNbIQF+Mmburm+wQwy0XLFUAA/bnYYB331PhTTrE6s90aDkMZRnQyKUxkdykJH0zGx2qKDUVZQs7+0w11GDJBwCqbBoJymH1bJOVtdXghl5LrKm7cTPNhh5/D1IOvcuQA0CWe3zt9IGAE=",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_016q8jjfdpykJHjgirhsrVmd",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The `param` variable is taken directly from user-controlled `request.args.getlist(\"BenchmarkTest00737\")` with no validation or sanitization. It is assigned to `bar` (since guess is always 'A' from `possible[0]`), and `bar` is then concatenated directly into a file path passed to `codecs.open()`. There is no normalization, whitelisting, or path-traversal check (e.g., no check for '..' or restriction to a safe base directory beyond simple string concatenation), so an attacker can supply a path like `../../etc/passwd` to read arbitrary files, and the code also leaks file existence information back in the response, confirming exploitability.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

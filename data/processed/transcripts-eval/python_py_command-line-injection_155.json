@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: py/command-line-injection\nCodeQL message: This command line depends on a [user-provided value](1).\nFile: testcode/BenchmarkTest00168.py (lines 60-60)\n\nCode:\n```\n'''\nOWASP Benchmark for Python v0.1\n\nThis file is part of the Open Web Application Security Project (OWASP) Benchmark Project.\nFor details, please see https://owasp.org/www-project-benchmark.\n\nThe OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\nof the GNU General Public License as published by the Free Software Foundation, version 3.\n\nThe OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\nPURPOSE. See the GNU General Public License for more details.\n\n  Author: Theo Cartsonis\n  Created: 2025\n'''\n\nfrom flask import redirect, url_for, request, make_response, render_template\nfrom helpers.utils import escape_for_html\n\ndef init(app):\n\n\t@app.route('/benchmark/cmdi-00/BenchmarkTest00168', methods=['GET'])\n\tdef BenchmarkTest00168_get():\n\t\treturn BenchmarkTest00168_post()\n\n\t@app.route('/benchmark/cmdi-00/BenchmarkTest00168', methods=['POST'])\n\tdef BenchmarkTest00168_post():\n\t\tRESPONSE = \"\"\n\n\t\tparam = request.form.get(\"BenchmarkTest00168\")\n\t\tif not param:\n\t\t\tparam = \"\"\n\n\t\tpossible = \"ABC\"\n\t\tguess = possible[0]\n\t\t\n\t\tmatch guess:\n\t\t\tcase 'A':\n\t\t\t\tbar = param\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EskCCqQBCBIYAipAeYhItPZqoELPZ7M+sWvCTFGgkj9u8a6TBFGRat0BDV+AEARptZsJMEdxqbbEpqt7BCvxB1EySlqbt/8L82UmdzIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagByvCT1gYSDL+kcopyhEylyL5FihoMk/yIfHLAn7JGu/C+IjD3Ap+JNUl6yXoCyCiBKYQeL88+UtOfW6K6WAo8egYcGW9e0mx1POV1S/DRtRrbPCIqUpc6jG/MFEh8Ov6iaboi8gnsVwnEWDZZSFX93KmKdJoJnsFTdHA/1Nb42hHES2SVod28SIl39dzCWT7KIRn+Is/os+DD3TXW175t4WfhrVf9FyAYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_019hUiAxdnSwtLLbaj2vbZmp",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "testcode/BenchmarkTest00168.py",
+          "start_line": 40,
+          "end_line": 90
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_019hUiAxdnSwtLLbaj2vbZmp",
+        "content": "\t\t\t\tbar = param\n\t\t\tcase 'B':\n\t\t\t\tbar = 'bob'\n\t\t\tcase 'C' | 'D':\n\t\t\t\tbar = param\n\t\t\tcase _:\n\t\t\t\tbar = 'bob\\'s your uncle'\n\n\t\timport platform\n\t\timport subprocess\n\t\timport helpers.utils\n\n\t\targStr = \"\"\n\t\tif platform.system() == \"Windows\":\n\t\t\targStr = \"cmd.exe /c \"\n\t\telse:\n\t\t\targStr = \"sh -c \"\n\t\targStr += f\"echo {bar}\"\n\n\t\ttry:\n\t\t\tproc = subprocess.run(argStr, shell=True, capture_output=True, encoding=\"utf-8\")\n\n\t\t\tRESPONSE += (\n\t\t\t\thelpers.utils.commandOutput(proc)\n\t\t\t)\n\t\texcept IOError:\n\t\t\tRESPONSE += (\n\t\t\t\t\"Problem executing cmdi - subprocess.run(list) Test Case\"\n\t\t\t)\n\n\t\treturn RESPONSE\n"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "Ep0DCqQBCBIYAipAx/4DVoKKzhL1xp8Kyewq7z3tbeCnoygAQ0CymCX0wYTBtAwYPzXowurC3FlUR7ln2hyqKD/Y2lWMfrurLsQajTIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBzfCT1gYSDB5wG+U7YJANfe8d4hoMopV26N/ZBDVh1bxqIjBHuwTI1qE8YfNYqw8L0JBPrPJ/sbE9UVJYw+/6ZzLHn/ZqSkg6aj538WOPMKjEyEYqpQFA/OXg6oTmKkLYEhGo0wf6LlLSXtrHRTTIIuLC1xYEqFdp+LrReJOSg8ejfzXfuFiTMiA54x0Aa2Aj0mwhbc+7srZ5xaQsLnmJkMxq9bE5zejb9O/8LczRDzkbQHnak/rfK6WUWijAmPCaI74zQiYKhgMR6nq5jH00eQO+m0k8tvctG1H8vMBloe8HHO5OEtZpNxemtXFEOOPe57g8aIyoCrxtexkYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_018L3QyPtQUDsTKDawQgnKP9",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "true_positive",
+          "justification": "The value `param` is taken directly from `request.form.get(\"BenchmarkTest00168\")` with no sanitization. The `match guess` statement is a red herring: `guess = possible[0]` where `possible = \"ABC\"`, so `guess` is always 'A', meaning the 'A' branch (`bar = param`) is always executed. This tainted `bar` is then interpolated directly into a shell command string (`argStr += f\"echo {bar}\"`) which is executed via `subprocess.run(argStr, shell=True, ...)`. Since shell=True is used with an unsanitized, attacker-controlled string embedded via f-string (not passed as an argument list), an attacker can inject shell metacharacters (e.g., `; rm -rf /` or backticks) to execute arbitrary commands. There is no validation, escaping, or allow-listing applied to `param` before it reaches the shell. This is a genuine command injection vulnerability.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

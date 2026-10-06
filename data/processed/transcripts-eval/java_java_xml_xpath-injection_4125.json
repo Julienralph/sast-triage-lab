@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Rule: java/xml/xpath-injection\nCodeQL message: XPath expression depends on a [user-provided value](1).\nFile: src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00852.java (lines 93-93)\n\nCode:\n```\n/**\n * OWASP Benchmark Project v1.2\n *\n * <p>This file is part of the Open Web Application Security Project (OWASP) Benchmark Project. For\n * details, please see <a\n * href=\"https://owasp.org/www-project-benchmark/\">https://owasp.org/www-project-benchmark/</a>.\n *\n * <p>The OWASP Benchmark is free software: you can redistribute it and/or modify it under the terms\n * of the GNU General Public License as published by the Free Software Foundation, version 2.\n *\n * <p>The OWASP Benchmark is distributed in the hope that it will be useful, but WITHOUT ANY\n * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR\n * PURPOSE. See the GNU General Public License for more details.\n *\n * @author Nick Sanidas\n * @created 2015\n */\npackage org.owasp.benchmark.testcode;\n\nimport java.io.IOException;\nimport javax.servlet.ServletException;\nimport javax.servlet.annotation.WebServlet;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n@WebServlet(value = \"/xpathi-00/BenchmarkTest00852\")\npublic class BenchmarkTest00852 extends HttpServlet {\n\n    private static final long serialVersionUID = 1L;\n\n    @Override\n    public void doGet(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n```"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "ErACCqQBCBIYAipAjq1FazqfdMkE+A05q7HrW07K1hEmwVElCcUAkzLRU7hXgS7XD4kPA2/HvD32n+5E4jyjLnwAIjsKGvIeC086QjIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBleaT1gYSDBt+LekGjspFgFVebhoMI6lJN8S69cp/g7JwIjDsd5mMmb5JNKQ07zvFv6f+7XZWeedDtUnX6snCS2AuQkiCY4ip/oUqTE3Er8jydV4qOVo/CPcljD8QJEOw+SzxblPSoOqoo+SfdWYJWLnsxIvv6cts7C0FATz6d0VVyYFkHnbWCQH4zAIJMBgB",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_01EtWvaN1FJjufQnYN7X6kM9",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00852.java",
+          "start_line": 34,
+          "end_line": 140
+        },
+        "name": "read_file",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result",
+        "tool_use_id": "toolu_01EtWvaN1FJjufQnYN7X6kM9",
+        "content": "            throws ServletException, IOException {\n        doPost(request, response);\n    }\n\n    @Override\n    public void doPost(HttpServletRequest request, HttpServletResponse response)\n            throws ServletException, IOException {\n        response.setContentType(\"text/html;charset=UTF-8\");\n\n        String queryString = request.getQueryString();\n        String paramval = \"BenchmarkTest00852\" + \"=\";\n        int paramLoc = -1;\n        if (queryString != null) paramLoc = queryString.indexOf(paramval);\n        if (paramLoc == -1) {\n            response.getWriter()\n                    .println(\n                            \"getQueryString() couldn't find expected parameter '\"\n                                    + \"BenchmarkTest00852\"\n                                    + \"' in query string.\");\n            return;\n        }\n\n        String param =\n                queryString.substring(\n                        paramLoc\n                                + paramval\n                                        .length()); // 1st assume \"BenchmarkTest00852\" param is last\n        // parameter in query string.\n        // And then check to see if its in the middle of the query string and if so, trim off what\n        // comes after.\n        int ampersandLoc = queryString.indexOf(\"&\", paramLoc);\n        if (ampersandLoc != -1) {\n            param = queryString.substring(paramLoc + paramval.length(), ampersandLoc);\n        }\n        param = java.net.URLDecoder.decode(param, \"UTF-8\");\n\n        String bar = \"safe!\";\n        java.util.HashMap<String, Object> map47458 = new java.util.HashMap<String, Object>();\n        map47458.put(\"keyA-47458\", \"a_Value\"); // put some stuff in the collection\n        map47458.put(\"keyB-47458\", param); // put it in a collection\n        map47458.put(\"keyC\", \"another_Value\"); // put some stuff in the collection\n        bar = (String) map47458.get(\"keyB-47458\"); // get it back out\n        bar = (String) map47458.get(\"keyA-47458\"); // get safe value back out\n\n        try {\n            java.io.FileInputStream file =\n                    new java.io.FileInputStream(\n                            org.owasp.benchmark.helpers.Utils.getFileFromClasspath(\n                                    \"employees.xml\", this.getClass().getClassLoader()));\n            javax.xml.parsers.DocumentBuilderFactory builderFactory =\n                    javax.xml.parsers.DocumentBuilderFactory.newInstance();\n            // Prevent XXE\n            builderFactory.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true);\n            javax.xml.parsers.DocumentBuilder builder = builderFactory.newDocumentBuilder();\n            org.w3c.dom.Document xmlDocument = builder.parse(file);\n            javax.xml.xpath.XPathFactory xpf = javax.xml.xpath.XPathFactory.newInstance();\n            javax.xml.xpath.XPath xp = xpf.newXPath();\n\n            String expression = \"/Employees/Employee[@emplid='\" + bar + \"']\";\n            String result = xp.evaluate(expression, xmlDocument);\n\n            response.getWriter().println(\"Your query results are: \" + result + \"<br/>\");\n\n        } catch (javax.xml.xpath.XPathExpressionException\n                | javax.xml.parsers.ParserConfigurationException\n                | org.xml.sax.SAXException e) {\n            response.getWriter()\n                    .println(\n                            \"Error parsing XPath input: '\"\n                                    + org.owasp.esapi.ESAPI.encoder().encodeForHTML(bar)\n                                    + \"'\");\n            throw new ServletException(e);\n        }\n    }\n}"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "signature": "EtkJCqQBCBIYAipAnrIykDPUjE8JYBz38YNipiRPM+b47GJlv03CNV9KHw3j3x4+Dy+bl0kjwlN9BItcyPuDoefUBpYRploq709ROzIPY2xhdWRlLXNvbm5ldC01OABCCHRoaW5raW5nWiRkNzNkNWVjMS1mYmZmLTQxODYtYTZjZi1hZDAwNjg5NDU1Y2OaAREKD2NsYXVkZS1zb25uZXQtNagBm+aT1gYSDJeGlsrVhQKKDQAdKhoMSMu23MnDz7Rz8GZ4IjCsqhJf3EUBiOocVfFPG99lE1/GorII7cFAtlPiS+7fs99Q3MUpMe23a9mxhHwrzp8q4Qf7Xx0f4QY+Pjkh4oAV0iiLy0U6rI9wbhCOgSxuv4rOALaFLKFViL096S4dQ7cdwFpOyiCN33PBDcKyXBslL2jdJfPxG9oNDml8v8q/Cb9Ah1q37+vIYLlEu1yUkfcfCepFW6vQUigpzX/EyhGHYv2FXfZvev6bOS1o0xWEROO9JI8+RC/F9A/DFBF/dE1x5frXT+zth4WVb/JxjAI1Lf7ZI/GdfXaB2zRjRDxo0zUHb7pKtU6Py2DyUQKKR7INNz7Qd4NE9CfUsIZ4K/gqBDgni8kIEeOvfGT7Zr/vq/xxU1wdWD/khDz/mIza8I/60JW/oIWKddnpHWATqndEAieyXxGHh0pyTBt4etiuQW16E9zfb1RK2MYCQoCoWacQtqI59H1LdOH2hPBdj/OIGxOx17yFYCfV9bjZrb9+CDLNT2rItrpzUNq48xt63qwDVMxwM2rMefbJzcfuKbCIB8wnFTt4Agxh6xLyFRb+XvkzcsB1WAol1QYtiXc6Xn3hKspI/t8eEIThac3hRhy9yKsItxAO7e3VODkcK3S4fYuh/AIEaR4YKQVGGm3RXJd6M1mDxW4VWkW/D9+B9MxYwjRR94OjISYd0WFNFao3WmPIBzOTsQte8YI27PqoQ2Nezq7CzzKrl7nJgwlwFdJKJuyvqxVRCRbqCSFF3e6yugbdaXchaxnMA1EK1gsI4+F/mTnjY7wrmWDVmbYAYUaBoaQ8EJdufCWPDl4AGYLS387a/DSKE3mrOSapXmvluGfC6whXygTpgE/ctBvvr8Wd0954WirH6UK0z272OxgXRD5GXNoo+nSbsgnOX+byOYT4MolBFo3N7Np3wLNYdyKkhCd62qZG/To50euoeSOYEW2mLmeyeE77AeQoTyoRmHC1X6YK/mF3JtTq9iNIAhf4mPkn3PzGwaKu6WLIS9U3XIcOP8QAClzb7vO4Oq9ywXfZrus5LlaalECxTTI90YDn6l1Fi1IqiLoNPElMslbzdbijL56gQNcUkrNd3MYSvWwvl4bGEyBWG2SL7UHEmmHcLT+ldTryGMqAZhuhQcESANcFCRJppFnfbQd6iWlwV389H7G+yjJXtrnQUyM48TSp2g4X+4CUD/CJ4whdyBPQtDVW8dBYJ6J3gWFiR6sEL27YdyCN9Wu5yR+FBuutbBqQvHjp/Wp317YYjRHBf0gGLGeQ3w2LSXwxSimKXwb9enqEMlVFzovqROM6dLtefvk0WfrmIQBxv5d+T79RPeRt3KXWJx87o+VSk/NeoE+RuJlMoSNdsqi8rbWzbGYQASJR9DcOaGup31u5m5B7VB260qhRDpUYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "id": "toolu_017ujJaTSyeRGRpXQTQTgR6r",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "verdict": "false_positive",
+          "justification": "The tainted value (param, derived from the request query string) is stored in map47458 under key \"keyB-47458\", but immediately afterward `bar` is reassigned from map47458.get(\"keyA-47458\"), which maps to the constant string \"a_Value\" put in earlier. Thus by the time `bar` is used to build the XPath expression `\"/Employees/Employee[@emplid='\" + bar + \"']\"`, it no longer carries the user-controlled value - it's the hardcoded \"a_Value\". The dataflow from user input to the XPath sink is broken by this reassignment, so the expression does not actually depend on user input despite CodeQL's taint tracking flagging it.",
+          "missing_information": []
+        },
+        "name": "submit_verdict",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ]
+  }
+]

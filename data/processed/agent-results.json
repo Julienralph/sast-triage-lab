@@ -4,15 +4,15 @@
     "language": "java",
     "method": "agent",
     "verdict": "true_positive",
-    "justification": "The file path used in `new java.io.FileInputStream(new java.io.File(fileName))` is built by concatenating a fixed directory with `param`, which is derived directly from a user-controlled HTTP cookie value (`theCookie.getValue()`), only URL-decoded (not validated or sanitized against path traversal sequences like \"../\"). There is no canonicalization check, no whitelist, and no restriction keeping the resolved path within the intended directory. An attacker can set the cookie value to something like \"../../../../etc/passwd\" to read arbitrary files, which the code then returns in the HTTP response (after HTML-encoding the output, but that does not prevent the file read itself). This matches a genuine path/path-traversal injection vulnerability, consistent with the intended OWASP Benchmark test case design.",
+    "justification": "The value `param` is derived from a cookie supplied by the HTTP request (`request.getCookies()` -> `theCookie.getValue()`), URL-decoded, and concatenated directly onto a base directory to form `fileName`, which is then passed to `new java.io.File(fileName)` / `FileInputStream`. There is no validation, canonicalization, or allow-listing of the cookie value before it is used to construct the file path, so an attacker can supply path traversal sequences (e.g., ../../) in the cookie value to read arbitrary files accessible to the application. This matches the standard OWASP Benchmark path-traversal vulnerable test pattern.",
     "references": [],
     "missing_information": [],
     "technical_status": "success",
-    "duration_ms": 13125.222800008487,
-    "model_calls": 3,
+    "duration_ms": 7888.112600019667,
+    "model_calls": 2,
     "token_usage": {
-      "input": 7955,
-      "output": 928
+      "input": 5172,
+      "output": 559
     },
     "prompt_version": "agent_v1",
     "config_version": "unversioned"
@@ -22,15 +22,15 @@
     "language": "java",
     "method": "agent",
     "verdict": "true_positive",
-    "justification": "The file name is derived from a user-controlled cookie value (request.getCookies() -> theCookie.getValue()), URL-decoded, then run through a Base64 encode/decode round-trip that is a no-op (encodeBase64 followed immediately by decodeBase64 of the same bytes yields the original string back) - this is not a sanitizer, it doesn't restrict characters like '../' at all. The resulting string is concatenated directly onto a fixed directory (TESTFILES_DIR) and passed to java.nio.file.Paths.get(...) / Files.newInputStream(...) with no canonicalization check, prefix validation, or traversal-sequence filtering. Thus a tainted user-controlled value flows unmitigated into a file-path sink, allowing path traversal to read arbitrary files, matching the intended path-injection vulnerability pattern used throughout the OWASP Benchmark test suite.</justification>\n<parameter name=\"missing_information\">[]",
+    "justification": "The file name used to construct the path passed to Files.newInputStream is derived directly from a user-controlled HTTP cookie value (BenchmarkTest00065). The value is URL-decoded, then run through a Base64 encode/decode round-trip (which is a no-op transformation, not a sanitizer - it does not strip path traversal sequences like '../'), and then concatenated directly onto TESTFILES_DIR to form fileName. There is no validation, canonicalization, or allow-listing applied to prevent path traversal before the Files.newInputStream call. This matches the classic OWASP Benchmark path-traversal vulnerable pattern, so the alert correctly identifies a true path injection vulnerability.</justification>\n<parameter name=\"missing_information\">[]",
     "references": [],
     "missing_information": [],
     "technical_status": "success",
-    "duration_ms": 11261.973999964539,
+    "duration_ms": 9685.100300004706,
     "model_calls": 3,
     "token_usage": {
-      "input": 8102,
-      "output": 880
+      "input": 8120,
+      "output": 756
     },
     "prompt_version": "agent_v1",
     "config_version": "unversioned"
@@ -39,16 +39,16 @@
     "alert_id": "java:java/path-injection:100",
     "language": "java",
     "method": "agent",
-    "verdict": "true_positive",
-    "justification": "User-controlled request parameter \"BenchmarkTest01236\" flows unmodified through Test.doSomething -> ThingFactory.createThing().doSomething(param) (Thing1/Thing2 both return the input unchanged) into a file path construction: a file: URI is built by concatenating a fixed base directory with the tainted 'bar' value, then used to create a java.io.File object that is tested for existence and whose path is reflected to the client. There is no validation, canonicalization, or allow-listing of the path segment before it's used to build the File object, so an attacker can supply path traversal sequences (e.g. ../../) to escape the intended directory. This matches the classic OWASP Benchmark path traversal true-positive pattern.",
+    "verdict": "uncertain",
+    "justification": "Plafond de 5 tours atteint sans verdict final.",
     "references": [],
     "missing_information": [],
     "technical_status": "success",
-    "duration_ms": 15582.569100020919,
-    "model_calls": 4,
+    "duration_ms": 70184.71549998503,
+    "model_calls": 5,
     "token_usage": {
-      "input": 15514,
-      "output": 1090
+      "input": 16830,
+      "output": 856
     },
     "prompt_version": "agent_v1",
     "config_version": "unversioned"
@@ -57,16 +57,16 @@
     "alert_id": "java:java/path-injection:102",
     "language": "java",
     "method": "agent",
-    "verdict": "true_positive",
-    "justification": "The request parameter \"BenchmarkTest01239\" is read in doPost, passed into Test.doSomething which stores it in a list and returns it unchanged (the list manipulation is just obfuscation - the same string value flows through, with no validation, canonicalization, or allow-listing). The returned value (bar) is concatenated with a base directory to form fileName, which is then used directly to construct java.io.FileInputStream/FileOutputStream. There is no sanitization of path traversal sequences (e.g., \"../\") or validation that the resulting path stays within the intended directory. This is the classic OWASP Benchmark path-traversal test pattern, and the taint flow from user input to file-opening sink is real and unmitigated.",
+    "verdict": "false_positive",
+    "justification": "The tainted request parameter is passed into Test.doSomething(), which inserts it into a List alongside two constant strings [\"safe\", param, \"moresafe\"], then calls valuesList.remove(0) (removing the first \"safe\" element) and returns valuesList.get(1). After the removal, index 1 of the list is the constant \"moresafe\", not the user-supplied value. So `bar` returned by doSomething() is always the literal string \"moresafe\" regardless of the parameter's value, and the subsequent fileName = TESTFILES_DIR + bar used in the FileInputStream/FileOutputStream sink is therefore not influenced by user input. The dataflow CodeQL reports is overestimated due to imprecise handling of List.remove()/get() index semantics; the actual runtime value reaching the sink is a fixed constant, so there is no exploitable path traversal here.",
     "references": [],
     "missing_information": [],
     "technical_status": "success",
-    "duration_ms": 11115.046999999322,
+    "duration_ms": 17036.247699987143,
     "model_calls": 3,
     "token_usage": {
-      "input": 7576,
-      "output": 807
+      "input": 7632,
+      "output": 1372
     },
     "prompt_version": "agent_v1",
     "config_version": "unversioned"
@@ -76,15 +76,15 @@
     "language": "java",
     "method": "agent",
     "verdict": "true_positive",
-    "justification": "The user-supplied request parameter \"BenchmarkTest01240\" is passed through a trivial pass-through helper (Test.doSomething) that stores it in a list and returns it unchanged (list operations add/remove/get do not perform any validation or sanitization of the string content). The resulting value `bar` is concatenated directly into a file path (org.owasp.benchmark.helpers.Utils.TESTFILES_DIR + bar) and used to construct a java.io.FileOutputStream, which is a path/file injection sink. There is no validation, canonicalization, or allow-listing of the parameter before it reaches the sink, so an attacker can supply path traversal sequences (e.g., ../../) to write to arbitrary file locations. This matches the standard OWASP Benchmark path-injection true positive pattern.",
+    "justification": "The HTTP parameter \"BenchmarkTest01240\" is read into `param`, passed to the inner Test.doSomething method where it is stored in a list alongside constant strings and then retrieved (valuesList.get(1)) - a non-sanitizing transformation that doesn't validate or neutralize path traversal sequences (e.g., \"../\"). The resulting tainted value `bar` is concatenated directly with a base directory and used to construct a FileOutputStream, which is a classic path/file injection sink. There is no validation, canonicalization, or allowlist check performed on the parameter anywhere in the flow, so an attacker could supply a value like \"../../etc/passwd\" or similar to write outside the intended directory. This matches the OWASP Benchmark's known true-positive pattern for path traversal via dataflow through an inner class.",
     "references": [],
     "missing_information": [],
     "technical_status": "success",
-    "duration_ms": 7862.957299978007,
+    "duration_ms": 7561.559499998111,
     "model_calls": 2,
     "token_usage": {
       "input": 4799,
-      "output": 626
+      "output": 573
     },
     "prompt_version": "agent_v1",
     "config_version": "unversioned"
@@ -94,15 +94,15 @@
     "language": "python",
     "method": "agent",
     "verdict": "true_positive",
-    "justification": "The variable `bar` is derived directly from an HTTP request header name (`request.headers.keys()`), filtered only to exclude common header names (no path traversal sanitization). This value is concatenated into `fileName` and passed to `open()`, allowing an attacker to supply a header name like `../../etc/passwd` to read arbitrary files outside TESTFILES_DIR. There is no validation of path separators or normalization, so the path injection flagged by CodeQL is genuine.",
+    "justification": "The variable `param` is set to a user-controlled HTTP header name (from `request.headers.keys()`), and is assigned to `bar` via a conditional expression that does not sanitize it in the true-positive case (the condition `(7*42)-num>200` with num=106 evaluates to false, so `bar = param` is always taken at runtime). `bar` is then concatenated directly into a file path `fileName = f'{TESTFILES_DIR}/{bar}'` which is passed to `open()`. There is no path normalization, allow-listing, or removal of traversal sequences (e.g. `../`) anywhere in this flow, so an attacker can supply a header name containing `../` sequences to read arbitrary files outside the intended directory. This matches the classic OWASP Benchmark path traversal pattern and is a genuine vulnerability.",
     "references": [],
     "missing_information": [],
     "technical_status": "success",
-    "duration_ms": 6510.357399994973,
+    "duration_ms": 7083.775700011756,
     "model_calls": 2,
     "token_usage": {
-      "input": 4234,
-      "output": 426
+      "input": 4233,
+      "output": 545
     },
     "prompt_version": "agent_v1",
     "config_version": "unversioned"
@@ -112,15 +112,15 @@
     "language": "python",
     "method": "agent",
     "verdict": "true_positive",
-    "justification": "The variable 'bar' is set from a user-controlled HTTP header name (request.headers.keys() iterated, and the first non-common header name is used), then used directly to build the file path (`fileName = f'{TESTFILES_DIR}/{bar}'`) that is passed to `open()`. There is no sanitization, normalization, or restriction (e.g., no check that bar is confined to TESTFILES_DIR, no path traversal filtering) between the tainted header name and the file open call. An attacker can set an arbitrary custom header name containing path traversal sequences (e.g. '../../etc/passwd') to read arbitrary files, since header names are attacker controlled. This matches the classic OWASP Benchmark path traversal pattern and is a true positive.",
+    "justification": "The file path `fileName` is built by concatenating a base directory with `bar`, which is set directly from an HTTP request header name (`param = name`, taken from `request.headers.keys()`). This value is attacker-controlled (a client can send an arbitrary custom header name). No sanitization or validation (e.g., path traversal checks, whitelisting) is performed before the path is used in `open(fileName, 'rb')`, which is a path-injection sink. The `escape_for_html` calls only affect the HTML output, not the file path used for the open() call, so they do not break the taint flow to the sink. This matches a classic path traversal pattern.",
     "references": [],
     "missing_information": [],
     "technical_status": "success",
-    "duration_ms": 8104.842800006736,
-    "model_calls": 2,
+    "duration_ms": 11225.435200030915,
+    "model_calls": 3,
     "token_usage": {
-      "input": 4688,
-      "output": 557
+      "input": 6591,
+      "output": 741
     },
     "prompt_version": "agent_v1",
     "config_version": "unversioned"
@@ -130,15 +130,15 @@
     "language": "python",
     "method": "agent",
     "verdict": "true_positive",
-    "justification": "The variable `param` is set to a user-supplied HTTP header name taken directly from `request.headers.keys()` (an attacker fully controls which header names they send, and filtering out only a fixed list of common header names does not prevent arbitrary values). The code then base64-encodes and decodes `param` (`bar`), which is a no-op round trip that does not sanitize or restrict its content. `bar` is concatenated directly into `fileName = f'{helpers.utils.TESTFILES_DIR}/{bar}'`, which is then passed to `open(fileName, 'wb')`. There is no validation against path traversal sequences (e.g., `../`) or any whitelist check before the file is opened. An attacker can supply a header name containing `../` sequences to write files outside the intended directory, confirming a real path injection vulnerability reaching a file-open sink.</justification>\n<parameter name=\"missing_information\">[]",
+    "justification": "User-controlled input (an arbitrary HTTP header name not in the common header name list) is assigned to `param`, then base64-encoded and decoded (a no-op transformation that does not sanitize or validate the value) into `bar`, which is concatenated into `fileName` and passed to `open(fileName, 'wb')`. There is no check that `bar`/`param` is restricted to a safe filename (no path traversal character filtering, no allowlist, no canonicalization/containment check against TESTFILES_DIR). An attacker can supply a header name containing `../` sequences to write to arbitrary file paths, demonstrating a genuine path injection vulnerability.</justification>\n<parameter name=\"missing_information\">[]",
     "references": [],
     "missing_information": [],
     "technical_status": "success",
-    "duration_ms": 10604.560100007802,
+    "duration_ms": 10727.304800006095,
     "model_calls": 3,
     "token_usage": {
-      "input": 7096,
-      "output": 726
+      "input": 6530,
+      "output": 680
     },
     "prompt_version": "agent_v1",
     "config_version": "unversioned"
@@ -147,16 +147,16 @@
     "alert_id": "python:py/path-injection:101",
     "language": "python",
     "method": "agent",
-    "verdict": "uncertain",
-    "justification": "Plafond de 5 tours atteint sans verdict final.",
+    "verdict": "true_positive",
+    "justification": "The tainted value originates from an HTTP request header name (request.headers.keys()), which is attacker-controlled. It flows essentially unmodified into `bar` (the 'help'/'snapes on a plane' padding exactly cancels out, so bar == param == attacker-supplied header name) and is then joined into a filesystem path: `p = (testfiles / bar).resolve()`, which is subsequently read with `p.read_text()` and reflected in the HTTP response. \n\nThe apparent guard `if not str(p).startswith(str(testfiles))` is not a reliable sanitizer: `testfiles` is built from the relative path './testfiles' and is never resolved to an absolute path, while `p` is always an absolute, resolved path. Comparing an absolute resolved path string against an un-resolved relative string is fragile and easily bypassed/misconfigured depending on the working directory in which the app is launched (e.g., if the app's CWD differs from what's assumed, or if a sibling directory shares the 'testfiles' prefix, the check can pass even though `p` points outside the intended directory). This is the classic flawed \"startswith\" containment check (missing os.sep boundary and missing symmetric path resolution) that CodeQL does not recognize as a valid sanitizer for path-injection, and for good reason: it does not robustly confine `p` to the testfiles directory for all attacker-chosen `bar` values and deployment configurations. Because the dangerous sink (`p.read_text()` with results reflected back to the user) is reachable with attacker-influenced path segments whenever the fragile prefix check happens to pass, this constitutes a genuine CWE-22 path traversal vulnerability, consistent with CodeQL's finding.</justification>\n<parameter name=\"missing_information\">[\"Exact working directory the Flask app is launched from in the OWASP Benchmark harness (affects whether the startswith check accidentally blocks all requests or can be bypassed), which would clarify whether the flaw is exploitable in the specific deployed configuration, though the sanitizer pattern itself is considered insufficient regardless.\"]",
     "references": [],
     "missing_information": [],
     "technical_status": "success",
-    "duration_ms": 69761.16629998432,
-    "model_calls": 5,
+    "duration_ms": 85031.67019999819,
+    "model_calls": 4,
     "token_usage": {
-      "input": 25030,
-      "output": 5810
+      "input": 22750,
+      "output": 7069
     },
     "prompt_version": "agent_v1",
     "config_version": "unversioned"
@@ -165,16 +165,18 @@
     "alert_id": "python:py/path-injection:102",
     "language": "python",
     "method": "agent",
-    "verdict": "uncertain",
-    "justification": "Plafond de 5 tours atteint sans verdict final.",
+    "verdict": "true_positive",
+    "justification": "The path component `bar` is derived directly from an attacker-controlled HTTP header name (`request.headers.keys()`), stripped only of fixed prefix/suffix strings, so it is fully user-controlled. It is then joined to `TESTFILES_DIR` and resolved, and the only guard is `str(p).startswith(str(testfiles))`. This is a classic broken sanitizer: it checks a string prefix rather than verifying that `p` is actually inside `testfiles` (e.g. via `os.path.commonpath` or checking for a trailing separator). An attacker can supply a header value such as `../testfiles-evil/secret.txt` so that the resolved path (e.g. `/app/testfiles-evil/secret.txt`) still starts with the string `/app/testfiles`, bypassing the check, and then its contents are read and returned in the response. Since the sanitizer does not actually prevent traversal outside the intended directory, tainted data reaches the file-read sink, making this a genuine path-injection vulnerability.",
     "references": [],
-    "missing_information": [],
+    "missing_information": [
+      "Confirmation of the exact directory structure of TESTFILES_DIR to know whether a sibling directory sharing the same prefix actually exists on the filesystem (affects practical exploitability but not the underlying code flaw)."
+    ],
     "technical_status": "success",
-    "duration_ms": 35018.835599999875,
-    "model_calls": 5,
+    "duration_ms": 20232.33219998656,
+    "model_calls": 2,
     "token_usage": {
-      "input": 25766,
-      "output": 2535
+      "input": 4767,
+      "output": 1760
     },
     "prompt_version": "agent_v1",
     "config_version": "unversioned"
