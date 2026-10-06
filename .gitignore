@@ -1,0 +1,23 @@
+# Secrets
+.env
+
+# Environnement Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+
+# Tests
+.pytest_cache/
+
+# CodeQL : bases et bundles volumineux, non versionnes
+codeql-bundle-win64/
+data/raw/codeql-java/
+data/raw/codeql-python/
+data/raw/codeql-python-none/
+data/raw/codeql-python-py313/
+
+# Corpus OWASP Benchmark : telecharges depuis GitHub, jamais copies ici
+# (voir corpora/README.md : on garde le commit exact, pas le code source)
+corpora/BenchmarkJava/
+corpora/BenchmarkPython/

@@ -1,0 +1,112 @@
+[
+  {
+    "alert_id": "java:java/path-injection:1",
+    "language": "java",
+    "rule_id": "java/path-injection",
+    "category": "pathtraver",
+    "expected_verdict": "true_positive",
+    "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00001.java",
+    "start_line": 72,
+    "end_line": 72,
+    "message": "This path depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "java:java/path-injection:10",
+    "language": "java",
+    "rule_id": "java/path-injection",
+    "category": "pathtraver",
+    "expected_verdict": "true_positive",
+    "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00065.java",
+    "start_line": 80,
+    "end_line": 80,
+    "message": "This path depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "java:java/path-injection:100",
+    "language": "java",
+    "rule_id": "java/path-injection",
+    "category": "pathtraver",
+    "expected_verdict": "true_positive",
+    "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01236.java",
+    "start_line": 75,
+    "end_line": 75,
+    "message": "This path depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "java:java/path-injection:102",
+    "language": "java",
+    "rule_id": "java/path-injection",
+    "category": "pathtraver",
+    "expected_verdict": "false_positive",
+    "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01239.java",
+    "start_line": 60,
+    "end_line": 60,
+    "message": "This path depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "java:java/path-injection:103",
+    "language": "java",
+    "rule_id": "java/path-injection",
+    "category": "pathtraver",
+    "expected_verdict": "false_positive",
+    "file_path": "src/main/java/org/owasp/benchmark/testcode/BenchmarkTest01240.java",
+    "start_line": 54,
+    "end_line": 54,
+    "message": "This path depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/path-injection:100",
+    "language": "python",
+    "rule_id": "py/path-injection",
+    "category": "pathtraver",
+    "expected_verdict": "true_positive",
+    "file_path": "testcode/BenchmarkTest00615.py",
+    "start_line": 53,
+    "end_line": 53,
+    "message": "This path depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/path-injection:103",
+    "language": "python",
+    "rule_id": "py/path-injection",
+    "category": "pathtraver",
+    "expected_verdict": "true_positive",
+    "file_path": "testcode/BenchmarkTest00619.py",
+    "start_line": 53,
+    "end_line": 53,
+    "message": "This path depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/path-injection:104",
+    "language": "python",
+    "rule_id": "py/path-injection",
+    "category": "pathtraver",
+    "expected_verdict": "true_positive",
+    "file_path": "testcode/BenchmarkTest00620.py",
+    "start_line": 50,
+    "end_line": 50,
+    "message": "This path depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/path-injection:101",
+    "language": "python",
+    "rule_id": "py/path-injection",
+    "category": "pathtraver",
+    "expected_verdict": "false_positive",
+    "file_path": "testcode/BenchmarkTest00617.py",
+    "start_line": 52,
+    "end_line": 52,
+    "message": "This path depends on a [user-provided value](1)."
+  },
+  {
+    "alert_id": "python:py/path-injection:102",
+    "language": "python",
+    "rule_id": "py/path-injection",
+    "category": "pathtraver",
+    "expected_verdict": "false_positive",
+    "file_path": "testcode/BenchmarkTest00617.py",
+    "start_line": 62,
+    "end_line": 62,
+    "message": "This path depends on a [user-provided value](1)."
+  }
+]

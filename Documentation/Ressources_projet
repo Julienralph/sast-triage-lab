@@ -1,0 +1,177 @@
+FICHE DE MISSION  /  PROJET PERSONNEL DE 10 JOURS
+SAST Triage Lab
+Java & Python
+Qualification des alertes de sécurité par un agent LLM :
+mesurer la réduction du bruit, les erreurs et le coût.
+Destinataire	Durée et charge	Finalité
+Ralph Djomo	10 jours de travail
+Environ 80 heures	Enrichir le portfolio et appuyer les candidatures à un stage en cybersécurité.
+
+1. Ta mission
+Ralph, tu vas construire un prototype qui reçoit des alertes CodeQL sur du code Java et Python, consulte le code pertinent, puis propose un verdict justifié : vulnérabilité probable, fausse alerte probable ou incertain. Tu compareras un LLM en un seul appel à un agent utilisant le même modèle, mais capable de rechercher du contexte supplémentaire.
+Le projet s’inspire de Sifting the Noise, étude de 2026 sur le filtrage des faux positifs par des agents LLM. Cette étude met en évidence un compromis entre réduction des fausses alertes, conservation des vraies vulnérabilités et coût d’analyse. Ton travail sera une réplication partielle avec extension à un corpus Python, pas une reproduction exacte ni une promesse d’atteindre ses performances. [1]
+Question à laquelle tu dois répondre
+L’exploration du code par un agent permet-elle de mieux qualifier les alertes qu’un appel simple au même modèle, sans écarter davantage de vraies vulnérabilités et à un coût acceptable ?
+
+2. Le périmètre à respecter
+À réaliser	À exclure de ces dix jours
+Un scanner : CodeQL. Deux langages analysés : Java et Python. Un prototype développé en Python.	Pas de deuxième scanner ni de troisième langage.
+Deux benchmarks, un modèle accessible et deux méthodes de qualification. Cible : 100 alertes au total.	Pas d’entraînement de modèle, de correction automatique ni de plateforme multiagents.
+Un dépôt reproductible, un rapport, une vidéo et une présentation pour les candidatures.	Pas d’interface complexe, de mise en production ni de recherche de failles sur des systèmes tiers.
+
+Le succès se jugera sur un travail terminé, vérifiable et bien expliqué. Un agent moins performant que l’appel simple peut constituer un résultat utile. Aucun taux minimal de réussite n’est imposé.
+FICHE DE MISSION  /  02
+Le prototype à construire
+3. Une chaîne commune aux deux langages
+CodeQL prend en charge Java et Python et peut exporter ses résultats en SARIF, un format structuré pour les alertes d’analyse. Les analyses seront configurées séparément par langage, puis traitées par le même orchestrateur Python. Son usage sur les dépôts publics est gratuit, sous ses conditions d’utilisation. [2]
+Étape	Travail attendu	Trace à conserver
+1 · Analyser	Exécuter CodeQL sur les deux corpus ; figer les versions et les suites de règles.	Sorties SARIF et journaux des scans.
+2 · Normaliser	Extraire l’identifiant, le langage, la règle, la catégorie, le fichier, les lignes et les traces disponibles.	Un manifeste commun des alertes.
+3 · Qualifier	Exécuter les deux méthodes sur les mêmes alertes, sans accès aux labels.	Décisions structurées et journal des appels.
+4 · Évaluer	Comparer les décisions aux labels avec un script séparé ; présenter Java et Python distinctement.	Matrices, indicateurs et résultats bruts.
+
+4. Les deux méthodes à comparer
+Méthode A — LLM en un appel. Fournir l’alerte, un extrait pertinent du code et les traces disponibles. Le modèle produit une réponse structurée sans rechercher lui-même d’autres fichiers.
+Méthode B — Agent avec exploration. Utiliser le même modèle, les mêmes instructions centrales et le même contexte initial. Ajouter seulement deux outils contrôlés : lire un extrait de fichier et rechercher une référence dans le dépôt. Le modèle choisit les informations supplémentaires à consulter.
+Les chemins de données codeFlows de CodeQL peuvent aider l’analyse, mais ils ne sont pas présents pour toutes les alertes. Leur absence ne suffit pas à classer une alerte comme fausse. L’agent ne fournit pas une preuve formelle de sécurité. [3]
+5. Le résultat attendu pour chaque alerte
+Produire un enregistrement JSON contenant : identifiant de l’alerte, langage, méthode, verdict, justification, références aux fichiers et lignes, informations manquantes, statut technique, durée, nombre d’appels et consommation disponible. Distinguer le contexte observé des hypothèses ; ne pas inventer une configuration ou une protection.
+Utiliser trois verdicts stables : true_positive, false_positive et uncertain. Une réponse invalide ou un délai dépassé doit rester visible comme échec technique et conduire à conserver l’alerte pour revue. Aucune alerte n’est réellement fermée ou supprimée.
+Garde-fous de fonctionnement
+Accès en lecture seule à un répertoire autorisé ; aucun terminal libre, aucune navigation web, aucun accès aux labels ou à l’historique Git. Bloquer les chemins sortant du répertoire, y compris via les liens symboliques. Fixer un plafond d’appels, de contexte et de durée avant l’évaluation finale.
+
+FICHE DE MISSION  /  03
+Corpus et protocole expérimental
+6. Les données à utiliser
+Utiliser OWASP BenchmarkJava et OWASP BenchmarkPython, avec leurs fichiers de résultats attendus. Commencer par deux catégories communes au maximum, par exemple la traversée de répertoires (CWE-22) et le XSS (CWE-79), puis confirmer ce choix après les premiers scans. [4, 5]
+Le dépôt Python consulté présente encore sa version comme préliminaire. Figer les commits des deux corpus et vérifier manuellement les cas sélectionnés, particulièrement en Python. Un label douteux doit être signalé avant les expériences, pas modifié pour améliorer les résultats. [5]
+Corpus	Développement	Évaluation réservée	Cible totale
+Java	10 alertes	40 alertes	50 alertes
+Python	10 alertes	40 alertes	50 alertes
+Total	20 alertes	80 alertes	100 alertes
+
+Retenir uniquement des alertes réellement émises par CodeQL et associées à un label pour la même catégorie de vulnérabilité. Définir l’unité d’évaluation et la déduplication, par exemple cas + règle + emplacement. Conserver un inventaire des exclusions et de leurs motifs.
+Rechercher un mélange de vraies vulnérabilités et de fausses alertes dans chaque langage, sans fabriquer de signalements. Documenter la répartition et la graine d’échantillonnage. Si une classe est absente, marquer l’indicateur concerné « non calculable » et expliquer la limite.
+7. Éviter les résultats artificiellement favorables
+Séparer les labels du répertoire accessible à l’agent. Masquer les commentaires ou métadonnées révélant les réponses, sans changer le comportement du code ; conserver la correspondance des lignes. Garder les cas proches dans le même lot. Ne régler les prompts et paramètres que sur les 20 cas de développement.
+Figer les configurations au jour 5. Si une correction logicielle affecte l’évaluation, la documenter et rejouer les méthodes concernées sur le même lot, plutôt que corriger seulement les échecs. Les benchmarks publics peuvent avoir été vus pendant l’entraînement : la séparation des lots ne supprime pas ce risque.
+8. Les mesures obligatoires
+Indicateur	Définition à publier avec les effectifs
+Bruit correctement identifié	Fausses alertes classées false_positive / fausses alertes du lot.
+Vulnérabilités écartées à tort	Vraies vulnérabilités classées false_positive / vraies vulnérabilités du lot.
+Fiabilité des exclusions proposées	Fausses alertes classées false_positive / toutes les alertes classées false_positive.
+Incertitude et coût	Taux uncertain ; échecs techniques séparés ; durée et consommation par alerte.
+
+Produire quatre matrices à deux classes de référence et trois verdicts : deux méthodes × deux langages. Conserver toutes les alertes du lot dans les bilans, y compris les échecs. Le triage porte uniquement sur les alertes émises : ce n’est pas une mesure de toutes les failles manquées par CodeQL.
+FICHE DE MISSION  /  04
+Planning détaillé · jours 1 à 5
+Chaque journée représente environ huit heures. Les répartitions ci-dessous sont indicatives : elles servent à protéger l’évaluation et les livrables, pas à multiplier les fonctionnalités.
+Jour	Travaux prévus	Preuve de fin de journée
+J1
+8 h	2 h : lire les objectifs, le protocole et les limites de l’article.
+4 h : installer CodeQL, préparer Java/Python et récupérer les corpus.
+2 h : lancer les premiers scans, tester un modèle et estimer le coût.	Deux environnements préparés ; premières sorties de scan ; modèle et plafond de dépenses identifiés.
+J2
+8 h	3 h : terminer les scans et relier les alertes aux labels.
+3 h : vérifier un échantillon, choisir les catégories et séparer les lots.
+2 h : isoler les labels et consigner versions, règles et exclusions.	Manifestes Java/Python et protocole d’échantillonnage. Cible de volume confirmée ou réduite avec justification.
+J3
+8 h	4 h : développer l’import et la normalisation SARIF.
+3 h : implémenter la méthode en un appel et le format de sortie.
+1 h : comparer les premières décisions aux labels.	Au moins cinq alertes Java et cinq Python traitées de bout en bout, avec résultat vérifiable.
+J4
+8 h	4 h : ajouter les outils de lecture et de recherche.
+2 h : implémenter la boucle de l’agent et ses plafonds.
+2 h : tester les limites d’accès et la journalisation.	Un agent unique fonctionne sur les deux langages, sans accès aux labels ni modification du code.
+J5
+8 h	4 h : tester les deux méthodes sur les lots de développement.
+2 h : gérer les erreurs, délais et réponses invalides.
+2 h : figer prompts, budgets et configuration d’évaluation.	Version expérimentale figée et essai pilote terminé. Aucun réglage fondé sur le lot final.
+
+Jalon impératif : fin du troisième jour
+La chaîne doit déjà fonctionner sur Java ET Python
+Dix alertes au total doivent avoir été analysées et comparées à leurs labels. En cas de retard, réduire le volume ou le nombre de catégories ; ne pas abandonner un langage et ne pas reporter toute l’évaluation à la fin.
+
+Décisions à prendre dès le départ
+Choisir un seul modèle accessible, local si le matériel le permet ou via une API autorisée. Vérifier la vitesse sur quelques cas avant de lancer des traitements longs. Toute dépense doit être plafonnée et autorisée avant utilisation ; un plafond constitue une limite, pas une estimation de prix.
+Commencer avec un orchestrateur Python simple. Le choix d’une bibliothèque d’agent n’est pas un livrable en soi. Consigner chaque jour en quelques lignes : travail réalisé, preuve produite, difficulté rencontrée, décision de périmètre et prochaine étape.
+FICHE DE MISSION  /  05
+Planning détaillé · jours 6 à 10
+Jour	Travaux prévus	Preuve de fin de journée
+J6
+8 h	2 h : vérifier les lots et les paramètres figés.
+4 h : lancer et superviser les deux méthodes sur l’évaluation finale.
+2 h : contrôler l’exhaustivité des journaux et des sorties.	Résultats bruts pour Java et Python, y compris les erreurs, les délais et les consommations.
+J7
+8 h	3 h : calculer les matrices et les indicateurs.
+3 h : analyser cinq à dix décisions instructives.
+2 h : répéter un petit lot fixe pour examiner la stabilité.	Tableau comparatif, explications des erreurs et limites. Les répétitions sont présentées séparément.
+J8
+8 h	4 h : ajouter les tests essentiels et nettoyer le code.
+2 h : préparer un mode de relecture sans nouvel appel payant.
+2 h : sélectionner les cas de démonstration.	Dépôt testable ; démonstration Java/Python ; possibilité de recalculer les mesures depuis les résultats enregistrés.
+J9
+8 h	3 h : écrire le README et les instructions d’installation.
+3 h : rédiger le rapport de quatre à six pages.
+2 h : enregistrer une vidéo de trois minutes.	Documentation, rapport et première vidéo. Le lecteur voit les résultats et les limites sans exécuter le projet.
+J10
+8 h	4 h : réserve pour imprévus, réinstallation propre et corrections.
+2 h : publier une version identifiée et mettre à jour le CV.
+2 h : préparer la présentation et les réponses d’entretien.	Version partageable, ligne de CV factuelle et présentation orale répétée.
+
+9. Les règles d’arbitrage en cas de difficulté
+Installation bloquante : après quelques heures sans progrès, revenir à une configuration documentée plus simple et demander une aide technique ciblée. Ne pas passer plusieurs jours à déployer une plateforme d’agents.
+Coût ou lenteur : réduire le nombre de cas ou le budget d’exploration, puis figer le changement avant l’évaluation. Si le modèle change, rejouer les deux méthodes avec ce même modèle.
+Trop peu de fausses alertes : ne pas inventer de faux positifs et ne pas dégrader les règles pour embellir la démonstration. Documenter la limite et publier uniquement les mesures calculables.
+Retard global : réduire d’abord les fonctions accessoires, puis le nombre de catégories et d’alertes. Java, Python, la comparaison des deux méthodes et la présentation finale restent prioritaires.
+Pas de nouveaux développements majeurs aux jours 9 et 10
+Ces deux journées sont réservées à la transmission du travail : rapport, documentation, démonstration, CV et vérification finale. Une option non terminée est retirée plutôt que publiée comme fonctionnelle.
+
+FICHE DE MISSION  /  06
+Livrables et critères de réussite
+10. Le dossier à remettre
+Livrable	Contenu obligatoire
+Dépôt GitHub	Code Python, tests, configurations Java/Python, prompts versionnés, dépendances figées, exemple de configuration sans secret et procédure d’installation.
+Corpus et résultats	Scripts de récupération des corpus à commits figés, manifestes, protocole de labels, résultats JSON/CSV et scripts recalculant les indicateurs. Respecter les licences lors du partage.
+Rapport · 4 à 6 pages	Problématique, architecture, protocole, résultats par langage, comparaison des méthodes, cinq à dix cas commentés et limites. Annexes techniques séparées si nécessaire.
+Démonstration · 3 minutes	Un exemple Java, un exemple Python, les résultats globaux et un cas d’erreur ou d’abstention. Distinguer le direct d’une relecture de résultats enregistrés.
+Présentation de candidature	Une formulation CV avec des chiffres mesurés, un lien vers la version publiée et une explication orale de deux minutes.
+
+11. Quand considérer la mission comme terminée ?
+Fonctionnement. Les deux langages sont traités par la même chaîne. L’appel simple et l’agent utilisent le même modèle. Chaque décision est reliée à une alerte, à une version de configuration et à ses traces.
+Évaluation. Les quatre matrices sont produites sur le lot réservé. Les effectifs, les fausses exclusions et les échecs sont visibles. Les indicateurs impossibles à calculer sont signalés, jamais remplacés par un zéro.
+Qualité. Les tests couvrent au minimum l’import des alertes, le format des réponses, la gestion d’un échec et le blocage d’une lecture hors périmètre. Une installation propre et une petite démonstration sont vérifiées.
+Transmission. Le README présente la question et les résultats dès le début. Le rapport explique les limites. La vidéo et la version publiée sont accessibles, sans clé d’API ni données confidentielles.
+12. Ce que tu dois pouvoir défendre en entretien
+Explique pourquoi un scanner peut signaler une fausse alerte ; comment tu as établi les labels ; ce que l’exploration ajoute par rapport à l’appel simple ; quelle erreur est la plus dangereuse ; et pourquoi tes résultats ne permettent pas d’automatiser la clôture des alertes en entreprise.
+Distingue ta contribution des éléments réutilisés : corpus OWASP, analyseur CodeQL et modèle d’un côté ; import, agent, garde-fous, protocole, tests et interprétation des résultats de l’autre. L’assistance au développement par une IA est possible, mais tu dois comprendre et vérifier le code livré.
+Formulation CV à compléter après les expériences
+Projet personnel — Qualification d’alertes SAST Java/Python par agent LLM. Développement d’un pipeline CodeQL/Python comparant un LLM en un appel à un agent avec exploration sur [N] alertes labellisées. Mesure de la réduction du bruit, des vulnérabilités écartées à tort et du coût. Dépôt reproductible, rapport et démonstration disponibles.
+
+Ne revendiquer ni expérience professionnelle ni résultat non mesuré. Ce projet vise à rendre tes compétences visibles ; il ne garantit pas à lui seul l’obtention d’un stage.
+FICHE DE MISSION  /  07
+Cadre de travail et références
+13. Cadre légal, sécurité et limites de portée
+Travailler uniquement sur les corpus open source sélectionnés et sur des copies locales. Ne scanner aucun système tiers. Les analyses statiques ne nécessitent pas d’exposer les applications vulnérables sur Internet. Les éventuels tests restent dans un environnement isolé, sans données sensibles.
+Le code et ses commentaires sont des données à analyser, jamais des instructions autorisant l’agent à changer ses règles. L’agent n’a ni accès à des secrets, ni capacité de modification, ni accès aux labels. Ne pas publier de clés, d’historique contenant des secrets ou d’éléments incompatibles avec les licences des composants.
+La publication de scripts qui récupèrent les corpus à leur commit de référence est préférable à la copie intégrale des benchmarks dans ton dépôt. Les sorties et extraits éventuellement partagés doivent également respecter les licences. Documenter les conditions du modèle utilisé avant de lui transmettre du code.
+Les résultats décrivent ce modèle, ces prompts, ces règles CodeQL et ces lots. Une différence entre Java et Python peut provenir des corpus ou des règles, pas seulement de la compréhension du langage par le modèle. La conservation d’une alerte « incertaine » n’équivaut pas à une bonne classification ; zéro erreur observée sur un petit lot ne prouve pas l’absence de risque.
+14. Références à consulter
+Lecture prioritaire : comprendre la question de recherche, les données, les méthodes de référence, les mesures et les limites. L’objectif n’est pas de reproduire toute l’infrastructure de l’article.
+[1] Xiong, Y. et Zhang, T. — Sifting the Noise: A Comparative Study of LLM Agents in Vulnerability False Positive Filtering. arXiv:2601.22952, version 3 du 23 juillet 2026.
+Article de référence
+À lire : protocole de comparaison, faux positifs, fausses exclusions et coût.
+[2] GitHub Docs — CodeQL CLI.
+Documentation et conditions d’utilisation
+À utiliser : installation, analyse locale, prise en charge Java/Python et licence.
+[3] GitHub Docs — CodeQL CLI SARIF output.
+Structure des sorties SARIF
+À utiliser : règles, emplacements et chemins de code optionnels.
+[4] OWASP Foundation — OWASP Benchmark.
+Documentation des corpus et résultats attendus
+À utiliser : catégories, correspondance des cas et principe des labels.
+[5] OWASP-Benchmark — BenchmarkPython.
+Dépôt Python
+À vérifier : état préliminaire annoncé, commit utilisé et expectedresults-0.1.csv.
+Dépôt complémentaire : OWASP BenchmarkJava
+Ressources vérifiées le 14 septembre 2026. Leur disponibilité et les descriptions ont été vérifiées ; les environnements n’ont pas été exécutés pour préparer cette fiche. Le test d’installation des premiers jours reste indispensable.

@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sast-triage-lab"
+version = "0.1.0"
+description = "Evaluation of LLM methods for qualifying CodeQL alerts"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.7.0,<3",
+    "python-dotenv>=1.0.0",
+    "anthropic>=0.40.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0.0"]
+
+[project.scripts]
+sast-triage = "sast_triage_lab.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

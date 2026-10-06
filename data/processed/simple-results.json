@@ -1,0 +1,186 @@
+[
+  {
+    "alert_id": "java:java/path-injection:1",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The 'param' value comes directly from a user-controlled cookie (decoded via URLDecoder) and is concatenated into a file path used to open a FileInputStream, with no path traversal sanitization (e.g., no check for '../' or canonicalization). This is a classic OWASP Benchmark path traversal test case.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2955.656599951908,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2316,
+      "output": 129
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:10",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The 'param' value is taken from a cookie controlled by the user, base64 encode/decode is a no-op that doesn't sanitize path traversal sequences, and the resulting string is concatenated directly into a file path used in Files.newInputStream without any validation against '../' sequences or path normalization checks.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 3010.541800002102,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2438,
+      "output": 124
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:100",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "User-supplied parameter flows through Test.doSomething (which appears to be a pass-through via ThingFactory) and is concatenated directly into a file URI/path used to construct a java.io.File, with no sanitization or path traversal checks (e.g., no removal of '../' sequences). This matches the classic OWASP Benchmark path traversal vulnerability pattern.",
+    "references": [],
+    "missing_information": [
+      "Implementation of ThingFactory.createThing() and the concrete ThingInterface.doSomething(), to confirm no sanitization occurs inside it"
+    ],
+    "technical_status": "success",
+    "duration_ms": 4558.260199963115,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2107,
+      "output": 383
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:102",
+    "language": "java",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The user-controlled request parameter flows through trivial list manipulation (still returns the raw param value) into fileName, which is used unsanitized in `new java.io.FileInputStream(fileName)`, allowing path traversal/injection.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2699.3918000371195,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 2076,
+      "output": 165
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "java:java/path-injection:103",
+    "language": "java",
+    "method": "simple",
+    "verdict": "false_positive",
+    "justification": "Although `param` is inserted into `valuesList`, the sequence of operations (remove(0) then get(1)) actually returns the constant \"moresafe\", not the tainted `param` value. So the data used to build `fileName` is not attacker controlled despite being flagged as tainted.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 6512.109000002965,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1989,
+      "output": 360
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:100",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The variable 'bar' is derived from a user-controlled HTTP header name (param), which is then concatenated directly into a file path (fileName) and opened without any path sanitization or validation against directory traversal sequences like '../'. This allows an attacker to control the file path via a custom header name, enabling path traversal attacks.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2304.171400028281,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1596,
+      "output": 129
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:103",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The value 'param' is taken directly from a user-controlled HTTP header name, assigned to 'bar', and concatenated into a file path that is opened with no sanitization or path traversal checks, allowing an attacker to read arbitrary files via crafted header names (e.g., '../../etc/passwd').",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2200.4915999714285,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1549,
+      "output": 124
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:104",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The header name (a user-controlled value from request.headers) is base64 encoded/decoded (no sanitization effect) and then concatenated directly into a file path used in open(), allowing path traversal via a crafted header name like '../../etc/passwd'.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 2076.2311999569647,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1521,
+      "output": 107
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:101",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The path is built from a user-controlled HTTP header name without proper validation; the only check is `str(p).startswith(str(testfiles))`, which is a well-known insufficient guard against path traversal because it does not verify a path separator after the prefix. An attacker can craft a header name that resolves to a sibling directory sharing the same prefix (e.g. 'files_other') or exploit other startswith bypass techniques to read arbitrary files outside TESTFILES_DIR.",
+    "references": [],
+    "missing_information": [],
+    "technical_status": "success",
+    "duration_ms": 6736.261999991257,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1607,
+      "output": 524
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  },
+  {
+    "alert_id": "python:py/path-injection:102",
+    "language": "python",
+    "method": "simple",
+    "verdict": "true_positive",
+    "justification": "The path is built from a user-controlled HTTP header name and joined to a base directory, then the only containment check is `str(p).startswith(str(testfiles))`. This is a well-known flawed check because it doesn't ensure a path separator boundary, so a crafted header value using '..' can produce a resolved path in a sibling directory whose string representation still starts with the testfiles path (e.g. '/app/files_evil' vs '/app/files'), bypassing the check and allowing reads outside the intended directory.",
+    "references": [],
+    "missing_information": [
+      "Whether TESTFILES_DIR has no sibling directories with overlapping name prefixes that could be reached via traversal, which would affect exploitability in practice"
+    ],
+    "technical_status": "success",
+    "duration_ms": 10003.27380001545,
+    "model_calls": 1,
+    "token_usage": {
+      "input": 1607,
+      "output": 857
+    },
+    "prompt_version": "simple_v1",
+    "config_version": "unversioned"
+  }
+]
